@@ -59,7 +59,7 @@ const Index = () => {
       </div>
 
       <p className="mt-12 text-muted-foreground text-xs">
-        © 2024 LogisticsRoutes — Bogotá, Colombia
+        © 2026 LogisticsRoutes — Santa Marta, Colombia
       </p>
     </div>
   );
