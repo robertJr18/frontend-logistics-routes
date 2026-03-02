@@ -135,9 +135,32 @@ export default function ConductorPage() {
           )}
 
           {tab === "mapa" && (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-              <Map className="h-12 w-12 mb-3 opacity-40" />
-              <p className="text-sm">Mapa de ruta no disponible en demo</p>
+            <div className="space-y-3">
+              {/* Map with markers */}
+              <div className="relative rounded-xl overflow-hidden border border-border">
+                <iframe
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=-74.2300%2C11.2100%2C-74.1500%2C11.2700&layer=mapnik&marker=11.2408%2C-74.1990"
+                  style={{ width: "100%", height: 300, border: "none" }}
+                  title="Mapa Santa Marta"
+                />
+                {/* Floating stop badges */}
+                <span className="absolute top-[25%] left-[30%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">1</span>
+                <span className="absolute top-[40%] left-[55%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">2</span>
+                <span className="absolute top-[55%] left-[40%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">3</span>
+                <span className="absolute top-[35%] left-[70%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">4</span>
+                <span className="absolute top-[65%] left-[60%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">5</span>
+              </div>
+
+              {/* Stop list below map */}
+              <div className="bg-card border border-border rounded-lg divide-y divide-border">
+                {paradas.slice(0, 5).map((p) => (
+                  <div key={p.numero} className="flex items-center gap-2 px-3 py-2 text-sm">
+                    <span>{p.completada ? "✅" : "⏳"}</span>
+                    <span className="font-medium">Parada {p.numero}</span>
+                    <span className="text-muted-foreground truncate">— {p.paquete.direccion.split(",")[1]?.trim() || p.paquete.direccion}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

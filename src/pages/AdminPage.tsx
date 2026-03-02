@@ -178,7 +178,7 @@ function RegistrarModal({ onClose }: { onClose: () => void }) {
           <div>
             <label className="text-xs text-muted-foreground">Zona de operación</label>
             <select className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-primary">
-              <option>Norte</option><option>Sur</option><option>Centro</option><option>Occidente</option>
+              <option>Centro</option><option>Sur</option><option>Norte</option><option>Este</option>
             </select>
           </div>
           <button
