@@ -1,13 +1,15 @@
 import { cn } from "@/lib/utils";
 
-type BadgeVariant = "success" | "warning" | "danger" | "neutral" | "info";
+export type BadgeVariant = "success" | "warning" | "danger" | "neutral" | "info" | "purple" | "orange";
 
 const variantStyles: Record<BadgeVariant, string> = {
-  success: "bg-success/15 text-success border-success/30",
-  warning: "bg-primary/15 text-primary border-primary/30",
-  danger: "bg-destructive/15 text-destructive border-destructive/30",
-  neutral: "bg-muted text-muted-foreground border-border",
-  info: "bg-card text-foreground border-border",
+  success: "bg-success text-success-foreground",
+  warning: "bg-accent text-accent-foreground",
+  danger: "bg-destructive text-destructive-foreground",
+  neutral: "bg-muted text-muted-foreground",
+  info: "bg-primary text-primary-foreground",
+  purple: "bg-[hsl(270,60%,50%)] text-white",
+  orange: "bg-accent text-accent-foreground",
 };
 
 interface StatusBadgeProps {
@@ -20,7 +22,7 @@ export default function StatusBadge({ variant, children, className }: StatusBadg
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-md border",
+        "inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap",
         variantStyles[variant],
         className
       )}

@@ -1,257 +1,261 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 import StatusBadge from "@/components/StatusBadge";
-import { rutas } from "@/data/mockData";
-import type { Parada } from "@/data/mockData";
-import {
-  Route,
-  Map,
-  LogOut,
-  Check,
-  X,
-  AlertTriangle,
-  Camera,
-  ChevronLeft,
-} from "lucide-react";
+import { Check, X, AlertTriangle, Camera, ChevronDown } from "lucide-react";
 
-const ruta = rutas[0]; // Demo with first route
+type StopStatus = "Pendiente" | "Exitosa" | "Fallida" | "Novedad";
 
-type Tab = "ruta" | "mapa" | "cerrar";
+interface Stop {
+  numero: number;
+  paqueteId: string;
+  direccion: string;
+  destinatario: string;
+  status: StopStatus;
+  motivo?: string;
+}
+
+const initialStops: Stop[] = [
+  { numero: 1, paqueteId: "PKG-006", direccion: "Cra 2 #14-30, Centro Histórico", destinatario: "Paola Rincón", status: "Exitosa" },
+  { numero: 2, paqueteId: "PKG-007", direccion: "Calle 16 #4-55, Centro Histórico", destinatario: "Jorge Pedraza", status: "Exitosa" },
+  { numero: 3, paqueteId: "PKG-008", direccion: "Cra 1 #20-12, Centro Histórico", destinatario: "Luz Díaz", status: "Fallida", motivo: "Cliente ausente" },
+  { numero: 4, paqueteId: "PKG-009", direccion: "Calle 12 #5-40, Pescaito", destinatario: "Camilo Suárez", status: "Pendiente" },
+  { numero: 5, paqueteId: "PKG-010", direccion: "Cra 5 #22-18, Pescaito", destinatario: "Ana Morales", status: "Pendiente" },
+  { numero: 6, paqueteId: "PKG-011", direccion: "Av. del Río #8-45, Pescaito", destinatario: "Ricardo Vega", status: "Pendiente" },
+  { numero: 7, paqueteId: "PKG-012", direccion: "Calle 10 #3-15, Pescaito", destinatario: "Sandra López", status: "Pendiente" },
+];
 
 export default function ConductorPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("ruta");
-  const [paradas, setParadas] = useState<Parada[]>(ruta.paradas);
-  const [gestionando, setGestionando] = useState<Parada | null>(null);
+  const [enTransito, setEnTransito] = useState(false);
+  const [stops, setStops] = useState<Stop[]>(initialStops);
+  const [gestionando, setGestionando] = useState<Stop | null>(null);
   const [showCerrar, setShowCerrar] = useState(false);
+  const [showCerrarWarning, setShowCerrarWarning] = useState(false);
+  const [rutaCerrada, setRutaCerrada] = useState(false);
 
-  const completadas = paradas.filter((p) => p.completada).length;
-  const pendientes = paradas.length - completadas;
-  const pct = Math.round((completadas / paradas.length) * 100);
+  const pendientes = stops.filter((s) => s.status === "Pendiente").length;
+  const completadas = stops.filter((s) => s.status !== "Pendiente").length;
+  const allDone = pendientes === 0;
 
-  function marcarResultado(numero: number, resultado: "exitosa" | "fallida" | "novedad", motivo?: string) {
-    setParadas((prev) =>
-      prev.map((p) =>
-        p.numero === numero ? { ...p, completada: true, resultado, motivoFallo: motivo } : p
-      )
-    );
+  function updateStop(numero: number, status: StopStatus, motivo?: string) {
+    setStops((prev) => prev.map((s) => s.numero === numero ? { ...s, status, motivo } : s));
     setGestionando(null);
   }
 
-  return (
-    <div className="min-h-screen flex flex-col items-center bg-background">
-      <div className="w-full max-w-[390px] min-h-screen flex flex-col border-x border-border relative">
-        {/* Top bar */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
-          <button onClick={() => navigate("/")} className="p-1">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <span className="text-sm font-bold tracking-tight">
-            Logistics<span className="text-primary">Routes</span>
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Juan Pérez</span>
-            <StatusBadge variant="warning">En Ruta</StatusBadge>
+  function handleCerrarRuta() {
+    if (pendientes > 0) {
+      setShowCerrarWarning(true);
+    } else {
+      setShowCerrar(true);
+    }
+  }
+
+  function cerrarRuta() {
+    setRutaCerrada(true);
+    setShowCerrar(false);
+    setShowCerrarWarning(false);
+  }
+
+  if (rutaCerrada) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-[480px] bg-card border border-border rounded-xl p-8 text-center">
+          <div className="h-16 w-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="h-8 w-8 text-success" />
           </div>
+          <h2 className="text-xl font-bold mb-2">Ruta Cerrada</h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            El informe de cierre ha sido enviado al Sistema de Facturación y Liquidación.
+          </p>
+          <button onClick={() => navigate("/")} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center">
+      <div className="w-full max-w-[480px] min-h-screen flex flex-col">
+        {/* Top bar */}
+        <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card">
+          <span className="text-sm font-bold text-foreground">Mi Ruta</span>
+          <span className="text-sm text-muted-foreground">Carlos Martínez</span>
         </header>
 
-        {/* Content */}
-        <div className="flex-1 overflow-auto pb-20 p-4 space-y-4">
-          {tab === "ruta" && !showCerrar && (
+        <div className="flex-1 overflow-auto p-4 space-y-4 pb-24">
+          {/* Route summary */}
+          <div className="bg-card border border-border rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-sm">RT-002</span>
+              <StatusBadge variant={enTransito ? "orange" : "purple"}>
+                {enTransito ? "En Tránsito" : "Ruta Confirmada"}
+              </StatusBadge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Zona Pescaito · 7 paradas · Vehículo: ABC-123 (Van)
+            </p>
+          </div>
+
+          {/* State A — not yet in transit */}
+          {!enTransito && (
+            <div className="space-y-4">
+              <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 text-sm">
+                Tu ruta está lista. Verifica que todos los paquetes están cargados antes de salir.
+              </div>
+              <button
+                onClick={() => setEnTransito(true)}
+                className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                Confirmar Inicio de Tránsito
+              </button>
+            </div>
+          )}
+
+          {/* State B — in transit */}
+          {enTransito && (
             <>
-              {/* Route header card */}
-              <div className="bg-card border border-border rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-xs text-muted-foreground">Ruta</span>
-                    <p className="font-semibold">{ruta.id}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground">Vehículo</span>
-                    <p>{ruta.vehiculoTipo} {ruta.vehiculoPlaca}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-xs text-muted-foreground">Paradas</span>
-                    <p>{paradas.length} total | {completadas} completadas | {pendientes} pendientes</p>
-                  </div>
-                </div>
-                {/* Progress bar */}
-                <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{pct}% completado</p>
+              {/* Progress */}
+              <div className="text-xs text-muted-foreground flex items-center justify-between">
+                <span>{completadas}/{stops.length} paradas gestionadas</span>
+                <span>{pendientes} pendientes</span>
               </div>
 
-              {/* Stop list */}
-              {paradas.map((parada) => (
-                <div
-                  key={parada.numero}
-                  className="bg-card border border-border rounded-lg p-4 flex items-start gap-3"
-                >
-                  <span
-                    className={`shrink-0 h-8 w-8 flex items-center justify-center rounded-full text-xs font-bold ${
-                      parada.completada
-                        ? parada.resultado === "exitosa"
-                          ? "bg-success/15 text-success"
-                          : "bg-destructive/15 text-destructive"
-                        : "bg-primary/15 text-primary"
-                    }`}
-                  >
-                    {parada.completada ? (
-                      parada.resultado === "exitosa" ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />
-                    ) : (
-                      parada.numero
-                    )}
+              {/* Stops */}
+              {stops.map((stop) => (
+                <div key={stop.numero} className="bg-card border border-border rounded-lg p-4 flex items-start gap-3">
+                  <span className={`shrink-0 h-8 w-8 flex items-center justify-center rounded-full text-xs font-bold ${
+                    stop.status === "Exitosa" ? "bg-success/10 text-success" :
+                    stop.status === "Fallida" ? "bg-destructive/10 text-destructive" :
+                    stop.status === "Novedad" ? "bg-accent/10 text-accent" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
+                    {stop.status === "Exitosa" ? <Check className="h-4 w-4" /> :
+                     stop.status === "Fallida" ? <X className="h-4 w-4" /> :
+                     stop.status === "Novedad" ? <AlertTriangle className="h-4 w-4" /> :
+                     stop.numero}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{parada.paquete.direccion}</p>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      <span className="text-xs text-muted-foreground">{parada.paquete.id}</span>
-                      <StatusBadge
-                        variant={parada.paquete.tipoPaquete === "Frágil" ? "warning" : "neutral"}
-                      >
-                        {parada.paquete.tipoPaquete}
-                      </StatusBadge>
-                      <span className="text-xs text-muted-foreground">{parada.paquete.metodoPago}</span>
+                    <p className="text-sm font-medium">{stop.destinatario}</p>
+                    <p className="text-xs text-muted-foreground truncate">{stop.direccion}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">{stop.paqueteId}</span>
+                      <StatusBadge variant={
+                        stop.status === "Exitosa" ? "success" :
+                        stop.status === "Fallida" ? "danger" :
+                        stop.status === "Novedad" ? "warning" : "neutral"
+                      }>{stop.status}</StatusBadge>
                     </div>
-                    {parada.completada && parada.motivoFallo && (
-                      <p className="text-xs text-destructive mt-1">{parada.motivoFallo}</p>
-                    )}
+                    {stop.motivo && <p className="text-xs text-destructive mt-1">{stop.motivo}</p>}
                   </div>
-                  {!parada.completada && (
+                  {stop.status === "Pendiente" && (
                     <button
-                      onClick={() => setGestionando(parada)}
-                      className="shrink-0 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-md font-medium"
+                      onClick={() => setGestionando(stop)}
+                      className="shrink-0 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-lg font-medium"
                     >
                       Gestionar
                     </button>
                   )}
                 </div>
               ))}
+
+              {/* Close route button */}
+              {allDone && (
+                <button
+                  onClick={handleCerrarRuta}
+                  className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                >
+                  Cerrar Ruta
+                </button>
+              )}
             </>
           )}
-
-          {tab === "mapa" && (
-            <div className="space-y-3">
-              {/* Map with markers */}
-              <div className="relative rounded-xl overflow-hidden border border-border">
-                <iframe
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=-74.2300%2C11.2100%2C-74.1500%2C11.2700&layer=mapnik&marker=11.2408%2C-74.1990"
-                  style={{ width: "100%", height: 300, border: "none" }}
-                  title="Mapa Santa Marta"
-                />
-                {/* Floating stop badges */}
-                <span className="absolute top-[25%] left-[30%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">1</span>
-                <span className="absolute top-[40%] left-[55%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">2</span>
-                <span className="absolute top-[55%] left-[40%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">3</span>
-                <span className="absolute top-[35%] left-[70%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">4</span>
-                <span className="absolute top-[65%] left-[60%] h-7 w-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg">5</span>
-              </div>
-
-              {/* Stop list below map */}
-              <div className="bg-card border border-border rounded-lg divide-y divide-border">
-                {paradas.slice(0, 5).map((p) => (
-                  <div key={p.numero} className="flex items-center gap-2 px-3 py-2 text-sm">
-                    <span>{p.completada ? "✅" : "⏳"}</span>
-                    <span className="font-medium">Parada {p.numero}</span>
-                    <span className="text-muted-foreground truncate">— {p.paquete.direccion.split(",")[1]?.trim() || p.paquete.direccion}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {showCerrar && <CerrarRutaView pendientes={pendientes} onVolver={() => setShowCerrar(false)} onCerrar={() => navigate("/")} />}
         </div>
 
-        {/* Bottom bar */}
-        <nav className="absolute bottom-0 left-0 right-0 bg-popover border-t border-border flex">
-          {[
-            { id: "ruta" as Tab, icon: Route, label: "Mi Ruta" },
-            { id: "mapa" as Tab, icon: Map, label: "Mapa" },
-          ].map((item) => (
+        {/* Footer for close route when not all done */}
+        {enTransito && !allDone && (
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-card border-t border-border p-4">
             <button
-              key={item.id}
-              onClick={() => { setTab(item.id); setShowCerrar(false); }}
-              className={`flex-1 flex flex-col items-center py-3 text-xs transition-colors ${
-                tab === item.id && !showCerrar ? "text-primary" : "text-muted-foreground"
-              }`}
+              onClick={handleCerrarRuta}
+              className="w-full py-3 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
             >
-              <item.icon className="h-5 w-5 mb-0.5" />
-              {item.label}
+              Cerrar Ruta
             </button>
-          ))}
-          <button
-            onClick={() => setShowCerrar(true)}
-            className={`flex-1 flex flex-col items-center py-3 text-xs transition-colors ${
-              showCerrar ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <LogOut className="h-5 w-5 mb-0.5" />
-            Cerrar Ruta
-          </button>
-        </nav>
+          </div>
+        )}
 
         {/* Gestionar modal */}
         {gestionando && (
-          <GestionarModal
-            parada={gestionando}
-            onClose={() => setGestionando(null)}
-            onResult={marcarResultado}
-          />
+          <GestionarModal stop={gestionando} onClose={() => setGestionando(null)} onResult={updateStop} />
+        )}
+
+        {/* Cerrar confirmation */}
+        {showCerrar && (
+          <BottomModal onClose={() => setShowCerrar(false)}>
+            <p className="text-sm text-muted-foreground mb-4">
+              ¿Cerrar ruta? Esta acción enviará el informe de cierre al Sistema de Facturación y Liquidación.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowCerrar(false)} className="flex-1 py-2 border border-border rounded-lg text-sm">Cancelar</button>
+              <button onClick={cerrarRuta} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Confirmar</button>
+            </div>
+          </BottomModal>
+        )}
+
+        {/* Warning modal */}
+        {showCerrarWarning && (
+          <BottomModal onClose={() => setShowCerrarWarning(false)}>
+            <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4">
+              <p className="text-sm font-medium text-accent flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> Paradas pendientes
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                El sistema cerrará estas paradas automáticamente como <strong>sin_gestión_conductor</strong> si continúas.
+              </p>
+              <ul className="mt-2 space-y-1">
+                {stops.filter((s) => s.status === "Pendiente").map((s) => (
+                  <li key={s.numero} className="text-xs text-muted-foreground">• Parada {s.numero}: {s.direccion}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowCerrarWarning(false)} className="flex-1 py-2 border border-border rounded-lg text-sm">Volver</button>
+              <button onClick={cerrarRuta} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Cerrar de todas formas</button>
+            </div>
+          </BottomModal>
         )}
       </div>
     </div>
   );
 }
 
-function GestionarModal({
-  parada,
-  onClose,
-  onResult,
-}: {
-  parada: Parada;
-  onClose: () => void;
-  onResult: (n: number, r: "exitosa" | "fallida" | "novedad", m?: string) => void;
-}) {
+function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () => void; onResult: (n: number, s: StopStatus, m?: string) => void }) {
   const [step, setStep] = useState<"main" | "exitosa" | "fallida" | "novedad">("main");
   const [nombre, setNombre] = useState("");
-
-  const motivosFallo = ["Cliente ausente", "Dirección incorrecta", "Rechazado", "Zona difícil acceso"];
-  const motivosNovedad = ["Dañado", "Extraviado", "Devolución"];
+  const [motivoFallo, setMotivoFallo] = useState("");
+  const [tipoNovedad, setTipoNovedad] = useState("");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[390px] bg-popover border border-border rounded-t-xl sm:rounded-xl shadow-2xl max-h-[85vh] overflow-auto">
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-[480px] bg-card border-t border-border rounded-t-xl shadow-2xl max-h-[80vh] overflow-auto">
         <div className="p-5 border-b border-border">
-          <p className="text-xs text-muted-foreground">Parada {parada.numero}</p>
-          <p className="font-medium text-sm mt-1">{parada.paquete.direccion}</p>
-          <p className="text-xs text-muted-foreground mt-1">{parada.paquete.id} · {parada.paquete.tipoPaquete} · {parada.paquete.peso} kg</p>
+          <p className="text-sm font-semibold">Registrar Parada — {stop.direccion}</p>
+          <p className="text-xs text-muted-foreground mt-1">{stop.paqueteId}</p>
         </div>
 
         <div className="p-5 space-y-3">
           {step === "main" && (
             <>
-              <button
-                onClick={() => setStep("exitosa")}
-                className="w-full py-3 bg-success/15 text-success border border-success/30 rounded-lg font-medium text-sm hover:bg-success/25 transition-colors flex items-center justify-center gap-2"
-              >
+              <button onClick={() => setStep("exitosa")} className="w-full py-3 bg-success text-success-foreground rounded-lg font-medium text-sm flex items-center justify-center gap-2">
                 <Check className="h-5 w-5" /> Entrega Exitosa
               </button>
-              <button
-                onClick={() => setStep("fallida")}
-                className="w-full py-3 bg-destructive/15 text-destructive border border-destructive/30 rounded-lg font-medium text-sm hover:bg-destructive/25 transition-colors flex items-center justify-center gap-2"
-              >
-                <X className="h-5 w-5" /> Entrega Fallida
+              <button onClick={() => setStep("fallida")} className="w-full py-3 bg-destructive text-destructive-foreground rounded-lg font-medium text-sm flex items-center justify-center gap-2">
+                <X className="h-5 w-5" /> Parada Fallida
               </button>
-              <button
-                onClick={() => setStep("novedad")}
-                className="w-full py-3 bg-primary/15 text-primary border border-primary/30 rounded-lg font-medium text-sm hover:bg-primary/25 transition-colors flex items-center justify-center gap-2"
-              >
+              <button onClick={() => setStep("novedad")} className="w-full py-3 bg-[hsl(30,80%,40%)] text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2">
                 <AlertTriangle className="h-5 w-5" /> Novedad Grave
               </button>
             </>
@@ -260,98 +264,71 @@ function GestionarModal({
           {step === "exitosa" && (
             <>
               <button className="w-full py-3 border border-border rounded-lg text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors">
-                <Camera className="h-5 w-5" /> Tomar foto POD
+                <Camera className="h-5 w-5" /> Foto POD (obligatoria)
               </button>
               <div className="border border-border rounded-lg p-4 text-center text-sm text-muted-foreground h-24 flex items-center justify-center">
-                Área de firma del receptor
+                Firma del receptor
               </div>
               <input
                 type="text"
                 placeholder="Nombre del receptor"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
               />
-              <button
-                onClick={() => onResult(parada.numero, "exitosa")}
-                className="w-full py-2.5 bg-primary text-primary-foreground rounded-md font-medium text-sm hover:bg-primary/90 transition-colors"
-              >
-                Confirmar
+              <button onClick={() => onResult(stop.numero, "Exitosa")} className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg font-medium text-sm">
+                Confirmar Entrega
               </button>
             </>
           )}
 
           {step === "fallida" && (
-            <div className="space-y-2">
-              {motivosFallo.map((m) => (
-                <button
-                  key={m}
-                  onClick={() => onResult(parada.numero, "fallida", m)}
-                  className="w-full py-2.5 text-left px-4 border border-border rounded-lg text-sm hover:bg-muted transition-colors"
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
+            <>
+              <p className="text-xs text-muted-foreground">Intento 1 de 2</p>
+              <label className="text-xs text-muted-foreground">Motivo</label>
+              <select value={motivoFallo} onChange={(e) => setMotivoFallo(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm">
+                <option value="">Seleccionar motivo...</option>
+                <option>Cliente ausente</option>
+                <option>Dirección incorrecta</option>
+                <option>Rechazado por cliente</option>
+                <option>Zona de difícil acceso</option>
+              </select>
+              <button onClick={() => onResult(stop.numero, "Fallida", motivoFallo || "Sin especificar")} className="w-full py-2.5 bg-destructive text-destructive-foreground rounded-lg font-medium text-sm">
+                Registrar Fallo
+              </button>
+            </>
           )}
 
           {step === "novedad" && (
-            <div className="space-y-2">
-              {motivosNovedad.map((m) => (
-                <button
-                  key={m}
-                  onClick={() => onResult(parada.numero, "novedad", m)}
-                  className="w-full py-2.5 text-left px-4 border border-border rounded-lg text-sm hover:bg-muted transition-colors"
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
+            <>
+              <label className="text-xs text-muted-foreground">Tipo de novedad</label>
+              <select value={tipoNovedad} onChange={(e) => setTipoNovedad(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm">
+                <option value="">Seleccionar tipo...</option>
+                <option>Paquete dañado</option>
+                <option>Extraviado</option>
+                <option>Requiere devolución</option>
+              </select>
+              <button onClick={() => onResult(stop.numero, "Novedad", tipoNovedad || "Sin especificar")} className="w-full py-2.5 bg-[hsl(30,80%,40%)] text-white rounded-lg font-medium text-sm">
+                Registrar Novedad
+              </button>
+            </>
+          )}
+
+          {step !== "main" && (
+            <button onClick={() => setStep("main")} className="text-sm text-muted-foreground hover:text-foreground">← Volver</button>
           )}
         </div>
-
-        {step !== "main" && (
-          <div className="px-5 pb-5">
-            <button onClick={() => setStep("main")} className="text-sm text-muted-foreground hover:text-foreground">
-              ← Volver
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-function CerrarRutaView({ pendientes, onVolver, onCerrar }: { pendientes: number; onVolver: () => void; onCerrar: () => void }) {
+function BottomModal({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="space-y-4 py-4">
-      {pendientes > 0 ? (
-        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
-          <p className="text-sm font-medium mb-2 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-primary" /> Paradas pendientes
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Tienes {pendientes} paradas sin gestionar. Si cierras ahora, el sistema las marcará como novedad automática.
-          </p>
-        </div>
-      ) : (
-        <div className="bg-success/10 border border-success/30 rounded-lg p-4">
-          <p className="text-sm">Todas las paradas han sido gestionadas. Puedes cerrar la ruta.</p>
-        </div>
-      )}
-      <div className="flex gap-3">
-        <button
-          onClick={onVolver}
-          className="flex-1 py-2.5 border border-border rounded-md text-sm hover:bg-muted transition-colors"
-        >
-          Volver y gestionar
-        </button>
-        <button
-          onClick={onCerrar}
-          className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          Cerrar de todas formas
-        </button>
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-[480px] bg-card border-t border-border rounded-t-xl shadow-2xl p-5">
+        {children}
       </div>
     </div>
   );

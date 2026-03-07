@@ -1,139 +1,263 @@
 import { useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+import Navbar from "@/components/Navbar";
 import StatusBadge from "@/components/StatusBadge";
-import { vehiculos, conductores, type Vehiculo } from "@/data/mockData";
 import {
-  LayoutDashboard,
-  Truck,
-  Users,
-  CalendarCheck,
-  History,
-  X,
-  Plus,
-  Edit,
-  UserPlus,
-} from "lucide-react";
-
-const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
-  { label: "Vehículos", icon: Truck, path: "/admin" },
-  { label: "Conductores", icon: Users, path: "/admin/conductores" },
-  { label: "Disponibilidad", icon: CalendarCheck, path: "/admin" },
-  { label: "Historial", icon: History, path: "/admin/historial" },
-];
-
-function estadoVariant(estado: Vehiculo["estado"]) {
-  switch (estado) {
-    case "Disponible": return "success" as const;
-    case "En Tránsito": return "warning" as const;
-    case "Inactivo": return "neutral" as const;
-  }
-}
-
-function tipoColor(tipo: Vehiculo["tipo"]) {
-  switch (tipo) {
-    case "Moto": return "bg-success/10 text-success border-success/20";
-    case "Van": return "bg-primary/10 text-primary border-primary/20";
-    case "NHR": return "bg-muted text-muted-foreground border-border";
-    case "Turbo": return "bg-destructive/10 text-destructive border-destructive/20";
-  }
-}
+  vehiculos as initialVehiculos,
+  conductores as initialConductores,
+  historialAsignaciones,
+  zonasSantaMarta,
+  type Vehiculo,
+  type Conductor,
+} from "@/data/mockData";
+import { X, Plus, Edit, XCircle, ChevronDown, ChevronRight, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminPage() {
-  const [showRegistrar, setShowRegistrar] = useState(false);
-  const [showAsignar, setShowAsignar] = useState<Vehiculo | null>(null);
-
-  const total = vehiculos.length;
-  const disponibles = vehiculos.filter((v) => v.estado === "Disponible").length;
-  const enTransito = vehiculos.filter((v) => v.estado === "En Tránsito").length;
-  const inactivos = vehiculos.filter((v) => v.estado === "Inactivo").length;
-
-  const stats = [
-    { label: "Total vehículos", value: total, color: "text-foreground" },
-    { label: "Disponibles", value: disponibles, color: "text-success" },
-    { label: "En Tránsito", value: enTransito, color: "text-primary" },
-    { label: "Inactivos", value: inactivos, color: "text-muted-foreground" },
-  ];
+  const [tab, setTab] = useState<"vehiculos" | "conductores">("vehiculos");
 
   return (
-    <DashboardLayout title="Disponibilidad de la Flota" items={sidebarItems} alertCount={1}>
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-card border border-border rounded-lg p-4">
-            <p className="text-xs text-muted-foreground">{s.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
-          </div>
-        ))}
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar roleName="Administrador de Flota" />
+      <div className="border-b border-border bg-card">
+        <div className="flex gap-0 px-6">
+          {(["vehiculos", "conductores"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t === "vehiculos" ? "Vehículos" : "Conductores"}
+            </button>
+          ))}
+        </div>
       </div>
+      <div className="flex-1 p-6">
+        {tab === "vehiculos" ? <VehiculosTab /> : <ConductoresTab />}
+      </div>
+    </div>
+  );
+}
 
-      {/* Register button */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={() => setShowRegistrar(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
+// ===================== VEHICULOS TAB =====================
+
+function VehiculosTab() {
+  const { toast } = useToast();
+  const [vehiculos, setVehiculos] = useState(initialVehiculos);
+  const [showRegistrar, setShowRegistrar] = useState(false);
+
+  function tipoColor(tipo: string) {
+    switch (tipo) {
+      case "Moto": return "bg-success/10 text-success";
+      case "Van": return "bg-primary/10 text-primary";
+      case "NHR": return "bg-muted text-muted-foreground";
+      case "Turbo": return "bg-destructive/10 text-destructive";
+      default: return "bg-muted text-muted-foreground";
+    }
+  }
+
+  function handleRegistrar(v: Vehiculo) {
+    if (vehiculos.some((ex) => ex.placa === v.placa)) {
+      return "Esta placa ya está registrada";
+    }
+    if (v.capacidadPeso <= 0 || v.volumenMax <= 0) {
+      return "La capacidad debe ser mayor a cero";
+    }
+    setVehiculos((prev) => [...prev, v]);
+    setShowRegistrar(false);
+    toast({ title: "Vehículo registrado", description: `${v.placa} agregado exitosamente.` });
+    return null;
+  }
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Vehículos</h2>
+        <button onClick={() => setShowRegistrar(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
           <Plus className="h-4 w-4" /> Registrar Vehículo
         </button>
       </div>
 
-      {/* Fleet table */}
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="px-4 py-3 text-xs text-muted-foreground font-medium">Placa</th>
-                <th className="px-4 py-3 text-xs text-muted-foreground font-medium">Tipo</th>
-                <th className="px-4 py-3 text-xs text-muted-foreground font-medium">Conductor</th>
-                <th className="px-4 py-3 text-xs text-muted-foreground font-medium">Zona</th>
-                <th className="px-4 py-3 text-xs text-muted-foreground font-medium">Estado</th>
-                <th className="px-4 py-3 text-xs text-muted-foreground font-medium">Capacidad</th>
-                <th className="px-4 py-3 text-xs text-muted-foreground font-medium">Acciones</th>
+                {["Placa", "Tipo", "Capacidad (kg)", "Volumen (m³)", "Zona", "Estado", "Conductor Asignado", "Acciones"].map((h) => (
+                  <th key={h} className="px-4 py-3 text-xs text-muted-foreground font-medium">{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {vehiculos.map((v) => (
-                <tr key={v.placa} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 font-medium">{v.placa}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex px-2 py-0.5 text-xs rounded border ${tipoColor(v.tipo)}`}>
-                      {v.tipo}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {v.conductor || <span className="text-primary text-xs">Sin asignar</span>}
-                  </td>
-                  <td className="px-4 py-3">{v.zona}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge variant={estadoVariant(v.estado)}>{v.estado}</StatusBadge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: `${Math.round((v.pesoActual / v.capacidadPeso) * 100)}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-muted-foreground">{v.pesoActual}/{v.capacidadPeso}kg</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <button className="p-1.5 hover:bg-muted rounded transition-colors" title="Editar">
-                        <Edit className="h-3.5 w-3.5" />
-                      </button>
-                      {v.estado === "Disponible" && !v.conductor && (
-                        <button
-                          onClick={() => setShowAsignar(v)}
-                          className="p-1.5 hover:bg-muted rounded transition-colors text-primary"
-                          title="Asignar conductor"
-                        >
-                          <UserPlus className="h-3.5 w-3.5" />
-                        </button>
+              {vehiculos.map((v) => {
+                const isTransit = v.estado === "En Tránsito";
+                const sinConductor = v.estado === "Disponible" && !v.conductorAsignado;
+                return (
+                  <tr key={v.placa} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
+                    <td className="px-4 py-3 font-medium">{v.placa}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex px-2 py-0.5 text-xs rounded-full font-medium ${tipoColor(v.tipo)}`}>{v.tipo}</span>
+                    </td>
+                    <td className="px-4 py-3">{v.capacidadPeso}</td>
+                    <td className="px-4 py-3">{v.volumenMax}</td>
+                    <td className="px-4 py-3">{v.zona}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge variant={v.estado === "Disponible" ? "success" : v.estado === "En Tránsito" ? "orange" : "neutral"}>
+                        {v.estado}
+                      </StatusBadge>
+                    </td>
+                    <td className="px-4 py-3">
+                      {v.conductorAsignado || (
+                        <span className="relative group">
+                          <StatusBadge variant="warning">Sin conductor</StatusBadge>
+                          <span className="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                            No disponible para planificación hasta asignar conductor
+                          </span>
+                        </span>
                       )}
-                    </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1">
+                        <span className="relative group">
+                          <button disabled={isTransit} className={`p-1.5 rounded transition-colors ${isTransit ? "opacity-30 cursor-not-allowed" : "hover:bg-muted"}`}>
+                            <Edit className="h-3.5 w-3.5" />
+                          </button>
+                          {isTransit && (
+                            <span className="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                              Vehículo con ruta activa en curso
+                            </span>
+                          )}
+                        </span>
+                        <span className="relative group">
+                          <button disabled={isTransit} className={`p-1.5 rounded transition-colors ${isTransit ? "opacity-30 cursor-not-allowed" : "hover:bg-muted text-destructive"}`}>
+                            <XCircle className="h-3.5 w-3.5" />
+                          </button>
+                          {isTransit && (
+                            <span className="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                              Vehículo con ruta activa en curso
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {showRegistrar && <RegistrarVehiculoModal onClose={() => setShowRegistrar(false)} onRegistrar={handleRegistrar} />}
+    </>
+  );
+}
+
+function RegistrarVehiculoModal({ onClose, onRegistrar }: { onClose: () => void; onRegistrar: (v: Vehiculo) => string | null }) {
+  const [placa, setPlaca] = useState("");
+  const [tipo, setTipo] = useState<Vehiculo["tipo"]>("Van");
+  const [modelo, setModelo] = useState("");
+  const [capacidad, setCapacidad] = useState("");
+  const [volumen, setVolumen] = useState("");
+  const [zona, setZona] = useState(zonasSantaMarta[0]);
+  const [error, setError] = useState("");
+
+  function handleSubmit() {
+    const cap = Number(capacidad);
+    const vol = Number(volumen);
+    if (cap <= 0 || vol <= 0) {
+      setError("La capacidad debe ser mayor a cero");
+      return;
+    }
+    const err = onRegistrar({
+      placa, tipo, modelo, capacidadPeso: cap, volumenMax: vol, zona, estado: "Disponible", conductorAsignado: null,
+    });
+    if (err) setError(err);
+  }
+
+  return (
+    <Modal title="Registrar Vehículo" onClose={onClose}>
+      <div className="space-y-3">
+        {error && (
+          <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-lg px-3 py-2">
+            <AlertCircle className="h-4 w-4" /> {error}
+          </div>
+        )}
+        <Field label="Placa" value={placa} onChange={setPlaca} placeholder="XYZ-789" />
+        <div>
+          <label className="text-xs text-muted-foreground">Tipo</label>
+          <select value={tipo} onChange={(e) => setTipo(e.target.value as any)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm mt-1">
+            <option>Moto</option><option>Van</option><option>NHR</option><option>Turbo</option>
+          </select>
+        </div>
+        <Field label="Modelo" value={modelo} onChange={setModelo} placeholder="Marca y modelo" />
+        <Field label="Capacidad de Peso (kg)" value={capacidad} onChange={setCapacidad} placeholder="500" type="number" />
+        <Field label="Volumen Máximo (m³)" value={volumen} onChange={setVolumen} placeholder="3.5" type="number" />
+        <div>
+          <label className="text-xs text-muted-foreground">Zona de Operación</label>
+          <select value={zona} onChange={(e) => setZona(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm mt-1">
+            {zonasSantaMarta.map((z) => <option key={z}>{z}</option>)}
+          </select>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button onClick={onClose} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
+          <button onClick={handleSubmit} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Registrar</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ===================== CONDUCTORES TAB =====================
+
+function ConductoresTab() {
+  const { toast } = useToast();
+  const [conductores, setConductores] = useState(initialConductores);
+  const [vehiculos, setVehiculos] = useState(initialVehiculos);
+  const [showAsignar, setShowAsignar] = useState(false);
+  const [historialOpen, setHistorialOpen] = useState(false);
+
+  const driversWithout = conductores.filter((c) => c.estado === "Activo" && !c.vehiculoAsignado);
+  const vehiclesWithout = vehiculos.filter((v) => v.estado === "Disponible" && !v.conductorAsignado);
+
+  function handleAsignar(driverId: string, vehiclePlaca: string) {
+    setConductores((prev) => prev.map((c) => c.id === driverId ? { ...c, vehiculoAsignado: vehiclePlaca } : c));
+    setVehiculos((prev) => prev.map((v) => v.placa === vehiclePlaca ? { ...v, conductorAsignado: conductores.find((c) => c.id === driverId)!.nombre } : v));
+    setShowAsignar(false);
+    toast({ title: "Asignación exitosa", description: `Conductor asignado a ${vehiclePlaca}.` });
+  }
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Conductores</h2>
+        <button onClick={() => setShowAsignar(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+          Asignar Conductor
+        </button>
+      </div>
+
+      <div className="bg-card border border-border rounded-lg overflow-hidden mb-6">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left">
+                {["Nombre", "Estado", "Vehículo Asignado", "Turno Activo", "Acciones"].map((h) => (
+                  <th key={h} className="px-4 py-3 text-xs text-muted-foreground font-medium">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {conductores.map((c) => (
+                <tr key={c.id} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
+                  <td className="px-4 py-3 font-medium">{c.nombre}</td>
+                  <td className="px-4 py-3">
+                    <StatusBadge variant={c.estado === "Activo" ? "success" : "neutral"}>{c.estado}</StatusBadge>
+                  </td>
+                  <td className="px-4 py-3">{c.vehiculoAsignado || <span className="text-muted-foreground">Sin asignar</span>}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{c.turnoActivo || "—"}</td>
+                  <td className="px-4 py-3">
+                    <button className="p-1.5 hover:bg-muted rounded transition-colors"><Edit className="h-3.5 w-3.5" /></button>
                   </td>
                 </tr>
               ))}
@@ -142,83 +266,100 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {showRegistrar && <RegistrarModal onClose={() => setShowRegistrar(false)} />}
-      {showAsignar && <AsignarModal vehiculo={showAsignar} onClose={() => setShowAsignar(null)} />}
-    </DashboardLayout>
+      {/* Historial */}
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <button onClick={() => setHistorialOpen(!historialOpen)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/50 transition-colors">
+          <span>Historial de Asignaciones</span>
+          {historialOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        </button>
+        {historialOpen && (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-t border-b border-border text-left">
+                {["Conductor", "Vehículo", "Fecha inicio", "Fecha fin"].map((h) => (
+                  <th key={h} className="px-4 py-2 text-xs text-muted-foreground font-medium">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {historialAsignaciones.map((h, i) => (
+                <tr key={i} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
+                  <td className="px-4 py-2">{h.conductor}</td>
+                  <td className="px-4 py-2">{h.vehiculo}</td>
+                  <td className="px-4 py-2 text-muted-foreground">{h.fechaInicio}</td>
+                  <td className="px-4 py-2 text-muted-foreground">{h.fechaFin || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {showAsignar && (
+        <AsignarModal
+          drivers={driversWithout}
+          vehicles={vehiclesWithout}
+          onClose={() => setShowAsignar(false)}
+          onAsignar={handleAsignar}
+        />
+      )}
+    </>
   );
 }
 
-function RegistrarModal({ onClose }: { onClose: () => void }) {
+function AsignarModal({ drivers, vehicles, onClose, onAsignar }: { drivers: Conductor[]; vehicles: Vehiculo[]; onClose: () => void; onAsignar: (d: string, v: string) => void }) {
+  const [driverId, setDriverId] = useState("");
+  const [vehiclePlaca, setVehiclePlaca] = useState("");
+
+  return (
+    <Modal title="Asignar Conductor a Vehículo" onClose={onClose}>
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs text-muted-foreground">Conductor</label>
+          <select value={driverId} onChange={(e) => setDriverId(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm mt-1">
+            <option value="">Seleccionar conductor...</option>
+            {drivers.map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-muted-foreground">Vehículo</label>
+          <select value={vehiclePlaca} onChange={(e) => setVehiclePlaca(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm mt-1">
+            <option value="">Seleccionar vehículo...</option>
+            {vehicles.map((v) => <option key={v.placa} value={v.placa}>{v.placa} — {v.tipo} ({v.zona})</option>)}
+          </select>
+        </div>
+        <p className="text-xs text-muted-foreground">Solo se muestran conductores sin vehículo y vehículos disponibles sin conductor.</p>
+        <div className="flex gap-3 pt-2">
+          <button onClick={onClose} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
+          <button onClick={() => driverId && vehiclePlaca && onAsignar(driverId, vehiclePlaca)} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Confirmar Asignación</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ===================== SHARED =====================
+
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-popover border border-border rounded-xl shadow-2xl p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold">Registrar Vehículo</h2>
+      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-card border border-border rounded-xl shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold">{title}</h3>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded"><X className="h-5 w-5" /></button>
         </div>
-        <div className="space-y-3">
-          {[
-            { label: "Placa", placeholder: "XXX-000" },
-            { label: "Modelo", placeholder: "Marca y modelo" },
-            { label: "Capacidad de peso (kg)", placeholder: "500" },
-            { label: "Volumen máximo (m³)", placeholder: "3.5" },
-          ].map((f) => (
-            <div key={f.label}>
-              <label className="text-xs text-muted-foreground">{f.label}</label>
-              <input className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-primary" placeholder={f.placeholder} />
-            </div>
-          ))}
-          <div>
-            <label className="text-xs text-muted-foreground">Tipo</label>
-            <select className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-primary">
-              <option>Moto</option><option>Van</option><option>NHR</option><option>Turbo</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Zona de operación</label>
-            <select className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-primary">
-              <option>Centro</option><option>Sur</option><option>Norte</option><option>Este</option>
-            </select>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 bg-primary text-primary-foreground rounded-md font-medium text-sm mt-2 hover:bg-primary/90 transition-colors"
-          >
-            Registrar
-          </button>
-        </div>
+        {children}
       </div>
     </div>
   );
 }
 
-function AsignarModal({ vehiculo, onClose }: { vehiculo: Vehiculo; onClose: () => void }) {
-  const disponibles = conductores.filter((c) => c.disponible);
+function Field({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-sm bg-popover border border-border rounded-xl shadow-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-sm">Asignar Conductor</h2>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded"><X className="h-5 w-5" /></button>
-        </div>
-        <p className="text-xs text-muted-foreground mb-3">{vehiculo.tipo} — {vehiculo.placa} ({vehiculo.zona})</p>
-        <div>
-          <label className="text-xs text-muted-foreground">Conductor</label>
-          <select className="w-full bg-muted border border-border rounded-md px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-primary">
-            {disponibles.map((c) => (
-              <option key={c.id}>{c.nombre}</option>
-            ))}
-          </select>
-        </div>
-        <button
-          onClick={onClose}
-          className="w-full py-2.5 bg-primary text-primary-foreground rounded-md font-medium text-sm mt-4 hover:bg-primary/90 transition-colors"
-        >
-          Confirmar Asignación
-        </button>
-      </div>
+    <div>
+      <label className="text-xs text-muted-foreground">{label}</label>
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm mt-1" />
     </div>
   );
 }
