@@ -281,14 +281,14 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
             <>
               <p className="text-xs text-muted-foreground">Intento 1 de 2</p>
               <label className="text-xs text-muted-foreground">Motivo</label>
-              <select value={motivoFallo} onChange={(e) => setMotivoFallo(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm">
+              <select value={motivoFallo} onChange={(e) => setMotivoFallo(e.target.value)} className="w-full border-2 border-foreground px-2 py-1.5 text-xs bg-transparent">
                 <option value="">Seleccionar motivo...</option>
                 <option>Cliente ausente</option>
                 <option>Dirección incorrecta</option>
                 <option>Rechazado por cliente</option>
                 <option>Zona de difícil acceso</option>
               </select>
-              <button onClick={() => onResult(stop.numero, "Fallida", motivoFallo || "Sin especificar")} className="w-full py-2.5 bg-destructive text-destructive-foreground rounded-lg font-medium text-sm">
+              <button onClick={() => onResult(stop.numero, "Fallida", motivoFallo || "Sin especificar")} className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase">
                 Registrar Fallo
               </button>
             </>
