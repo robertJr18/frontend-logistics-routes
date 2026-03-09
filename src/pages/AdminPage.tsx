@@ -343,8 +343,8 @@ function AsignarModal({ drivers, vehicles, onClose, onAsignar }: { drivers: Cond
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-card border border-border rounded-xl shadow-2xl p-6">
+      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-card border-2 border-foreground p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold">{title}</h3>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded"><X className="h-5 w-5" /></button>
