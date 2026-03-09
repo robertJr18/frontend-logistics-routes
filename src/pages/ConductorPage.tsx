@@ -241,17 +241,17 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
           <p className="text-xs text-muted-foreground mt-1">{stop.paqueteId}</p>
         </div>
 
-        <div className="p-5 space-y-3">
+        <div className="p-4 space-y-3">
           {step === "main" && (
             <>
-              <button onClick={() => setStep("exitosa")} className="w-full py-3 bg-success text-success-foreground rounded-lg font-medium text-sm flex items-center justify-center gap-2">
-                <Check className="h-5 w-5" /> Entrega Exitosa
+              <button onClick={() => setStep("exitosa")} className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase flex items-center justify-center gap-2">
+                ✓ Entrega Exitosa
               </button>
-              <button onClick={() => setStep("fallida")} className="w-full py-3 bg-destructive text-destructive-foreground rounded-lg font-medium text-sm flex items-center justify-center gap-2">
-                <X className="h-5 w-5" /> Parada Fallida
+              <button onClick={() => setStep("fallida")} className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase flex items-center justify-center gap-2">
+                ✗ Parada Fallida
               </button>
-              <button onClick={() => setStep("novedad")} className="w-full py-3 bg-[hsl(30,80%,40%)] text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2">
-                <AlertTriangle className="h-5 w-5" /> Novedad Grave
+              <button onClick={() => setStep("novedad")} className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase flex items-center justify-center gap-2">
+                ⚠ Novedad Grave
               </button>
             </>
           )}
