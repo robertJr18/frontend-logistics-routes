@@ -60,15 +60,15 @@ export default function ConductorPage() {
   if (rutaCerrada) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-[480px] bg-card border border-border rounded-xl p-8 text-center">
-          <div className="h-16 w-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="h-8 w-8 text-success" />
+        <div className="w-full max-w-[480px] bg-card border-2 border-foreground p-6 text-center">
+          <div className="h-14 w-14 border-2 border-foreground flex items-center justify-center mx-auto mb-4">
+            <Check className="h-6 w-6" />
           </div>
-          <h2 className="text-xl font-bold mb-2">Ruta Cerrada</h2>
-          <p className="text-sm text-muted-foreground mb-6">
+          <h2 className="text-lg font-bold mb-2 uppercase">Ruta Cerrada</h2>
+          <p className="text-xs text-muted-foreground mb-4">
             El informe de cierre ha sido enviado al Sistema de Facturación y Liquidación.
           </p>
-          <button onClick={() => navigate("/")} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+          <button onClick={() => navigate("/")} className="px-4 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
             Volver al inicio
           </button>
         </div>
