@@ -231,8 +231,8 @@ function ConductoresTab() {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Conductores</h2>
-        <button onClick={() => setShowAsignar(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+        <h2 className="text-sm font-bold uppercase tracking-wide">Conductores</h2>
+        <button onClick={() => setShowAsignar(true)} className="flex items-center gap-2 px-3 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
           Asignar Conductor
         </button>
       </div>
