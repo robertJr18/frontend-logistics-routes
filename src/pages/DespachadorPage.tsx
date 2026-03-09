@@ -82,9 +82,9 @@ export default function DespachadorPage() {
 
       {/* Alert banner */}
       {alertVisible && (
-        <div className="mx-6 mt-4 flex items-center justify-between bg-accent text-accent-foreground rounded-lg px-4 py-3 text-sm font-medium">
+        <div className="mx-6 mt-4 flex items-center justify-between border-2 border-foreground px-4 py-2 text-xs font-bold bg-card">
           <span>⚠ RT-003 · Zona Rodadero: paquete PKG-041 vence en menos de 24 horas. Despacho urgente requerido.</span>
-          <button onClick={() => setAlertVisible(false)} className="p-1 hover:bg-white/20 rounded">
+          <button onClick={() => setAlertVisible(false)} className="p-1 hover:bg-muted">
             <X className="h-4 w-4" />
           </button>
         </div>
