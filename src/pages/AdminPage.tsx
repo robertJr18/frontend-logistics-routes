@@ -18,14 +18,14 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar roleName="Administrador de Flota" />
-      <div className="border-b border-border bg-card">
+      <div className="border-b-2 border-foreground bg-card">
         <div className="flex gap-0 px-6">
           {(["vehiculos", "conductores"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-wide border-b-2 ${
+                tab === t ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {t === "vehiculos" ? "Vehículos" : "Conductores"}
