@@ -267,8 +267,8 @@ function ConductoresTab() {
       </div>
 
       {/* Historial */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <button onClick={() => setHistorialOpen(!historialOpen)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/50 transition-colors">
+      <div className="bg-card border-2 border-foreground overflow-hidden">
+        <button onClick={() => setHistorialOpen(!historialOpen)} className="w-full flex items-center justify-between px-4 py-2 text-xs font-bold uppercase hover:bg-muted">
           <span>Historial de Asignaciones</span>
           {historialOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
