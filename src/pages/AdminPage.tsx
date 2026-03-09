@@ -94,10 +94,10 @@ function VehiculosTab() {
                 const isTransit = v.estado === "En Tránsito";
                 const sinConductor = v.estado === "Disponible" && !v.conductorAsignado;
                 return (
-                  <tr key={v.placa} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
-                    <td className="px-4 py-3 font-medium">{v.placa}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 text-xs rounded-full font-medium ${tipoColor(v.tipo)}`}>{v.tipo}</span>
+                  <tr key={v.placa} className="border-b border-border last:border-0 hover:bg-muted">
+                    <td className="px-4 py-2 font-bold text-xs">{v.placa}</td>
+                    <td className="px-4 py-2">
+                      <span className="text-xs font-bold border border-foreground px-1.5 py-0.5">{v.tipo}</span>
                     </td>
                     <td className="px-4 py-3">{v.capacidadPeso}</td>
                     <td className="px-4 py-3">{v.volumenMax}</td>
