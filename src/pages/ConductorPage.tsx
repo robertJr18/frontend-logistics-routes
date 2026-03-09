@@ -80,9 +80,9 @@ export default function ConductorPage() {
     <div className="min-h-screen bg-background flex flex-col items-center">
       <div className="w-full max-w-[480px] min-h-screen flex flex-col">
         {/* Top bar */}
-        <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card">
-          <span className="text-sm font-bold text-foreground">Mi Ruta</span>
-          <span className="text-sm text-muted-foreground">Carlos Martínez</span>
+        <header className="h-12 border-b-2 border-foreground flex items-center justify-between px-4 bg-card">
+          <span className="text-xs font-bold uppercase tracking-wide">Mi Ruta</span>
+          <span className="text-xs text-muted-foreground">Carlos Martínez</span>
         </header>
 
         <div className="flex-1 overflow-auto p-4 space-y-4 pb-24">
