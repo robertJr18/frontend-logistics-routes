@@ -208,9 +208,9 @@ function ListaParaDespachoDetail({
   onVehiculoChange, onConductorChange, onConfirmar, onExcluir, isExpiringSoon,
 }: any) {
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
+    <div className="bg-card border-2 border-foreground overflow-hidden">
       {/* Header */}
-      <div className="p-5 border-b border-border">
+      <div className="p-4 border-b-2 border-foreground">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold">{ruta.id} — {ruta.zona}</h2>
           <StatusBadge variant="info">Lista para Despacho</StatusBadge>
