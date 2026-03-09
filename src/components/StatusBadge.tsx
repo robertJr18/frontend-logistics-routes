@@ -3,13 +3,23 @@ import { cn } from "@/lib/utils";
 export type BadgeVariant = "success" | "warning" | "danger" | "neutral" | "info" | "purple" | "orange";
 
 const variantStyles: Record<BadgeVariant, string> = {
-  success: "bg-success text-success-foreground",
-  warning: "bg-accent text-accent-foreground",
-  danger: "bg-destructive text-destructive-foreground",
-  neutral: "bg-muted text-muted-foreground",
-  info: "bg-primary text-primary-foreground",
-  purple: "bg-[hsl(270,60%,50%)] text-white",
-  orange: "bg-accent text-accent-foreground",
+  success: "border-foreground bg-transparent text-foreground",
+  warning: "border-foreground bg-transparent text-foreground",
+  danger: "border-foreground bg-transparent text-foreground",
+  neutral: "border-muted-foreground bg-transparent text-muted-foreground",
+  info: "border-foreground bg-transparent text-foreground",
+  purple: "border-foreground bg-transparent text-foreground",
+  orange: "border-foreground bg-transparent text-foreground",
+};
+
+const variantLabels: Record<BadgeVariant, string> = {
+  success: "✓ ",
+  warning: "⚠ ",
+  danger: "✗ ",
+  neutral: "○ ",
+  info: "● ",
+  purple: "◆ ",
+  orange: "▶ ",
 };
 
 interface StatusBadgeProps {
@@ -22,12 +32,12 @@ export default function StatusBadge({ variant, children, className }: StatusBadg
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap",
+        "inline-flex items-center px-2 py-0.5 text-xs font-bold border rounded-none whitespace-nowrap font-mono",
         variantStyles[variant],
         className
       )}
     >
-      {children}
+      {variantLabels[variant]}{children}
     </span>
   );
 }

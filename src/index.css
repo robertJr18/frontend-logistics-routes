@@ -1,57 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 228 25% 96%;
-    --foreground: 224 55% 20%;
+    --background: 0 0% 97%;
+    --foreground: 0 0% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 55% 20%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 55% 20%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 227 42% 39%;
+    --primary: 0 0% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 228 25% 92%;
-    --secondary-foreground: 224 55% 20%;
+    --secondary: 0 0% 92%;
+    --secondary-foreground: 0 0% 20%;
 
-    --muted: 228 25% 92%;
-    --muted-foreground: 224 15% 50%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 50%;
 
-    --accent: 34 82% 56%;
+    --accent: 0 0% 40%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 0% 35%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 228 20% 88%;
-    --input: 228 20% 88%;
-    --ring: 227 42% 39%;
+    --border: 0 0% 75%;
+    --input: 0 0% 75%;
+    --ring: 0 0% 20%;
 
-    --radius: 0.5rem;
+    --radius: 2px;
 
-    --success: 142 71% 40%;
+    --success: 0 0% 40%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 34 82% 56%;
+    --warning: 0 0% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --navy: 224 55% 20%;
+    --navy: 0 0% 20%;
 
-    --sidebar-background: 224 60% 17%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 34 82% 56%;
+    --sidebar-background: 0 0% 95%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 0 0% 20%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 224 55% 22%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 100% / 0.1;
-    --sidebar-ring: 34 82% 56%;
+    --sidebar-accent: 0 0% 88%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 75%;
+    --sidebar-ring: 0 0% 20%;
 
-    --hover-row: 227 60% 96%;
+    --hover-row: 0 0% 95%;
   }
 }
 
@@ -62,6 +64,15 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Courier Prime', 'Courier New', monospace;
+  }
+
+  /* Remove all transitions and animations for lo-fi feel */
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
