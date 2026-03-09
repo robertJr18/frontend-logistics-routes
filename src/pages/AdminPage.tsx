@@ -201,8 +201,8 @@ function RegistrarVehiculoModal({ onClose, onRegistrar }: { onClose: () => void;
           </select>
         </div>
         <div className="flex gap-3 pt-2">
-          <button onClick={onClose} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
-          <button onClick={handleSubmit} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Registrar</button>
+          <button onClick={onClose} className="flex-1 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">Cancelar</button>
+          <button onClick={handleSubmit} className="flex-1 py-1.5 bg-foreground text-background text-xs font-bold uppercase">Registrar</button>
         </div>
       </div>
     </Modal>
