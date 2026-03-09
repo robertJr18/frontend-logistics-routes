@@ -160,7 +160,7 @@ export default function ConductorPage() {
               {allDone && (
                 <button
                   onClick={handleCerrarRuta}
-                  className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                  className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase"
                 >
                   Cerrar Ruta
                 </button>
