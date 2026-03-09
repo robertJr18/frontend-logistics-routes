@@ -249,7 +249,7 @@ function ConductoresTab() {
             </thead>
             <tbody>
               {conductores.map((c) => (
-                <tr key={c.id} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
+                <tr key={c.id} className="border-b border-border last:border-0 hover:bg-muted">
                   <td className="px-4 py-3 font-medium">{c.nombre}</td>
                   <td className="px-4 py-3">
                     <StatusBadge variant={c.estado === "Activo" ? "success" : "neutral"}>{c.estado}</StatusBadge>
