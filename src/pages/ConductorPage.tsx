@@ -101,13 +101,13 @@ export default function ConductorPage() {
 
           {/* State A — not yet in transit */}
           {!enTransito && (
-            <div className="space-y-4">
-              <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 text-sm">
+            <div className="space-y-3">
+              <div className="border-2 border-dashed border-foreground p-3 text-xs">
                 Tu ruta está lista. Verifica que todos los paquetes están cargados antes de salir.
               </div>
               <button
                 onClick={() => setEnTransito(true)}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase"
               >
                 Confirmar Inicio de Tránsito
               </button>
