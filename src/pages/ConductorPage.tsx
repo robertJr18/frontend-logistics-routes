@@ -258,20 +258,20 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
 
           {step === "exitosa" && (
             <>
-              <button className="w-full py-3 border border-border rounded-lg text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors">
-                <Camera className="h-5 w-5" /> Foto POD (obligatoria)
+              <button className="w-full py-2 border-2 border-dashed border-foreground text-xs flex items-center justify-center gap-2">
+                📷 Foto POD (obligatoria)
               </button>
-              <div className="border border-border rounded-lg p-4 text-center text-sm text-muted-foreground h-24 flex items-center justify-center">
-                Firma del receptor
+              <div className="border-2 border-dashed border-foreground p-4 text-center text-xs text-muted-foreground h-20 flex items-center justify-center">
+                [ Firma del receptor ]
               </div>
               <input
                 type="text"
                 placeholder="Nombre del receptor"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+                className="w-full border-2 border-foreground px-2 py-1.5 text-xs bg-transparent"
               />
-              <button onClick={() => onResult(stop.numero, "Exitosa")} className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg font-medium text-sm">
+              <button onClick={() => onResult(stop.numero, "Exitosa")} className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase">
                 Confirmar Entrega
               </button>
             </>
