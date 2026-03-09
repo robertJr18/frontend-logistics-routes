@@ -330,8 +330,8 @@ function AsignarModal({ drivers, vehicles, onClose, onAsignar }: { drivers: Cond
         </div>
         <p className="text-xs text-muted-foreground">Solo se muestran conductores sin vehículo y vehículos disponibles sin conductor.</p>
         <div className="flex gap-3 pt-2">
-          <button onClick={onClose} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
-          <button onClick={() => driverId && vehiclePlaca && onAsignar(driverId, vehiclePlaca)} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Confirmar Asignación</button>
+          <button onClick={onClose} className="flex-1 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">Cancelar</button>
+          <button onClick={() => driverId && vehiclePlaca && onAsignar(driverId, vehiclePlaca)} className="flex-1 py-1.5 bg-foreground text-background text-xs font-bold uppercase">Confirmar Asignación</button>
         </div>
       </div>
     </Modal>
