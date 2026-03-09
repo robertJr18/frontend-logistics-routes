@@ -123,9 +123,9 @@ export default function DespachadorPage() {
         {/* RIGHT — Detail */}
         <div className="flex-1 overflow-auto">
           {!selected ? (
-            <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-              <Package className="h-12 w-12 mb-3 opacity-30" />
-              <p className="text-sm">Selecciona una ruta para ver su detalle</p>
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-border">
+              <Package className="h-10 w-10 mb-3 opacity-30" />
+              <p className="text-xs">Selecciona una ruta para ver su detalle</p>
             </div>
           ) : selected.estado === "Lista para Despacho" ? (
             <ListaParaDespachoDetail
