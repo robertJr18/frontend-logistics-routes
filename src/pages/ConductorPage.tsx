@@ -125,20 +125,15 @@ export default function ConductorPage() {
 
               {/* Stops */}
               {stops.map((stop) => (
-                <div key={stop.numero} className="bg-card border border-border rounded-lg p-4 flex items-start gap-3">
-                  <span className={`shrink-0 h-8 w-8 flex items-center justify-center rounded-full text-xs font-bold ${
-                    stop.status === "Exitosa" ? "bg-success/10 text-success" :
-                    stop.status === "Fallida" ? "bg-destructive/10 text-destructive" :
-                    stop.status === "Novedad" ? "bg-accent/10 text-accent" :
-                    "bg-muted text-muted-foreground"
-                  }`}>
-                    {stop.status === "Exitosa" ? <Check className="h-4 w-4" /> :
-                     stop.status === "Fallida" ? <X className="h-4 w-4" /> :
-                     stop.status === "Novedad" ? <AlertTriangle className="h-4 w-4" /> :
+                <div key={stop.numero} className="bg-card border-2 border-border p-3 flex items-start gap-3">
+                  <span className={`shrink-0 h-7 w-7 flex items-center justify-center border-2 border-foreground text-xs font-bold`}>
+                    {stop.status === "Exitosa" ? "✓" :
+                     stop.status === "Fallida" ? "✗" :
+                     stop.status === "Novedad" ? "!" :
                      stop.numero}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{stop.destinatario}</p>
+                    <p className="text-xs font-bold">{stop.destinatario}</p>
                     <p className="text-xs text-muted-foreground truncate">{stop.direccion}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs text-muted-foreground">{stop.paqueteId}</span>
@@ -148,12 +143,12 @@ export default function ConductorPage() {
                         stop.status === "Novedad" ? "warning" : "neutral"
                       }>{stop.status}</StatusBadge>
                     </div>
-                    {stop.motivo && <p className="text-xs text-destructive mt-1">{stop.motivo}</p>}
+                    {stop.motivo && <p className="text-xs text-muted-foreground mt-1">→ {stop.motivo}</p>}
                   </div>
                   {stop.status === "Pendiente" && (
                     <button
                       onClick={() => setGestionando(stop)}
-                      className="shrink-0 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-lg font-medium"
+                      className="shrink-0 px-2 py-1 text-xs border-2 border-foreground font-bold uppercase"
                     >
                       Gestionar
                     </button>
