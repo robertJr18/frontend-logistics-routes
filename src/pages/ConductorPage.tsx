@@ -87,9 +87,9 @@ export default function ConductorPage() {
 
         <div className="flex-1 overflow-auto p-4 space-y-4 pb-24">
           {/* Route summary */}
-          <div className="bg-card border border-border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm">RT-002</span>
+          <div className="bg-card border-2 border-foreground p-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-xs uppercase">RT-002</span>
               <StatusBadge variant={enTransito ? "orange" : "purple"}>
                 {enTransito ? "En Tránsito" : "Ruta Confirmada"}
               </StatusBadge>
