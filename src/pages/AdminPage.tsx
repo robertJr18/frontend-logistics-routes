@@ -237,7 +237,7 @@ function ConductoresTab() {
         </button>
       </div>
 
-      <div className="bg-card border border-border rounded-lg overflow-hidden mb-6">
+      <div className="bg-card border-2 border-foreground overflow-hidden mb-6">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
