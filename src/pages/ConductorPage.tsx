@@ -297,13 +297,13 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
           {step === "novedad" && (
             <>
               <label className="text-xs text-muted-foreground">Tipo de novedad</label>
-              <select value={tipoNovedad} onChange={(e) => setTipoNovedad(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm">
+              <select value={tipoNovedad} onChange={(e) => setTipoNovedad(e.target.value)} className="w-full border-2 border-foreground px-2 py-1.5 text-xs bg-transparent">
                 <option value="">Seleccionar tipo...</option>
                 <option>Paquete dañado</option>
                 <option>Extraviado</option>
                 <option>Requiere devolución</option>
               </select>
-              <button onClick={() => onResult(stop.numero, "Novedad", tipoNovedad || "Sin especificar")} className="w-full py-2.5 bg-[hsl(30,80%,40%)] text-white rounded-lg font-medium text-sm">
+              <button onClick={() => onResult(stop.numero, "Novedad", tipoNovedad || "Sin especificar")} className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase">
                 Registrar Novedad
               </button>
             </>
