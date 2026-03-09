@@ -24,39 +24,39 @@ export default function DashboardLayout({ children, title, items, alertCount = 0
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <aside
-        className={`bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 ${
-          collapsed ? "w-16" : "w-56"
+        className={`bg-card border-r-2 border-foreground flex flex-col ${
+          collapsed ? "w-14" : "w-52"
         }`}
       >
-        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
+        <div className="p-3 border-b-2 border-foreground flex items-center justify-between">
           {!collapsed && (
-            <button onClick={() => navigate("/")} className="text-sm font-bold tracking-tight">
-              Logistics<span className="text-primary">Routes</span>
+            <button onClick={() => navigate("/")} className="text-xs font-bold uppercase tracking-wide">
+              LogisticsRoutes
             </button>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 rounded hover:bg-sidebar-accent transition-colors"
+            className="p-1 hover:bg-muted"
           >
-            <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+            <ChevronLeft className={`h-4 w-4 ${collapsed ? "rotate-180" : ""}`} />
           </button>
         </div>
 
-        <nav className="flex-1 py-2">
+        <nav className="flex-1 py-1">
           {items.map((item) => {
             const active = location.pathname === item.path;
             return (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 py-2 text-xs ${
                   active
-                    ? "bg-sidebar-accent text-primary font-medium"
-                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    ? "bg-foreground text-background font-bold"
+                    : "hover:bg-muted"
                 }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
-                {!collapsed && <span>{item.label}</span>}
+                {!collapsed && <span className="uppercase tracking-wide">{item.label}</span>}
               </button>
             );
           })}
@@ -65,12 +65,12 @@ export default function DashboardLayout({ children, title, items, alertCount = 0
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-muted/30">
-          <h1 className="text-lg font-semibold">{title}</h1>
-          <button className="relative p-2 rounded-md hover:bg-muted transition-colors" onClick={() => {}}>
-            <Bell className="h-5 w-5" />
+        <header className="h-12 border-b-2 border-foreground flex items-center justify-between px-6 bg-card">
+          <h1 className="text-sm font-bold uppercase tracking-wide">{title}</h1>
+          <button className="relative p-2 hover:bg-muted">
+            <Bell className="h-4 w-4" />
             {alertCount > 0 && (
-              <span className="absolute top-1 right-1 h-2.5 w-2.5 bg-destructive rounded-full animate-pulse-slow" />
+              <span className="absolute top-1 right-1 h-2 w-2 bg-foreground rounded-full" />
             )}
           </button>
         </header>
