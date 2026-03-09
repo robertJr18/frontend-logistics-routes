@@ -171,10 +171,10 @@ export default function ConductorPage() {
 
         {/* Footer for close route when not all done */}
         {enTransito && !allDone && (
-          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-card border-t border-border p-4">
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-card border-t-2 border-foreground p-3">
             <button
               onClick={handleCerrarRuta}
-              className="w-full py-3 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+              className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted"
             >
               Cerrar Ruta
             </button>
