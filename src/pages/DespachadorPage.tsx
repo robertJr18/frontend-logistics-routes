@@ -285,10 +285,10 @@ function ListaParaDespachoDetail({
           </div>
         </div>
         <div className="flex gap-3 pt-2">
-          <button onClick={onExcluir} className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">
+          <button onClick={onExcluir} className="px-4 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">
             Excluir paquete
           </button>
-          <button onClick={onConfirmar} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+          <button onClick={onConfirmar} className="px-4 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
             Confirmar Despacho
           </button>
         </div>
