@@ -73,9 +73,9 @@ function VehiculosTab() {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Vehículos</h2>
-        <button onClick={() => setShowRegistrar(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-          <Plus className="h-4 w-4" /> Registrar Vehículo
+        <h2 className="text-sm font-bold uppercase tracking-wide">Vehículos</h2>
+        <button onClick={() => setShowRegistrar(true)} className="flex items-center gap-2 px-3 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
+          <Plus className="h-3 w-3" /> Registrar Vehículo
         </button>
       </div>
 
