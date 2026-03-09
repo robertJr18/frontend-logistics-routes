@@ -327,9 +327,9 @@ function EnTransitoDetail({ ruta, onForzarCierre }: { ruta: Ruta; onForzarCierre
           </div>
         ))}
       </div>
-      <div className="p-5 border-t border-border">
-        <button onClick={onForzarCierre} className="px-4 py-2 border border-destructive text-destructive rounded-lg text-sm hover:bg-destructive/10 transition-colors">
-          Forzar Cierre de Ruta
+      <div className="p-4 border-t-2 border-foreground">
+        <button onClick={onForzarCierre} className="px-4 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">
+          ✗ Forzar Cierre de Ruta
         </button>
       </div>
     </div>
