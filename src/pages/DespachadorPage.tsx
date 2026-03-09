@@ -102,8 +102,8 @@ export default function DespachadorPage() {
             <button
               key={r.id}
               onClick={() => { setSelectedId(r.id); setVehiculoSel(""); setConductorSel(""); }}
-              className={`w-full text-left bg-card border rounded-lg p-4 transition-all hover:shadow-md ${
-                selectedId === r.id ? "border-primary ring-1 ring-primary" : "border-border"
+              className={`w-full text-left bg-card border-2 p-3 hover:bg-muted ${
+                selectedId === r.id ? "border-foreground" : "border-border"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
