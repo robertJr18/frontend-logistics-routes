@@ -234,10 +234,10 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[480px] bg-card border-t border-border rounded-t-xl shadow-2xl max-h-[80vh] overflow-auto">
-        <div className="p-5 border-b border-border">
-          <p className="text-sm font-semibold">Registrar Parada — {stop.direccion}</p>
+      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
+      <div className="relative w-full max-w-[480px] bg-card border-t-2 border-foreground max-h-[80vh] overflow-auto">
+        <div className="p-4 border-b-2 border-foreground">
+          <p className="text-xs font-bold uppercase">Registrar Parada — {stop.direccion}</p>
           <p className="text-xs text-muted-foreground mt-1">{stop.paqueteId}</p>
         </div>
 
