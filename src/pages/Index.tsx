@@ -27,35 +27,36 @@ export default function Index() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
-      <div className="mb-12 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
+      <div className="mb-10 text-center">
+        <p className="text-xs text-muted-foreground mb-2 tracking-widest uppercase">— Prototipo Lo-Fi —</p>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground mb-1">
           Sistema de Gestión Logística
         </h1>
         <p className="text-muted-foreground text-sm">Módulo 2 — Planificación de Rutas y Gestión de Flota</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl w-full">
         {roles.map((role) => (
           <button
             key={role.path}
             onClick={() => navigate(role.path)}
-            className="group bg-card border border-border rounded-lg p-8 text-left transition-all hover:border-primary/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            className="group bg-card border-2 border-foreground p-6 text-left hover:bg-muted focus:outline-none"
           >
-            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-              <role.icon className="h-6 w-6 text-primary" />
+            <div className="h-10 w-10 border-2 border-foreground flex items-center justify-center mb-3">
+              <role.icon className="h-5 w-5" />
             </div>
-            <h2 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
+            <h2 className="text-sm font-bold mb-1 uppercase tracking-wide">
               {role.title}
             </h2>
-            <p className="text-muted-foreground text-sm mb-6">{role.description}</p>
-            <span className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg transition-transform group-hover:scale-105">
+            <p className="text-muted-foreground text-xs mb-4">{role.description}</p>
+            <span className="inline-flex items-center px-3 py-1.5 border-2 border-foreground text-xs font-bold uppercase tracking-wide">
               Ingresar →
             </span>
           </button>
         ))}
       </div>
 
-      <p className="mt-12 text-muted-foreground text-xs">
+      <p className="mt-10 text-muted-foreground text-xs">
         © 2026 Sistema de Gestión Logística — Santa Marta, Colombia
       </p>
     </div>

@@ -60,15 +60,15 @@ export default function ConductorPage() {
   if (rutaCerrada) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-[480px] bg-card border border-border rounded-xl p-8 text-center">
-          <div className="h-16 w-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="h-8 w-8 text-success" />
+        <div className="w-full max-w-[480px] bg-card border-2 border-foreground p-6 text-center">
+          <div className="h-14 w-14 border-2 border-foreground flex items-center justify-center mx-auto mb-4">
+            <Check className="h-6 w-6" />
           </div>
-          <h2 className="text-xl font-bold mb-2">Ruta Cerrada</h2>
-          <p className="text-sm text-muted-foreground mb-6">
+          <h2 className="text-lg font-bold mb-2 uppercase">Ruta Cerrada</h2>
+          <p className="text-xs text-muted-foreground mb-4">
             El informe de cierre ha sido enviado al Sistema de Facturación y Liquidación.
           </p>
-          <button onClick={() => navigate("/")} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+          <button onClick={() => navigate("/")} className="px-4 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
             Volver al inicio
           </button>
         </div>
@@ -80,16 +80,16 @@ export default function ConductorPage() {
     <div className="min-h-screen bg-background flex flex-col items-center">
       <div className="w-full max-w-[480px] min-h-screen flex flex-col">
         {/* Top bar */}
-        <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card">
-          <span className="text-sm font-bold text-foreground">Mi Ruta</span>
-          <span className="text-sm text-muted-foreground">Carlos Martínez</span>
+        <header className="h-12 border-b-2 border-foreground flex items-center justify-between px-4 bg-card">
+          <span className="text-xs font-bold uppercase tracking-wide">Mi Ruta</span>
+          <span className="text-xs text-muted-foreground">Carlos Martínez</span>
         </header>
 
         <div className="flex-1 overflow-auto p-4 space-y-4 pb-24">
           {/* Route summary */}
-          <div className="bg-card border border-border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm">RT-002</span>
+          <div className="bg-card border-2 border-foreground p-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-xs uppercase">RT-002</span>
               <StatusBadge variant={enTransito ? "orange" : "purple"}>
                 {enTransito ? "En Tránsito" : "Ruta Confirmada"}
               </StatusBadge>
@@ -101,13 +101,13 @@ export default function ConductorPage() {
 
           {/* State A — not yet in transit */}
           {!enTransito && (
-            <div className="space-y-4">
-              <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 text-sm">
+            <div className="space-y-3">
+              <div className="border-2 border-dashed border-foreground p-3 text-xs">
                 Tu ruta está lista. Verifica que todos los paquetes están cargados antes de salir.
               </div>
               <button
                 onClick={() => setEnTransito(true)}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase"
               >
                 Confirmar Inicio de Tránsito
               </button>
@@ -125,20 +125,15 @@ export default function ConductorPage() {
 
               {/* Stops */}
               {stops.map((stop) => (
-                <div key={stop.numero} className="bg-card border border-border rounded-lg p-4 flex items-start gap-3">
-                  <span className={`shrink-0 h-8 w-8 flex items-center justify-center rounded-full text-xs font-bold ${
-                    stop.status === "Exitosa" ? "bg-success/10 text-success" :
-                    stop.status === "Fallida" ? "bg-destructive/10 text-destructive" :
-                    stop.status === "Novedad" ? "bg-accent/10 text-accent" :
-                    "bg-muted text-muted-foreground"
-                  }`}>
-                    {stop.status === "Exitosa" ? <Check className="h-4 w-4" /> :
-                     stop.status === "Fallida" ? <X className="h-4 w-4" /> :
-                     stop.status === "Novedad" ? <AlertTriangle className="h-4 w-4" /> :
+                <div key={stop.numero} className="bg-card border-2 border-border p-3 flex items-start gap-3">
+                  <span className={`shrink-0 h-7 w-7 flex items-center justify-center border-2 border-foreground text-xs font-bold`}>
+                    {stop.status === "Exitosa" ? "✓" :
+                     stop.status === "Fallida" ? "✗" :
+                     stop.status === "Novedad" ? "!" :
                      stop.numero}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{stop.destinatario}</p>
+                    <p className="text-xs font-bold">{stop.destinatario}</p>
                     <p className="text-xs text-muted-foreground truncate">{stop.direccion}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs text-muted-foreground">{stop.paqueteId}</span>
@@ -148,12 +143,12 @@ export default function ConductorPage() {
                         stop.status === "Novedad" ? "warning" : "neutral"
                       }>{stop.status}</StatusBadge>
                     </div>
-                    {stop.motivo && <p className="text-xs text-destructive mt-1">{stop.motivo}</p>}
+                    {stop.motivo && <p className="text-xs text-muted-foreground mt-1">→ {stop.motivo}</p>}
                   </div>
                   {stop.status === "Pendiente" && (
                     <button
                       onClick={() => setGestionando(stop)}
-                      className="shrink-0 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-lg font-medium"
+                      className="shrink-0 px-2 py-1 text-xs border-2 border-foreground font-bold uppercase"
                     >
                       Gestionar
                     </button>
@@ -165,7 +160,7 @@ export default function ConductorPage() {
               {allDone && (
                 <button
                   onClick={handleCerrarRuta}
-                  className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                  className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase"
                 >
                   Cerrar Ruta
                 </button>
@@ -176,10 +171,10 @@ export default function ConductorPage() {
 
         {/* Footer for close route when not all done */}
         {enTransito && !allDone && (
-          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-card border-t border-border p-4">
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-card border-t-2 border-foreground p-3">
             <button
               onClick={handleCerrarRuta}
-              className="w-full py-3 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+              className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted"
             >
               Cerrar Ruta
             </button>
@@ -239,44 +234,44 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[480px] bg-card border-t border-border rounded-t-xl shadow-2xl max-h-[80vh] overflow-auto">
-        <div className="p-5 border-b border-border">
-          <p className="text-sm font-semibold">Registrar Parada — {stop.direccion}</p>
+      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
+      <div className="relative w-full max-w-[480px] bg-card border-t-2 border-foreground max-h-[80vh] overflow-auto">
+        <div className="p-4 border-b-2 border-foreground">
+          <p className="text-xs font-bold uppercase">Registrar Parada — {stop.direccion}</p>
           <p className="text-xs text-muted-foreground mt-1">{stop.paqueteId}</p>
         </div>
 
-        <div className="p-5 space-y-3">
+        <div className="p-4 space-y-3">
           {step === "main" && (
             <>
-              <button onClick={() => setStep("exitosa")} className="w-full py-3 bg-success text-success-foreground rounded-lg font-medium text-sm flex items-center justify-center gap-2">
-                <Check className="h-5 w-5" /> Entrega Exitosa
+              <button onClick={() => setStep("exitosa")} className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase flex items-center justify-center gap-2">
+                ✓ Entrega Exitosa
               </button>
-              <button onClick={() => setStep("fallida")} className="w-full py-3 bg-destructive text-destructive-foreground rounded-lg font-medium text-sm flex items-center justify-center gap-2">
-                <X className="h-5 w-5" /> Parada Fallida
+              <button onClick={() => setStep("fallida")} className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase flex items-center justify-center gap-2">
+                ✗ Parada Fallida
               </button>
-              <button onClick={() => setStep("novedad")} className="w-full py-3 bg-[hsl(30,80%,40%)] text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2">
-                <AlertTriangle className="h-5 w-5" /> Novedad Grave
+              <button onClick={() => setStep("novedad")} className="w-full py-2 border-2 border-foreground text-xs font-bold uppercase flex items-center justify-center gap-2">
+                ⚠ Novedad Grave
               </button>
             </>
           )}
 
           {step === "exitosa" && (
             <>
-              <button className="w-full py-3 border border-border rounded-lg text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors">
-                <Camera className="h-5 w-5" /> Foto POD (obligatoria)
+              <button className="w-full py-2 border-2 border-dashed border-foreground text-xs flex items-center justify-center gap-2">
+                📷 Foto POD (obligatoria)
               </button>
-              <div className="border border-border rounded-lg p-4 text-center text-sm text-muted-foreground h-24 flex items-center justify-center">
-                Firma del receptor
+              <div className="border-2 border-dashed border-foreground p-4 text-center text-xs text-muted-foreground h-20 flex items-center justify-center">
+                [ Firma del receptor ]
               </div>
               <input
                 type="text"
                 placeholder="Nombre del receptor"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+                className="w-full border-2 border-foreground px-2 py-1.5 text-xs bg-transparent"
               />
-              <button onClick={() => onResult(stop.numero, "Exitosa")} className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg font-medium text-sm">
+              <button onClick={() => onResult(stop.numero, "Exitosa")} className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase">
                 Confirmar Entrega
               </button>
             </>
@@ -286,14 +281,14 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
             <>
               <p className="text-xs text-muted-foreground">Intento 1 de 2</p>
               <label className="text-xs text-muted-foreground">Motivo</label>
-              <select value={motivoFallo} onChange={(e) => setMotivoFallo(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm">
+              <select value={motivoFallo} onChange={(e) => setMotivoFallo(e.target.value)} className="w-full border-2 border-foreground px-2 py-1.5 text-xs bg-transparent">
                 <option value="">Seleccionar motivo...</option>
                 <option>Cliente ausente</option>
                 <option>Dirección incorrecta</option>
                 <option>Rechazado por cliente</option>
                 <option>Zona de difícil acceso</option>
               </select>
-              <button onClick={() => onResult(stop.numero, "Fallida", motivoFallo || "Sin especificar")} className="w-full py-2.5 bg-destructive text-destructive-foreground rounded-lg font-medium text-sm">
+              <button onClick={() => onResult(stop.numero, "Fallida", motivoFallo || "Sin especificar")} className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase">
                 Registrar Fallo
               </button>
             </>
@@ -302,13 +297,13 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
           {step === "novedad" && (
             <>
               <label className="text-xs text-muted-foreground">Tipo de novedad</label>
-              <select value={tipoNovedad} onChange={(e) => setTipoNovedad(e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm">
+              <select value={tipoNovedad} onChange={(e) => setTipoNovedad(e.target.value)} className="w-full border-2 border-foreground px-2 py-1.5 text-xs bg-transparent">
                 <option value="">Seleccionar tipo...</option>
                 <option>Paquete dañado</option>
                 <option>Extraviado</option>
                 <option>Requiere devolución</option>
               </select>
-              <button onClick={() => onResult(stop.numero, "Novedad", tipoNovedad || "Sin especificar")} className="w-full py-2.5 bg-[hsl(30,80%,40%)] text-white rounded-lg font-medium text-sm">
+              <button onClick={() => onResult(stop.numero, "Novedad", tipoNovedad || "Sin especificar")} className="w-full py-2 bg-foreground text-background text-xs font-bold uppercase">
                 Registrar Novedad
               </button>
             </>
@@ -326,8 +321,8 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
 function BottomModal({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[480px] bg-card border-t border-border rounded-t-xl shadow-2xl p-5">
+      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
+      <div className="relative w-full max-w-[480px] bg-card border-t-2 border-foreground p-4">
         {children}
       </div>
     </div>

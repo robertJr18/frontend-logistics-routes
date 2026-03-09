@@ -18,14 +18,14 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar roleName="Administrador de Flota" />
-      <div className="border-b border-border bg-card">
+      <div className="border-b-2 border-foreground bg-card">
         <div className="flex gap-0 px-6">
           {(["vehiculos", "conductores"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-wide border-b-2 ${
+                tab === t ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {t === "vehiculos" ? "Vehículos" : "Conductores"}
@@ -73,13 +73,13 @@ function VehiculosTab() {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Vehículos</h2>
-        <button onClick={() => setShowRegistrar(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-          <Plus className="h-4 w-4" /> Registrar Vehículo
+        <h2 className="text-sm font-bold uppercase tracking-wide">Vehículos</h2>
+        <button onClick={() => setShowRegistrar(true)} className="flex items-center gap-2 px-3 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
+          <Plus className="h-3 w-3" /> Registrar Vehículo
         </button>
       </div>
 
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
+      <div className="bg-card border-2 border-foreground overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -94,10 +94,10 @@ function VehiculosTab() {
                 const isTransit = v.estado === "En Tránsito";
                 const sinConductor = v.estado === "Disponible" && !v.conductorAsignado;
                 return (
-                  <tr key={v.placa} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
-                    <td className="px-4 py-3 font-medium">{v.placa}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 text-xs rounded-full font-medium ${tipoColor(v.tipo)}`}>{v.tipo}</span>
+                  <tr key={v.placa} className="border-b border-border last:border-0 hover:bg-muted">
+                    <td className="px-4 py-2 font-bold text-xs">{v.placa}</td>
+                    <td className="px-4 py-2">
+                      <span className="text-xs font-bold border border-foreground px-1.5 py-0.5">{v.tipo}</span>
                     </td>
                     <td className="px-4 py-3">{v.capacidadPeso}</td>
                     <td className="px-4 py-3">{v.volumenMax}</td>
@@ -201,8 +201,8 @@ function RegistrarVehiculoModal({ onClose, onRegistrar }: { onClose: () => void;
           </select>
         </div>
         <div className="flex gap-3 pt-2">
-          <button onClick={onClose} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
-          <button onClick={handleSubmit} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Registrar</button>
+          <button onClick={onClose} className="flex-1 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">Cancelar</button>
+          <button onClick={handleSubmit} className="flex-1 py-1.5 bg-foreground text-background text-xs font-bold uppercase">Registrar</button>
         </div>
       </div>
     </Modal>
@@ -231,13 +231,13 @@ function ConductoresTab() {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Conductores</h2>
-        <button onClick={() => setShowAsignar(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+        <h2 className="text-sm font-bold uppercase tracking-wide">Conductores</h2>
+        <button onClick={() => setShowAsignar(true)} className="flex items-center gap-2 px-3 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
           Asignar Conductor
         </button>
       </div>
 
-      <div className="bg-card border border-border rounded-lg overflow-hidden mb-6">
+      <div className="bg-card border-2 border-foreground overflow-hidden mb-6">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -249,7 +249,7 @@ function ConductoresTab() {
             </thead>
             <tbody>
               {conductores.map((c) => (
-                <tr key={c.id} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
+                <tr key={c.id} className="border-b border-border last:border-0 hover:bg-muted">
                   <td className="px-4 py-3 font-medium">{c.nombre}</td>
                   <td className="px-4 py-3">
                     <StatusBadge variant={c.estado === "Activo" ? "success" : "neutral"}>{c.estado}</StatusBadge>
@@ -267,8 +267,8 @@ function ConductoresTab() {
       </div>
 
       {/* Historial */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <button onClick={() => setHistorialOpen(!historialOpen)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/50 transition-colors">
+      <div className="bg-card border-2 border-foreground overflow-hidden">
+        <button onClick={() => setHistorialOpen(!historialOpen)} className="w-full flex items-center justify-between px-4 py-2 text-xs font-bold uppercase hover:bg-muted">
           <span>Historial de Asignaciones</span>
           {historialOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -283,7 +283,7 @@ function ConductoresTab() {
             </thead>
             <tbody>
               {historialAsignaciones.map((h, i) => (
-                <tr key={i} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
+                <tr key={i} className="border-b border-border last:border-0 hover:bg-muted">
                   <td className="px-4 py-2">{h.conductor}</td>
                   <td className="px-4 py-2">{h.vehiculo}</td>
                   <td className="px-4 py-2 text-muted-foreground">{h.fechaInicio}</td>
@@ -330,8 +330,8 @@ function AsignarModal({ drivers, vehicles, onClose, onAsignar }: { drivers: Cond
         </div>
         <p className="text-xs text-muted-foreground">Solo se muestran conductores sin vehículo y vehículos disponibles sin conductor.</p>
         <div className="flex gap-3 pt-2">
-          <button onClick={onClose} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
-          <button onClick={() => driverId && vehiclePlaca && onAsignar(driverId, vehiclePlaca)} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Confirmar Asignación</button>
+          <button onClick={onClose} className="flex-1 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">Cancelar</button>
+          <button onClick={() => driverId && vehiclePlaca && onAsignar(driverId, vehiclePlaca)} className="flex-1 py-1.5 bg-foreground text-background text-xs font-bold uppercase">Confirmar Asignación</button>
         </div>
       </div>
     </Modal>
@@ -343,8 +343,8 @@ function AsignarModal({ drivers, vehicles, onClose, onAsignar }: { drivers: Cond
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-card border border-border rounded-xl shadow-2xl p-6">
+      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-card border-2 border-foreground p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold">{title}</h3>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded"><X className="h-5 w-5" /></button>

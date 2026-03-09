@@ -82,9 +82,9 @@ export default function DespachadorPage() {
 
       {/* Alert banner */}
       {alertVisible && (
-        <div className="mx-6 mt-4 flex items-center justify-between bg-accent text-accent-foreground rounded-lg px-4 py-3 text-sm font-medium">
+        <div className="mx-6 mt-4 flex items-center justify-between border-2 border-foreground px-4 py-2 text-xs font-bold bg-card">
           <span>⚠ RT-003 · Zona Rodadero: paquete PKG-041 vence en menos de 24 horas. Despacho urgente requerido.</span>
-          <button onClick={() => setAlertVisible(false)} className="p-1 hover:bg-white/20 rounded">
+          <button onClick={() => setAlertVisible(false)} className="p-1 hover:bg-muted">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -102,8 +102,8 @@ export default function DespachadorPage() {
             <button
               key={r.id}
               onClick={() => { setSelectedId(r.id); setVehiculoSel(""); setConductorSel(""); }}
-              className={`w-full text-left bg-card border rounded-lg p-4 transition-all hover:shadow-md ${
-                selectedId === r.id ? "border-primary ring-1 ring-primary" : "border-border"
+              className={`w-full text-left bg-card border-2 p-3 hover:bg-muted ${
+                selectedId === r.id ? "border-foreground" : "border-border"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -123,9 +123,9 @@ export default function DespachadorPage() {
         {/* RIGHT — Detail */}
         <div className="flex-1 overflow-auto">
           {!selected ? (
-            <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-              <Package className="h-12 w-12 mb-3 opacity-30" />
-              <p className="text-sm">Selecciona una ruta para ver su detalle</p>
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-border">
+              <Package className="h-10 w-10 mb-3 opacity-30" />
+              <p className="text-xs">Selecciona una ruta para ver su detalle</p>
             </div>
           ) : selected.estado === "Lista para Despacho" ? (
             <ListaParaDespachoDetail
@@ -208,9 +208,9 @@ function ListaParaDespachoDetail({
   onVehiculoChange, onConductorChange, onConfirmar, onExcluir, isExpiringSoon,
 }: any) {
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
+    <div className="bg-card border-2 border-foreground overflow-hidden">
       {/* Header */}
-      <div className="p-5 border-b border-border">
+      <div className="p-4 border-b-2 border-foreground">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold">{ruta.id} — {ruta.zona}</h2>
           <StatusBadge variant="info">Lista para Despacho</StatusBadge>
@@ -285,10 +285,10 @@ function ListaParaDespachoDetail({
           </div>
         </div>
         <div className="flex gap-3 pt-2">
-          <button onClick={onExcluir} className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">
+          <button onClick={onExcluir} className="px-4 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">
             Excluir paquete
           </button>
-          <button onClick={onConfirmar} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+          <button onClick={onConfirmar} className="px-4 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
             Confirmar Despacho
           </button>
         </div>
@@ -307,17 +307,17 @@ function EnTransitoDetail({ ruta, onForzarCierre }: { ruta: Ruta; onForzarCierre
     }
   }
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
-      <div className="p-5 border-b border-border">
+    <div className="bg-card border-2 border-foreground overflow-hidden">
+      <div className="p-4 border-b-2 border-foreground">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold">{ruta.id} — {ruta.zona}</h2>
+          <h2 className="text-sm font-bold uppercase">{ruta.id} — {ruta.zona}</h2>
           <StatusBadge variant="orange">En Tránsito</StatusBadge>
         </div>
         <p className="text-xs text-muted-foreground">Vehículo: {ruta.vehiculoAsignado} · Conductor: {ruta.conductorAsignado}</p>
       </div>
       <div className="divide-y divide-border">
         {ruta.paradas.map((p) => (
-          <div key={p.numero} className="px-5 py-3 flex items-center gap-3 hover:bg-[hsl(var(--hover-row))] transition-colors">
+          <div key={p.numero} className="px-4 py-2 flex items-center gap-3 hover:bg-muted">
             <span className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-bold">{p.numero}</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{p.direccion}</p>
@@ -327,9 +327,9 @@ function EnTransitoDetail({ ruta, onForzarCierre }: { ruta: Ruta; onForzarCierre
           </div>
         ))}
       </div>
-      <div className="p-5 border-t border-border">
-        <button onClick={onForzarCierre} className="px-4 py-2 border border-destructive text-destructive rounded-lg text-sm hover:bg-destructive/10 transition-colors">
-          Forzar Cierre de Ruta
+      <div className="p-4 border-t-2 border-foreground">
+        <button onClick={onForzarCierre} className="px-4 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">
+          ✗ Forzar Cierre de Ruta
         </button>
       </div>
     </div>
@@ -375,8 +375,8 @@ function CerradaDetail({ ruta }: { ruta: Ruta }) {
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-card border border-border rounded-xl shadow-2xl p-6">
+      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-card border-2 border-foreground p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold">{title}</h3>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded"><X className="h-5 w-5" /></button>
