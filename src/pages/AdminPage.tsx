@@ -283,7 +283,7 @@ function ConductoresTab() {
             </thead>
             <tbody>
               {historialAsignaciones.map((h, i) => (
-                <tr key={i} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
+                <tr key={i} className="border-b border-border last:border-0 hover:bg-muted">
                   <td className="px-4 py-2">{h.conductor}</td>
                   <td className="px-4 py-2">{h.vehiculo}</td>
                   <td className="px-4 py-2 text-muted-foreground">{h.fechaInicio}</td>
