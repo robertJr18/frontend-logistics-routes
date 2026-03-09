@@ -321,8 +321,8 @@ function GestionarModal({ stop, onClose, onResult }: { stop: Stop; onClose: () =
 function BottomModal({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[480px] bg-card border-t border-border rounded-t-xl shadow-2xl p-5">
+      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
+      <div className="relative w-full max-w-[480px] bg-card border-t-2 border-foreground p-4">
         {children}
       </div>
     </div>
