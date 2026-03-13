@@ -28,7 +28,7 @@ export default function Index() {
           </button>
         ))}
       </div>
-      <footer className="mt-16 text-subtle text-sm">© 2026 LogisticsRoutes — Santa Marta, Colombia</footer>
+      <footer className="mt-16 md:mt-auto md:pb-8 text-subtle text-sm">© 2026 LogisticsRoutes — Santa Marta, Colombia</footer>
     </div>
   );
 }
