@@ -3,7 +3,7 @@
 export type RouteStatus = "Creada" | "Lista para Despacho" | "Confirmada" | "En Tránsito" | "Cerrada Manual" | "Cerrada Automática" | "Cerrada Forzada";
 export type StopStatus = "Pendiente" | "Exitosa" | "Fallida" | "Novedad";
 export type VehicleType = "Moto" | "Van" | "NHR" | "Turbo";
-export type VehicleStatus = "Disponible" | "En Tránsito" | "Inactivo" | "En Mantenimiento";
+export type VehicleStatus = "Disponible" | "En Tránsito" | "Inactivo";
 export type DriverStatus = "Activo" | "Inactivo";
 
 export interface Paquete {
