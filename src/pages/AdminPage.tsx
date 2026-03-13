@@ -16,7 +16,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"flota" | "conductores">("flota");
   const disponibles = vehiculos.filter(v => v.estado === "Disponible").length;
   const enTransito = vehiculos.filter(v => v.estado === "En Tránsito").length;
-  const inactivos = vehiculos.filter(v => v.estado === "Inactivo" || v.estado === "En Mantenimiento").length;
+  const inactivos = vehiculos.filter(v => v.estado === "Inactivo").length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -53,7 +53,7 @@ export default function AdminPage() {
                   { label: "Total vehículos", value: vehiculos.length, color: "text-white" },
                   { label: "Disponibles", value: disponibles, color: "text-[#4caf82]" },
                   { label: "En tránsito", value: enTransito, color: "text-primary" },
-                  { label: "Inactivos / Mant.", value: inactivos, color: "text-[#e05555]" },
+                  { label: "Inactivos", value: inactivos, color: "text-[#e05555]" },
                 ].map(card => (
                   <div key={card.label} className="card-navy p-4 text-center">
                     <p className={`text-3xl font-bold ${card.color}`}>{card.value}</p>

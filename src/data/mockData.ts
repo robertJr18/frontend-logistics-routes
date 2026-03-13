@@ -3,7 +3,7 @@
 export type RouteStatus = "Creada" | "Lista para Despacho" | "Confirmada" | "En Tránsito" | "Cerrada Manual" | "Cerrada Automática" | "Cerrada Forzada";
 export type StopStatus = "Pendiente" | "Exitosa" | "Fallida" | "Novedad";
 export type VehicleType = "Moto" | "Van" | "NHR" | "Turbo";
-export type VehicleStatus = "Disponible" | "En Tránsito" | "Inactivo" | "En Mantenimiento";
+export type VehicleStatus = "Disponible" | "En Tránsito" | "Inactivo";
 export type DriverStatus = "Activo" | "Inactivo";
 
 export interface Paquete {
@@ -90,7 +90,7 @@ export const vehiculos: Vehiculo[] = [
   { placa: "ABC-001", tipo: "Moto", modelo: "AKT TT 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Norte, Santa Marta", estado: "En Tránsito", conductorAsignado: "Carlos Mendoza" },
   { placa: "XYZ-002", tipo: "Moto", modelo: "Yamaha FZ 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Rodadero, Santa Marta", estado: "Disponible", conductorAsignado: null },
   { placa: "PQR-110", tipo: "Van", modelo: "Chevrolet N300", capacidadPeso: 500, volumenMax: 4.2, zona: "Zona El Prado, Barranquilla", estado: "Disponible", conductorAsignado: "Luisa Fernández" },
-  { placa: "STU-220", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Zona Centro, Santa Marta", estado: "En Mantenimiento", conductorAsignado: null },
+  { placa: "STU-220", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Zona Centro, Santa Marta", estado: "Inactivo", conductorAsignado: null },
   { placa: "DEF-330", tipo: "NHR", modelo: "Chevrolet NHR", capacidadPeso: 2000, volumenMax: 12, zona: "Zona Soledad, Barranquilla", estado: "Disponible", conductorAsignado: "Tomás Rivera" },
   { placa: "GHI-440", tipo: "Turbo", modelo: "Hino Dutro", capacidadPeso: 4500, volumenMax: 20, zona: "Zona Bonda, Santa Marta", estado: "Inactivo", conductorAsignado: null },
 ];
