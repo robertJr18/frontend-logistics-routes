@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StatusBadge, { getRouteStatusVariant } from "@/components/StatusBadge";
 import { rutas, vehiculos, conductores } from "@/data/mockData";
@@ -14,6 +14,7 @@ export default function DespachadorDespachoPage() {
 
   const [selectedConductor, setSelectedConductor] = useState<string | null>(null);
   const [selectedVehiculo, setSelectedVehiculo] = useState<string | null>(null);
+  const [excludedPkgs, setExcludedPkgs] = useState<Set<string>>(new Set());
 
   if (!ruta) {
     return (
@@ -24,27 +25,29 @@ export default function DespachadorDespachoPage() {
     );
   }
 
-  const vehiculosDisponibles = vehiculos.filter(
-    v => v.tipo === ruta.vehiculoRequerido && v.estado === "Disponible"
-  );
-  const conductoresDisponibles = conductores.filter(
-    c => c.estado === "Activo"
-  );
+  const paquetesActivos = ruta.paquetes.filter(p => !excludedPkgs.has(p.id));
+  const pesoActual = Math.round(paquetesActivos.reduce((sum, p) => sum + p.peso, 0) * 10) / 10;
 
-  // Optimized stop order for Barranquilla
-  const paradasOptimizadas = [
-    "Calle 72 # 45-12, Barranquilla",
-    "Calle 84 # 42F-30, Barranquilla",
-    "Carrera 51B # 80-254, Barranquilla",
-    "Av. Murillo # 37-15, Barranquilla",
-    "Calle 17 # 18-22, Soledad",
-  ];
+  const conductoresDisponibles = conductores.filter(c => c.estado === "Activo");
+
+  const toggleExclude = (pkgId: string) => {
+    setExcludedPkgs(prev => {
+      const next = new Set(prev);
+      if (next.has(pkgId)) next.delete(pkgId);
+      else next.add(pkgId);
+      return next;
+    });
+  };
 
   const handleConfirm = () => {
     if (!selectedConductor || !selectedVehiculo) return;
+    if (paquetesActivos.length === 0) {
+      toast({ title: "Error", description: "Debes incluir al menos un paquete.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Despacho confirmado",
-      description: `Ruta ${ruta.id} asignada. El conductor recibirá la ruta en su dispositivo.`,
+      description: `Ruta ${ruta.id} asignada con ${paquetesActivos.length} paquetes · ${pesoActual} kg.`,
     });
     navigate("/despachador");
   };
@@ -64,12 +67,12 @@ export default function DespachadorDespachoPage() {
           </div>
           <div className="grid grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="text-white/60">Paquetes</span>
-              <p className="text-white font-semibold">{ruta.paquetes.length}</p>
+              <span className="text-white/60">Paquetes incluidos</span>
+              <p className="text-white font-semibold">{paquetesActivos.length} de {ruta.paquetes.length}</p>
             </div>
             <div>
               <span className="text-white/60">Peso total</span>
-              <p className="text-white font-semibold">{ruta.pesoTotal} kg</p>
+              <p className="text-white font-semibold">{pesoActual} kg</p>
             </div>
             <div>
               <span className="text-white/60">Tipo requerido</span>
@@ -82,7 +85,59 @@ export default function DespachadorDespachoPage() {
           </div>
         </div>
 
-        {/* Conductor + Vehicle selection (single list) */}
+        {/* Package list with exclusion */}
+        <div className="card-navy overflow-hidden mb-6">
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white">Paquetes de la ruta</h2>
+            {excludedPkgs.size > 0 && (
+              <span className="text-primary text-sm font-medium">{excludedPkgs.size} excluido(s)</span>
+            )}
+          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-center text-xs font-semibold text-white/60 px-4 py-3 w-16">Incluir</th>
+                <th className="text-left text-xs font-semibold text-white/60 px-4 py-3">ID Paquete</th>
+                <th className="text-left text-xs font-semibold text-white/60 px-4 py-3">Dirección</th>
+                <th className="text-left text-xs font-semibold text-white/60 px-4 py-3">Peso</th>
+                <th className="text-left text-xs font-semibold text-white/60 px-4 py-3">Tipo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ruta.paquetes.map((pkg) => {
+                const isExcluded = excludedPkgs.has(pkg.id);
+                return (
+                  <tr key={pkg.id} className={`border-b border-white/5 hover:bg-white/5 transition-opacity ${isExcluded ? "opacity-40" : ""}`}>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => toggleExclude(pkg.id)}
+                        className={`w-6 h-6 rounded-md border flex items-center justify-center transition-colors ${
+                          isExcluded
+                            ? "border-[#e05555] bg-[#e05555]/20 text-[#e05555]"
+                            : "border-[#4caf82] bg-[#4caf82]/20 text-[#4caf82]"
+                        }`}
+                      >
+                        {isExcluded ? <X className="w-3.5 h-3.5" /> : "✓"}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-sm font-semibold text-white">{pkg.id}</td>
+                    <td className="px-4 py-3 text-sm text-white">{pkg.direccion}, {pkg.zona}</td>
+                    <td className="px-4 py-3 text-sm text-white">{pkg.peso} kg</td>
+                    <td className="px-4 py-3 text-sm">
+                      {pkg.tipoPaquete === "FRAGIL" ? (
+                        <StatusBadge variant="warning">FRÁGIL</StatusBadge>
+                      ) : (
+                        <span className="text-white">{pkg.tipoPaquete}</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Conductor + Vehicle selection */}
         <div className="card-navy p-5 mb-6">
           <h2 className="text-lg font-bold text-white mb-4">Seleccionar Conductor y Vehículo</h2>
           <div className="space-y-3">
@@ -122,7 +177,7 @@ export default function DespachadorDespachoPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {vehiculoAsoc && (
-                        <StatusBadge variant={vehiculoAsoc.estado === "Disponible" ? "disponible" : vehiculoAsoc.estado === "En Tránsito" ? "en-transito" : "en-mantenimiento"}>
+                        <StatusBadge variant={vehiculoAsoc.estado === "Disponible" ? "disponible" : vehiculoAsoc.estado === "En Tránsito" ? "en-transito-vehicle" : "inactivo"}>
                           {vehiculoAsoc.estado}
                         </StatusBadge>
                       )}
@@ -132,21 +187,6 @@ export default function DespachadorDespachoPage() {
                 </button>
               );
             })}
-          </div>
-        </div>
-
-        {/* Optimized stop order */}
-        <div className="card-navy p-5 mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">Orden de paradas optimizado</h2>
-          <div className="space-y-2">
-            {paradasOptimizadas.map((addr, i) => (
-              <div key={i} className="flex items-center gap-3 text-sm">
-                <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
-                  {i + 1}
-                </span>
-                <span className="text-white">{addr}</span>
-              </div>
-            ))}
           </div>
         </div>
 
