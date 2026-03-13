@@ -10,8 +10,8 @@ const roles = [
 export default function Index() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8">
-      <div className="text-center mb-12">
+    <div className="min-h-screen flex flex-col items-center justify-center md:justify-start md:pt-[15vh] p-8">
+      <div className="text-center mb-12 md:mb-16">
         <h1 className="text-5xl font-bold mb-2">
           <span className="text-white">Logistics</span>
           <span className="text-primary">Routes</span>
