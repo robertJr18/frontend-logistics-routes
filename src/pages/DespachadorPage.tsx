@@ -34,7 +34,8 @@ export default function DespachadorPage() {
 
   const creadas = rutas.filter(r => r.estado === "Creada");
   const listasDespacho = rutas.filter(r => r.estado === "Lista para Despacho");
-  const enCurso = rutas.filter(r => r.estado === "Confirmada" || r.estado === "En Tránsito");
+  const confirmadas = rutas.filter(r => r.estado === "Confirmada");
+  const enTransito = rutas.filter(r => r.estado === "En Tránsito");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -51,7 +52,7 @@ export default function DespachadorPage() {
               <item.icon className="w-4 h-4" />
               {item.label}
               {item.badge && (
-                <span className="ml-auto bg-[#e05555] text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                <span className="ml-auto bg-destructive text-white text-xs px-2 py-0.5 rounded-full font-bold">
                   {item.badge}
                 </span>
               )}
@@ -59,14 +60,18 @@ export default function DespachadorPage() {
           ))}
         </aside>
 
-        <main className="flex-1 p-6 overflow-auto">
-          <section className="mb-8">
-            <h2 className="text-lg font-bold text-white mb-4">Rutas en Planificación</h2>
+        <main className="flex-1 p-6 overflow-auto space-y-6">
+          {/* Rutas Creadas */}
+          <section>
+            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+              Rutas Creadas
+              <span className="text-xs font-medium bg-card px-2 py-0.5 rounded-full text-white/60">{creadas.length}</span>
+            </h2>
             <div className="card-navy overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    {["ID Ruta", "Zona", "Paquetes", "Peso Acumulado", "Vehículo Requerido", "Tiempo restante", "Acciones"].map(col => (
+                    {["ID Ruta", "Zona", "Paquetes", "Peso", "Vehículo", "Tiempo restante", "Acciones"].map(col => (
                       <th key={col} className="text-left text-xs font-semibold text-white/60 px-4 py-3">{col}</th>
                     ))}
                   </tr>
@@ -95,13 +100,17 @@ export default function DespachadorPage() {
             </div>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-lg font-bold text-white mb-4">Listas para Despacho</h2>
+          {/* Listas para Despacho */}
+          <section>
+            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+              Listas para Despacho
+              <span className="text-xs font-medium bg-card px-2 py-0.5 rounded-full text-white/60">{listasDespacho.length}</span>
+            </h2>
             <div className="card-navy overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    {["ID Ruta", "Zona", "Paquetes", "Peso Acumulado", "Vehículo Requerido", "Motivo", "Acciones"].map(col => (
+                    {["ID Ruta", "Zona", "Paquetes", "Peso", "Vehículo", "Motivo", "Acciones"].map(col => (
                       <th key={col} className="text-left text-xs font-semibold text-white/60 px-4 py-3">{col}</th>
                     ))}
                   </tr>
@@ -131,20 +140,51 @@ export default function DespachadorPage() {
             </div>
           </section>
 
-          {enCurso.length > 0 && (
+          {/* Confirmadas */}
+          {confirmadas.length > 0 && (
             <section>
-              <h2 className="text-lg font-bold text-white mb-4">En curso</h2>
+              <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                Confirmadas
+                <span className="text-xs font-medium bg-card px-2 py-0.5 rounded-full text-white/60">{confirmadas.length}</span>
+              </h2>
               <div className="card-navy p-4 space-y-3">
-                {enCurso.map((ruta) => (
-                  <div key={ruta.id} className="flex items-center justify-between">
+                {confirmadas.map((ruta) => (
+                  <div key={ruta.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                     <div className="flex items-center gap-4">
                       <span className="text-white font-semibold text-sm">{ruta.id}</span>
                       <span className="text-white/60 text-sm">{ruta.zona}, {ruta.ciudad}</span>
                       <StatusBadge variant={getRouteStatusVariant(ruta.estado)}>{ruta.estado}</StatusBadge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-white/60">
-                      <span>Conductor: {ruta.conductorAsignado}</span>
-                      <span>Vehículo: {ruta.vehiculoAsignado}</span>
+                      <span>🚛 {ruta.vehiculoAsignado}</span>
+                      <span>👤 {ruta.conductorAsignado}</span>
+                      <span>{ruta.paquetes.length} paquetes · {ruta.pesoTotal} kg</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* En Tránsito */}
+          {enTransito.length > 0 && (
+            <section>
+              <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                En Tránsito
+                <span className="text-xs font-medium bg-card px-2 py-0.5 rounded-full text-white/60">{enTransito.length}</span>
+              </h2>
+              <div className="card-navy p-4 space-y-3">
+                {enTransito.map((ruta) => (
+                  <div key={ruta.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                    <div className="flex items-center gap-4">
+                      <span className="text-white font-semibold text-sm">{ruta.id}</span>
+                      <span className="text-white/60 text-sm">{ruta.zona}, {ruta.ciudad}</span>
+                      <StatusBadge variant={getRouteStatusVariant(ruta.estado)}>{ruta.estado}</StatusBadge>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-white/60">
+                      <span>🚛 {ruta.vehiculoAsignado}</span>
+                      <span>👤 {ruta.conductorAsignado}</span>
+                      <span>{ruta.paradas.filter(p => p.status === "Exitosa").length}/{ruta.paradas.length} paradas</span>
                     </div>
                   </div>
                 ))}

@@ -199,6 +199,28 @@ export const rutas: Ruta[] = [
       { numero: 6, paqueteId: "PKG-8826", direccion: "Carrera 19 # 21-08, Soledad", destinatario: "Ricardo Vega", peso: 595, status: "Pendiente" },
     ],
   },
+  {
+    id: "R-2050",
+    zona: "Zona Gaira",
+    ciudad: "Santa Marta",
+    vehiculoRequerido: "Moto",
+    estado: "En Tránsito",
+    pesoTotal: 11.5,
+    fechaCreacion: "2026-03-09",
+    fechaLimiteDespacho: "2026-03-12T10:00",
+    vehiculoAsignado: "ABC-001",
+    conductorAsignado: "Carlos Mendoza",
+    paquetes: [
+      { id: "PKG-8901", peso: 3.2, direccion: "Calle 10 # 4-15", zona: "Gaira, Santa Marta", fechaLimiteEntrega: "2026-03-13", tipoPaquete: "NORMAL" },
+      { id: "PKG-8902", peso: 4.1, direccion: "Carrera 8 # 12-30", zona: "Gaira, Santa Marta", fechaLimiteEntrega: "2026-03-13", tipoPaquete: "FRAGIL" },
+      { id: "PKG-8903", peso: 4.2, direccion: "Av. del Río # 6-22", zona: "Gaira, Santa Marta", fechaLimiteEntrega: "2026-03-14", tipoPaquete: "NORMAL" },
+    ],
+    paradas: [
+      { numero: 1, paqueteId: "PKG-8901", direccion: "Calle 10 # 4-15, Gaira", destinatario: "Sandra Ortiz", peso: 3.2, status: "Exitosa" },
+      { numero: 2, paqueteId: "PKG-8902", direccion: "Carrera 8 # 12-30, Gaira", destinatario: "Felipe Rojas", peso: 4.1, status: "Pendiente" },
+      { numero: 3, paqueteId: "PKG-8903", direccion: "Av. del Río # 6-22, Gaira", destinatario: "Ana Guerrero", peso: 4.2, status: "Pendiente" },
+    ],
+  },
 ];
 
 export const capacidadVehiculo: Record<VehicleType, number> = {
