@@ -1,64 +1,34 @@
-import { Truck, MapPin, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Truck, MapPin, Settings } from "lucide-react";
 
 const roles = [
-  {
-    icon: Truck,
-    title: "Despachador Logístico",
-    description: "Gestionar rutas y confirmar despachos",
-    path: "/despachador",
-  },
-  {
-    icon: MapPin,
-    title: "Conductor",
-    description: "Ver mi ruta y registrar paradas",
-    path: "/conductor",
-  },
-  {
-    icon: Settings,
-    title: "Administrador de Flota",
-    description: "Gestionar vehículos y conductores",
-    path: "/admin",
-  },
+  { title: "Despachador Logístico", description: "Gestionar rutas y confirmar despachos", icon: Truck, path: "/despachador" },
+  { title: "Conductor", description: "Ver mi ruta y registrar paradas", icon: MapPin, path: "/conductor" },
+  { title: "Administrador de Flota", description: "Gestionar vehículos y conductores", icon: Settings, path: "/admin" },
 ];
 
 export default function Index() {
   const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
-      <div className="mb-10 text-center">
-        <p className="text-xs text-muted-foreground mb-2 tracking-widest uppercase">— Prototipo Lo-Fi —</p>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground mb-1">
-          Sistema de Gestión Logística
+    <div className="min-h-screen flex flex-col items-center justify-center p-8">
+      <div className="text-center mb-12">
+        <h1 className="text-5xl font-bold mb-2">
+          <span className="text-white">Logistics</span>
+          <span className="text-primary">Routes</span>
         </h1>
-        <p className="text-muted-foreground text-sm">Módulo 2 — Planificación de Rutas y Gestión de Flota</p>
+        <p className="text-subtle text-lg">Sistema de gestión de rutas</p>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
         {roles.map((role) => (
-          <button
-            key={role.path}
-            onClick={() => navigate(role.path)}
-            className="group bg-card border-2 border-foreground p-6 text-left hover:bg-muted focus:outline-none"
-          >
-            <div className="h-10 w-10 border-2 border-foreground flex items-center justify-center mb-3">
-              <role.icon className="h-5 w-5" />
-            </div>
-            <h2 className="text-sm font-bold mb-1 uppercase tracking-wide">
-              {role.title}
-            </h2>
-            <p className="text-muted-foreground text-xs mb-4">{role.description}</p>
-            <span className="inline-flex items-center px-3 py-1.5 border-2 border-foreground text-xs font-bold uppercase tracking-wide">
-              Ingresar →
-            </span>
+          <button key={role.path} onClick={() => navigate(role.path)} className="card-navy p-8 flex flex-col items-center text-center hover:scale-[1.02] transition-transform">
+            <role.icon className="w-12 h-12 text-primary mb-4" />
+            <h2 className="text-xl font-bold text-white mb-2">{role.title}</h2>
+            <p className="text-subtle text-sm mb-6">{role.description}</p>
+            <span className="btn-primary text-sm">Ingresar →</span>
           </button>
         ))}
       </div>
-
-      <p className="mt-10 text-muted-foreground text-xs">
-        © 2026 Sistema de Gestión Logística — Santa Marta, Colombia
-      </p>
+      <footer className="mt-16 text-subtle text-sm">© 2026 LogisticsRoutes — Santa Marta, Colombia</footer>
     </div>
   );
 }

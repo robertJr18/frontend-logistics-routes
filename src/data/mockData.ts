@@ -1,15 +1,16 @@
 // ===== TYPES =====
 
-export type RouteStatus = "En Espera" | "Lista para Despacho" | "Ruta Confirmada" | "En Tránsito" | "Cerrada";
+export type RouteStatus = "Creada" | "Lista para Despacho" | "Confirmada" | "En Tránsito" | "Cerrada Manual" | "Cerrada Automática" | "Cerrada Forzada";
 export type StopStatus = "Pendiente" | "Exitosa" | "Fallida" | "Novedad";
 export type VehicleType = "Moto" | "Van" | "NHR" | "Turbo";
-export type VehicleStatus = "Disponible" | "En Tránsito" | "Inactivo";
+export type VehicleStatus = "Disponible" | "En Tránsito" | "Inactivo" | "En Mantenimiento";
 export type DriverStatus = "Activo" | "Inactivo";
 
 export interface Paquete {
   id: string;
   peso: number;
   direccion: string;
+  zona: string;
   fechaLimiteEntrega: string;
   tipoPaquete: string;
 }
@@ -19,6 +20,7 @@ export interface Parada {
   paqueteId: string;
   direccion: string;
   destinatario: string;
+  peso: number;
   status: StopStatus;
   motivoFallo?: string;
   tipoNovedad?: string;
@@ -27,15 +29,18 @@ export interface Parada {
 export interface Ruta {
   id: string;
   zona: string;
+  ciudad: string;
   paquetes: Paquete[];
+  pesoTotal: number;
   vehiculoRequerido: VehicleType;
   estado: RouteStatus;
   fechaCreacion: string;
   fechaLimiteDespacho: string;
+  motivoDespacho?: string;
   vehiculoAsignado?: string;
   conductorAsignado?: string;
   paradas: Parada[];
-  resumen?: { exitosas: number; fallidas: number; novedades: number; total: number };
+  resumen?: { exitosas: number; fallidas: number; novedades: number; sinGestion: number; total: number };
 }
 
 export interface Vehiculo {
@@ -57,152 +62,148 @@ export interface Conductor {
   turnoActivo: string | null;
 }
 
-export interface HistorialAsignacion {
-  conductor: string;
-  vehiculo: string;
-  fechaInicio: string;
-  fechaFin: string | null;
-}
-
 // ===== MOCK DATA =====
 
+export const zonas = [
+  "Zona Norte, Santa Marta",
+  "Zona Centro, Santa Marta",
+  "Zona Rodadero, Santa Marta",
+  "Zona Mamatoco, Santa Marta",
+  "Zona Gaira, Santa Marta",
+  "Zona Bonda, Santa Marta",
+  "Zona Bello Horizonte, Santa Marta",
+  "Zona Taganga, Santa Marta",
+  "Zona El Prado, Barranquilla",
+  "Zona Soledad, Barranquilla",
+  "Zona Única, Ciénaga",
+];
+
 export const conductores: Conductor[] = [
-  { id: "DRV-001", nombre: "Carlos Martínez", estado: "Activo", vehiculoAsignado: "ABC-123", turnoActivo: "06:00 - 14:00" },
-  { id: "DRV-002", nombre: "Juliana Ospina", estado: "Activo", vehiculoAsignado: "XYZ-456", turnoActivo: "06:00 - 14:00" },
-  { id: "DRV-003", nombre: "Andrés Pérez", estado: "Activo", vehiculoAsignado: null, turnoActivo: "14:00 - 22:00" },
-  { id: "DRV-004", nombre: "María Camila Torres", estado: "Activo", vehiculoAsignado: "PQR-321", turnoActivo: "06:00 - 14:00" },
+  { id: "DRV-001", nombre: "Carlos Mendoza", estado: "Activo", vehiculoAsignado: "ABC-001", turnoActivo: "06:00 - 14:00" },
+  { id: "DRV-002", nombre: "Luisa Fernández", estado: "Activo", vehiculoAsignado: "PQR-110", turnoActivo: "06:00 - 14:00" },
+  { id: "DRV-003", nombre: "Tomás Rivera", estado: "Activo", vehiculoAsignado: "DEF-330", turnoActivo: "14:00 - 22:00" },
+  { id: "DRV-004", nombre: "Andrea Solano", estado: "Activo", vehiculoAsignado: null, turnoActivo: "06:00 - 14:00" },
   { id: "DRV-005", nombre: "Diego Hernández", estado: "Inactivo", vehiculoAsignado: null, turnoActivo: null },
 ];
 
 export const vehiculos: Vehiculo[] = [
-  { placa: "ABC-123", tipo: "Van", modelo: "Chevrolet N300", capacidadPeso: 500, volumenMax: 4.2, zona: "Pescaito", estado: "En Tránsito", conductorAsignado: "Carlos Martínez" },
-  { placa: "XYZ-456", tipo: "NHR", modelo: "Chevrolet NHR", capacidadPeso: 2000, volumenMax: 12, zona: "Centro Histórico", estado: "En Tránsito", conductorAsignado: "Juliana Ospina" },
-  { placa: "MNO-789", tipo: "Moto", modelo: "AKT TT 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Rodadero", estado: "Disponible", conductorAsignado: null },
-  { placa: "PQR-321", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Mamatoco", estado: "Disponible", conductorAsignado: "María Camila Torres" },
-  { placa: "LKJ-654", tipo: "Turbo", modelo: "Hino Dutro", capacidadPeso: 4500, volumenMax: 20, zona: "Bastidas", estado: "Disponible", conductorAsignado: null },
-  { placa: "DEF-987", tipo: "NHR", modelo: "JMC N900", capacidadPeso: 2000, volumenMax: 10, zona: "El Pando", estado: "Inactivo", conductorAsignado: null },
-  { placa: "GHI-111", tipo: "Van", modelo: "Hafei Ruiyi", capacidadPeso: 450, volumenMax: 3.5, zona: "Gaira", estado: "Disponible", conductorAsignado: null },
+  { placa: "ABC-001", tipo: "Moto", modelo: "AKT TT 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Norte, Santa Marta", estado: "En Tránsito", conductorAsignado: "Carlos Mendoza" },
+  { placa: "XYZ-002", tipo: "Moto", modelo: "Yamaha FZ 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Rodadero, Santa Marta", estado: "Disponible", conductorAsignado: null },
+  { placa: "PQR-110", tipo: "Van", modelo: "Chevrolet N300", capacidadPeso: 500, volumenMax: 4.2, zona: "Zona El Prado, Barranquilla", estado: "Disponible", conductorAsignado: "Luisa Fernández" },
+  { placa: "STU-220", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Zona Centro, Santa Marta", estado: "En Mantenimiento", conductorAsignado: null },
+  { placa: "DEF-330", tipo: "NHR", modelo: "Chevrolet NHR", capacidadPeso: 2000, volumenMax: 12, zona: "Zona Soledad, Barranquilla", estado: "Disponible", conductorAsignado: "Tomás Rivera" },
+  { placa: "GHI-440", tipo: "Turbo", modelo: "Hino Dutro", capacidadPeso: 4500, volumenMax: 20, zona: "Zona Bonda, Santa Marta", estado: "Inactivo", conductorAsignado: null },
 ];
 
 export const rutas: Ruta[] = [
   {
-    id: "RT-001",
-    zona: "Pescaito",
-    vehiculoRequerido: "Van",
-    estado: "Lista para Despacho",
-    fechaCreacion: "2026-03-05",
-    fechaLimiteDespacho: "2026-03-07 08:00",
-    paradas: [],
-    paquetes: [
-      { id: "PKG-001", peso: 12, direccion: "Cra 5 #22-18, Pescaito", fechaLimiteEntrega: "2026-03-07", tipoPaquete: "Estándar" },
-      { id: "PKG-002", peso: 8, direccion: "Calle 10 #3-15, Pescaito", fechaLimiteEntrega: "2026-03-07", tipoPaquete: "Frágil" },
-      { id: "PKG-003", peso: 15, direccion: "Av. del Río #8-45, Pescaito", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Estándar" },
-      { id: "PKG-004", peso: 6, direccion: "Cra 3 #18-22, Pescaito", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Estándar" },
-      { id: "PKG-005", peso: 20, direccion: "Calle 8 #5-10, Pescaito", fechaLimiteEntrega: "2026-03-09", tipoPaquete: "Voluminoso" },
-    ],
-  },
-  {
-    id: "RT-002",
-    zona: "Centro Histórico",
-    vehiculoRequerido: "NHR",
-    estado: "Lista para Despacho",
-    fechaCreacion: "2026-03-05",
-    fechaLimiteDespacho: "2026-03-07 10:00",
-    paradas: [],
-    paquetes: [
-      { id: "PKG-006", peso: 25, direccion: "Cra 2 #14-30, Centro Histórico", fechaLimiteEntrega: "2026-03-07", tipoPaquete: "Estándar" },
-      { id: "PKG-007", peso: 45, direccion: "Calle 16 #4-55, Centro Histórico", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Frágil" },
-      { id: "PKG-008", peso: 18, direccion: "Cra 1 #20-12, Centro Histórico", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Estándar" },
-    ],
-  },
-  {
-    id: "RT-003",
-    zona: "Rodadero",
-    vehiculoRequerido: "Van",
-    estado: "En Tránsito",
-    fechaCreacion: "2026-03-04",
-    fechaLimiteDespacho: "2026-03-06 07:00",
-    vehiculoAsignado: "ABC-123",
-    conductorAsignado: "Carlos Martínez",
-    paquetes: [
-      { id: "PKG-040", peso: 10, direccion: "Calle 30 #14-62, Rodadero", fechaLimiteEntrega: "2026-03-07", tipoPaquete: "Estándar" },
-      { id: "PKG-041", peso: 5, direccion: "Cra 1 #7-60, Rodadero", fechaLimiteEntrega: "2026-03-07", tipoPaquete: "Frágil" },
-      { id: "PKG-012", peso: 14, direccion: "Av. Tamacá #2-30, Rodadero", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Estándar" },
-      { id: "PKG-013", peso: 22, direccion: "Calle 28 #6-18, Rodadero", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Voluminoso" },
-    ],
-    paradas: [
-      { numero: 1, paqueteId: "PKG-040", direccion: "Calle 30 #14-62, Rodadero", destinatario: "Paola Rincón", status: "Exitosa" },
-      { numero: 2, paqueteId: "PKG-041", direccion: "Cra 1 #7-60, Rodadero", destinatario: "Jorge Pedraza", status: "Pendiente" },
-      { numero: 3, paqueteId: "PKG-012", direccion: "Av. Tamacá #2-30, Rodadero", destinatario: "Luz Díaz", status: "Fallida", motivoFallo: "Cliente ausente" },
-      { numero: 4, paqueteId: "PKG-013", direccion: "Calle 28 #6-18, Rodadero", destinatario: "Camilo Suárez", status: "Pendiente" },
-    ],
-  },
-  {
-    id: "RT-004",
-    zona: "Mamatoco",
+    id: "R-2045",
+    zona: "Zona Norte",
+    ciudad: "Santa Marta",
     vehiculoRequerido: "Moto",
-    estado: "En Espera",
-    fechaCreacion: "2026-03-06",
-    fechaLimiteDespacho: "2026-03-08 09:00",
+    estado: "Creada",
+    pesoTotal: 14.2,
+    fechaCreacion: "2026-03-10",
+    fechaLimiteDespacho: "2026-03-13T08:00",
     paradas: [],
     paquetes: [
-      { id: "PKG-014", peso: 3, direccion: "Cra 19 #41-10, Mamatoco", fechaLimiteEntrega: "2026-03-09", tipoPaquete: "Estándar" },
-      { id: "PKG-015", peso: 2, direccion: "Calle 35 #20-05, Mamatoco", fechaLimiteEntrega: "2026-03-09", tipoPaquete: "Estándar" },
+      { id: "PKG-7701", peso: 2.1, direccion: "Calle 22 # 1-54", zona: "Zona Norte, Santa Marta", fechaLimiteEntrega: "2026-03-14", tipoPaquete: "NORMAL" },
+      { id: "PKG-7702", peso: 1.9, direccion: "Carrera 4 # 27-33", zona: "Centro Histórico, Santa Marta", fechaLimiteEntrega: "2026-03-14", tipoPaquete: "FRAGIL" },
+      { id: "PKG-7703", peso: 3.4, direccion: "Calle 115 # 7-21", zona: "Bello Horizonte, Santa Marta", fechaLimiteEntrega: "2026-03-15", tipoPaquete: "NORMAL" },
+      { id: "PKG-7704", peso: 2.6, direccion: "Carrera 3 # 9-80", zona: "Rodadero, Santa Marta", fechaLimiteEntrega: "2026-03-15", tipoPaquete: "FRAGIL" },
+      { id: "PKG-7705", peso: 1.7, direccion: "Calle 18 # 6-41", zona: "Santa Marta", fechaLimiteEntrega: "2026-03-16", tipoPaquete: "NORMAL" },
+      { id: "PKG-7706", peso: 2.5, direccion: "Carrera 5 # 30-22", zona: "Santa Marta", fechaLimiteEntrega: "2026-03-16", tipoPaquete: "NORMAL" },
     ],
   },
   {
-    id: "RT-005",
-    zona: "Bastidas",
-    vehiculoRequerido: "Van",
-    estado: "Cerrada",
-    fechaCreacion: "2026-03-01",
-    fechaLimiteDespacho: "2026-03-03 08:00",
-    vehiculoAsignado: "PQR-321",
-    conductorAsignado: "María Camila Torres",
+    id: "R-2046",
+    zona: "Zona Rodadero",
+    ciudad: "Santa Marta",
+    vehiculoRequerido: "Moto",
+    estado: "Creada",
+    pesoTotal: 8.7,
+    fechaCreacion: "2026-03-11",
+    fechaLimiteDespacho: "2026-03-14T08:00",
+    paradas: [],
     paquetes: [
-      { id: "PKG-020", peso: 10, direccion: "Diagonal 22 #5-33, Bastidas", fechaLimiteEntrega: "2026-03-04", tipoPaquete: "Estándar" },
-      { id: "PKG-021", peso: 7, direccion: "Cra 15 #30-18, Bastidas", fechaLimiteEntrega: "2026-03-04", tipoPaquete: "Frágil" },
-      { id: "PKG-022", peso: 12, direccion: "Calle 25 #12-44, Bastidas", fechaLimiteEntrega: "2026-03-04", tipoPaquete: "Estándar" },
+      { id: "PKG-7710", peso: 3.2, direccion: "Calle 7 # 1-18", zona: "Rodadero, Santa Marta", fechaLimiteEntrega: "2026-03-15", tipoPaquete: "NORMAL" },
+      { id: "PKG-7711", peso: 2.8, direccion: "Carrera 2 # 5-40", zona: "Rodadero, Santa Marta", fechaLimiteEntrega: "2026-03-15", tipoPaquete: "FRAGIL" },
+      { id: "PKG-7712", peso: 2.7, direccion: "Av. Tamacá # 3-22", zona: "Rodadero, Santa Marta", fechaLimiteEntrega: "2026-03-16", tipoPaquete: "NORMAL" },
+    ],
+  },
+  {
+    id: "R-2047",
+    zona: "Zona El Prado",
+    ciudad: "Barranquilla",
+    vehiculoRequerido: "Van",
+    estado: "Lista para Despacho",
+    pesoTotal: 412.5,
+    fechaCreacion: "2026-03-08",
+    fechaLimiteDespacho: "2026-03-13T10:00",
+    motivoDespacho: "Vencimiento de plazo",
+    paradas: [],
+    paquetes: Array.from({ length: 18 }, (_, i) => ({
+      id: `PKG-78${String(i + 1).padStart(2, "0")}`,
+      peso: Math.round((412.5 / 18) * 10) / 10,
+      direccion: `Calle ${40 + i} # ${10 + i}-${20 + i}`,
+      zona: "El Prado, Barranquilla",
+      fechaLimiteEntrega: "2026-03-14",
+      tipoPaquete: i % 3 === 0 ? "FRAGIL" : "NORMAL",
+    })),
+  },
+  {
+    id: "R-2048",
+    zona: "Zona Centro",
+    ciudad: "Santa Marta",
+    vehiculoRequerido: "Van",
+    estado: "Lista para Despacho",
+    pesoTotal: 448.0,
+    fechaCreacion: "2026-03-09",
+    fechaLimiteDespacho: "2026-03-13T14:00",
+    motivoDespacho: "Capacidad al 90%",
+    paradas: [],
+    paquetes: Array.from({ length: 22 }, (_, i) => ({
+      id: `PKG-79${String(i + 1).padStart(2, "0")}`,
+      peso: Math.round((448.0 / 22) * 10) / 10,
+      direccion: `Carrera ${1 + i} # ${5 + i}-${10 + i}`,
+      zona: "Centro, Santa Marta",
+      fechaLimiteEntrega: "2026-03-15",
+      tipoPaquete: i % 4 === 0 ? "FRAGIL" : "NORMAL",
+    })),
+  },
+  {
+    id: "R-2049",
+    zona: "Zona Soledad",
+    ciudad: "Barranquilla",
+    vehiculoRequerido: "NHR",
+    estado: "Confirmada",
+    pesoTotal: 1840,
+    fechaCreacion: "2026-03-07",
+    fechaLimiteDespacho: "2026-03-12T08:00",
+    vehiculoAsignado: "DEF-330",
+    conductorAsignado: "Tomás Rivera",
+    paquetes: [
+      { id: "PKG-8821", peso: 210, direccion: "Calle 72 # 45-12", zona: "Barranquilla", fechaLimiteEntrega: "2026-03-13", tipoPaquete: "NORMAL" },
+      { id: "PKG-8822", peso: 95, direccion: "Carrera 51B # 80-254", zona: "Barranquilla", fechaLimiteEntrega: "2026-03-13", tipoPaquete: "NORMAL" },
+      { id: "PKG-8823", peso: 340, direccion: "Calle 84 # 42F-30", zona: "Barranquilla", fechaLimiteEntrega: "2026-03-13", tipoPaquete: "FRAGIL" },
+      { id: "PKG-8824", peso: 180, direccion: "Av. Murillo # 37-15", zona: "Barranquilla", fechaLimiteEntrega: "2026-03-14", tipoPaquete: "NORMAL" },
+      { id: "PKG-8825", peso: 420, direccion: "Calle 17 # 18-22", zona: "Soledad", fechaLimiteEntrega: "2026-03-14", tipoPaquete: "NORMAL" },
+      { id: "PKG-8826", peso: 595, direccion: "Carrera 19 # 21-08", zona: "Soledad", fechaLimiteEntrega: "2026-03-14", tipoPaquete: "NORMAL" },
     ],
     paradas: [
-      { numero: 1, paqueteId: "PKG-020", direccion: "Diagonal 22 #5-33, Bastidas", destinatario: "Ana Morales", status: "Exitosa" },
-      { numero: 2, paqueteId: "PKG-021", direccion: "Cra 15 #30-18, Bastidas", destinatario: "Ricardo Vega", status: "Exitosa" },
-      { numero: 3, paqueteId: "PKG-022", direccion: "Calle 25 #12-44, Bastidas", destinatario: "Sandra López", status: "Novedad", tipoNovedad: "Paquete dañado" },
-    ],
-    resumen: { exitosas: 2, fallidas: 0, novedades: 1, total: 3 },
-  },
-  {
-    id: "RT-006",
-    zona: "El Pando",
-    vehiculoRequerido: "Turbo",
-    estado: "Lista para Despacho",
-    fechaCreacion: "2026-03-06",
-    fechaLimiteDespacho: "2026-03-07 14:00",
-    paradas: [],
-    paquetes: [
-      { id: "PKG-030", peso: 120, direccion: "Calle 11 #3-20, El Pando", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Voluminoso" },
-      { id: "PKG-031", peso: 80, direccion: "Cra 7 #9-14, El Pando", fechaLimiteEntrega: "2026-03-08", tipoPaquete: "Estándar" },
-      { id: "PKG-032", peso: 200, direccion: "Av. del Ferrocarril #15-40, El Pando", fechaLimiteEntrega: "2026-03-09", tipoPaquete: "Estándar" },
-      { id: "PKG-033", peso: 55, direccion: "Calle 13 #2-28, El Pando", fechaLimiteEntrega: "2026-03-09", tipoPaquete: "Frágil" },
-      { id: "PKG-034", peso: 150, direccion: "Cra 5 #11-55, El Pando", fechaLimiteEntrega: "2026-03-09", tipoPaquete: "Voluminoso" },
-      { id: "PKG-035", peso: 90, direccion: "Calle 10 #6-32, El Pando", fechaLimiteEntrega: "2026-03-10", tipoPaquete: "Estándar" },
+      { numero: 1, paqueteId: "PKG-8821", direccion: "Calle 72 # 45-12, Barranquilla", destinatario: "Paola Rincón", peso: 210, status: "Pendiente" },
+      { numero: 2, paqueteId: "PKG-8822", direccion: "Carrera 51B # 80-254, Barranquilla", destinatario: "Jorge Pedraza", peso: 95, status: "Pendiente" },
+      { numero: 3, paqueteId: "PKG-8823", direccion: "Calle 84 # 42F-30, Barranquilla", destinatario: "Luz Díaz", peso: 340, status: "Pendiente" },
+      { numero: 4, paqueteId: "PKG-8824", direccion: "Av. Murillo # 37-15, Barranquilla", destinatario: "Camilo Suárez", peso: 180, status: "Exitosa" },
+      { numero: 5, paqueteId: "PKG-8825", direccion: "Calle 17 # 18-22, Soledad", destinatario: "María López", peso: 420, status: "Fallida", motivoFallo: "CLIENTE_AUSENTE" },
+      { numero: 6, paqueteId: "PKG-8826", direccion: "Carrera 19 # 21-08, Soledad", destinatario: "Ricardo Vega", peso: 595, status: "Pendiente" },
     ],
   },
 ];
 
-export const historialAsignaciones: HistorialAsignacion[] = [
-  { conductor: "Carlos Martínez", vehiculo: "ABC-123", fechaInicio: "2026-02-15", fechaFin: "2026-03-01" },
-  { conductor: "Juliana Ospina", vehiculo: "MNO-789", fechaInicio: "2026-02-20", fechaFin: "2026-03-05" },
-  { conductor: "María Camila Torres", vehiculo: "GHI-111", fechaInicio: "2026-03-01", fechaFin: "2026-03-04" },
-];
-
-export const zonasSantaMarta = [
-  "Centro Histórico",
-  "Pescaito",
-  "Rodadero",
-  "Mamatoco",
-  "Bastidas",
-  "El Pando",
-  "Gaira",
-  "Taganga",
-];
+export const capacidadVehiculo: Record<VehicleType, number> = {
+  Moto: 20,
+  Van: 500,
+  NHR: 2000,
+  Turbo: 4500,
+};

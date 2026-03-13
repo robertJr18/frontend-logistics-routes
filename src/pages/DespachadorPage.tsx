@@ -1,387 +1,157 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Route as RouteIcon, Bell, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import StatusBadge from "@/components/StatusBadge";
-import { rutas as initialRutas, vehiculos, conductores, type Ruta, type RouteStatus } from "@/data/mockData";
-import { X, AlertTriangle, Package } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import StatusBadge, { getRouteStatusVariant } from "@/components/StatusBadge";
+import { rutas } from "@/data/mockData";
 
-function statusVariant(s: RouteStatus) {
-  switch (s) {
-    case "En Espera": return "neutral" as const;
-    case "Lista para Despacho": return "info" as const;
-    case "Ruta Confirmada": return "purple" as const;
-    case "En Tránsito": return "orange" as const;
-    case "Cerrada": return "success" as const;
-  }
+const sidebarItems = [
+  { label: "Rutas", icon: RouteIcon, badge: null },
+  { label: "Alertas", icon: Bell, badge: "2" },
+  { label: "Historial", icon: Clock, badge: null },
+];
+
+function getTimeRemaining(deadline: string): string {
+  const now = new Date("2026-03-13T00:00:00");
+  const dl = new Date(deadline);
+  const diff = dl.getTime() - now.getTime();
+  if (diff <= 0) return "Vencido";
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+  const remainHours = hours % 24;
+  if (days > 0) return `${days}d ${remainHours}h`;
+  return `${remainHours}h`;
+}
+
+function isUrgent(deadline: string): boolean {
+  const now = new Date("2026-03-13T00:00:00");
+  const dl = new Date(deadline);
+  return (dl.getTime() - now.getTime()) < 24 * 60 * 60 * 1000;
 }
 
 export default function DespachadorPage() {
-  const { toast } = useToast();
-  const [rutas, setRutas] = useState(initialRutas);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [alertVisible, setAlertVisible] = useState(true);
-  const [showExcluir, setShowExcluir] = useState(false);
-  const [showForzar, setShowForzar] = useState(false);
-  const [vehiculoSel, setVehiculoSel] = useState("");
-  const [conductorSel, setConductorSel] = useState("");
+  const navigate = useNavigate();
 
-  const selected = rutas.find((r) => r.id === selectedId) || null;
-
-  const totalPeso = (r: Ruta) => r.paquetes.reduce((s, p) => s + p.peso, 0);
-
-  function confirmarDespacho(id: string) {
-    if (!vehiculoSel || !conductorSel) {
-      toast({ title: "Error", description: "Selecciona vehículo y conductor antes de confirmar.", variant: "destructive" });
-      return;
-    }
-    setRutas((prev) =>
-      prev.map((r) =>
-        r.id === id ? { ...r, estado: "Ruta Confirmada" as RouteStatus, vehiculoAsignado: vehiculoSel, conductorAsignado: conductorSel } : r
-      )
-    );
-    toast({ title: "Ruta confirmada", description: "El conductor recibirá la ruta en su dispositivo." });
-    setVehiculoSel("");
-    setConductorSel("");
-  }
-
-  function forzarCierre(id: string) {
-    setRutas((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? {
-              ...r,
-              estado: "Cerrada" as RouteStatus,
-              paradas: r.paradas.map((p) => (p.status === "Pendiente" ? { ...p, status: "Novedad" as const, tipoNovedad: "sin_gestión_conductor" } : p)),
-              resumen: {
-                total: r.paradas.length,
-                exitosas: r.paradas.filter((p) => p.status === "Exitosa").length,
-                fallidas: r.paradas.filter((p) => p.status === "Fallida").length,
-                novedades: r.paradas.filter((p) => p.status === "Novedad" || p.status === "Pendiente").length,
-              },
-            }
-          : r
-      )
-    );
-    setShowForzar(false);
-    toast({ title: "Ruta cerrada", description: "Las paradas pendientes fueron marcadas como sin_gestión_conductor." });
-  }
-
-  function isExpiringSoon(fecha: string) {
-    const diff = new Date(fecha).getTime() - new Date("2026-03-07").getTime();
-    return diff <= 86400000 && diff >= 0;
-  }
-
-  const availableVehicles = vehiculos.filter(
-    (v) => v.estado === "Disponible" && selected && v.tipo === selected.vehiculoRequerido
-  );
-  const availableDrivers = conductores.filter((c) => c.estado === "Activo");
+  const creadas = rutas.filter(r => r.estado === "Creada");
+  const listasDespacho = rutas.filter(r => r.estado === "Lista para Despacho");
+  const enCurso = rutas.filter(r => r.estado === "Confirmada" || r.estado === "En Tránsito");
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar roleName="Despachador Logístico" />
-
-      {/* Alert banner */}
-      {alertVisible && (
-        <div className="mx-6 mt-4 flex items-center justify-between border-2 border-foreground px-4 py-2 text-xs font-bold bg-card">
-          <span>⚠ RT-003 · Zona Rodadero: paquete PKG-041 vence en menos de 24 horas. Despacho urgente requerido.</span>
-          <button onClick={() => setAlertVisible(false)} className="p-1 hover:bg-muted">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      <div className="flex-1 flex p-6 gap-6 overflow-hidden">
-        {/* LEFT — Route list */}
-        <div className="w-[35%] shrink-0 flex flex-col gap-3 overflow-auto">
-          <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-lg font-semibold">Rutas</h2>
-            <StatusBadge variant="info">{rutas.length}</StatusBadge>
-          </div>
-
-          {rutas.map((r) => (
+    <div className="min-h-screen flex flex-col">
+      <Navbar title="Despachador Logístico" />
+      <div className="flex flex-1">
+        <aside className="w-60 border-r border-white/10 p-4 flex flex-col gap-1">
+          {sidebarItems.map((item) => (
             <button
-              key={r.id}
-              onClick={() => { setSelectedId(r.id); setVehiculoSel(""); setConductorSel(""); }}
-              className={`w-full text-left bg-card border-2 p-3 hover:bg-muted ${
-                selectedId === r.id ? "border-foreground" : "border-border"
+              key={item.label}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium w-full text-left ${
+                item.label === "Rutas" ? "bg-card text-white" : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm">{r.id}</span>
-                <StatusBadge variant={statusVariant(r.estado)}>{r.estado}</StatusBadge>
-              </div>
-              <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
-                <span>Zona: {r.zona}</span>
-                <span>{r.paquetes.length} paquetes</span>
-                <span>{totalPeso(r)} kg</span>
-                <span>Requiere: {r.vehiculoRequerido}</span>
-              </div>
+              <item.icon className="w-4 h-4" />
+              {item.label}
+              {item.badge && (
+                <span className="ml-auto bg-[#e05555] text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                  {item.badge}
+                </span>
+              )}
             </button>
           ))}
-        </div>
+        </aside>
 
-        {/* RIGHT — Detail */}
-        <div className="flex-1 overflow-auto">
-          {!selected ? (
-            <div className="h-full flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-border">
-              <Package className="h-10 w-10 mb-3 opacity-30" />
-              <p className="text-xs">Selecciona una ruta para ver su detalle</p>
+        <main className="flex-1 p-6 overflow-auto">
+          <section className="mb-8">
+            <h2 className="text-lg font-bold text-white mb-4">Rutas en Planificación</h2>
+            <div className="card-navy overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    {["ID Ruta", "Zona", "Paquetes", "Peso Acumulado", "Vehículo Requerido", "Tiempo restante", "Acciones"].map(col => (
+                      <th key={col} className="text-left text-xs font-semibold text-white/60 px-4 py-3">{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {creadas.map((ruta) => (
+                    <tr key={ruta.id} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="px-4 py-3 text-sm font-semibold text-white">{ruta.id}</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.zona}, {ruta.ciudad}</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.paquetes.length}</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.pesoTotal} kg</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.vehiculoRequerido}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className={isUrgent(ruta.fechaLimiteDespacho) ? "text-primary font-bold" : "text-white"}>
+                          {getTimeRemaining(ruta.fechaLimiteDespacho)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 flex gap-2">
+                        <button onClick={() => navigate(`/despachador/ruta/${ruta.id}`)} className="btn-secondary text-xs !py-2 !px-3">Ver detalle</button>
+                        <button className="btn-primary text-xs !py-2 !px-3">Despachar ahora</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ) : selected.estado === "Lista para Despacho" ? (
-            <ListaParaDespachoDetail
-              ruta={selected}
-              availableVehicles={availableVehicles}
-              availableDrivers={availableDrivers}
-              vehiculoSel={vehiculoSel}
-              conductorSel={conductorSel}
-              onVehiculoChange={setVehiculoSel}
-              onConductorChange={setConductorSel}
-              onConfirmar={() => confirmarDespacho(selected.id)}
-              onExcluir={() => setShowExcluir(true)}
-              isExpiringSoon={isExpiringSoon}
-            />
-          ) : selected.estado === "En Tránsito" ? (
-            <EnTransitoDetail ruta={selected} onForzarCierre={() => setShowForzar(true)} />
-          ) : selected.estado === "Cerrada" ? (
-            <CerradaDetail ruta={selected} />
-          ) : selected.estado === "Ruta Confirmada" ? (
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">{selected.id} — {selected.zona}</h2>
-                <StatusBadge variant="purple">Ruta Confirmada</StatusBadge>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-lg font-bold text-white mb-4">Listas para Despacho</h2>
+            <div className="card-navy overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    {["ID Ruta", "Zona", "Paquetes", "Peso Acumulado", "Vehículo Requerido", "Motivo", "Acciones"].map(col => (
+                      <th key={col} className="text-left text-xs font-semibold text-white/60 px-4 py-3">{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {listasDespacho.map((ruta) => (
+                    <tr key={ruta.id} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="px-4 py-3 text-sm font-semibold text-white">{ruta.id}</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.zona}, {ruta.ciudad}</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.paquetes.length}</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.pesoTotal} kg</td>
+                      <td className="px-4 py-3 text-sm text-white">{ruta.vehiculoRequerido}</td>
+                      <td className="px-4 py-3">
+                        {ruta.motivoDespacho === "Vencimiento de plazo" ? (
+                          <StatusBadge variant="danger">⏰ {ruta.motivoDespacho}</StatusBadge>
+                        ) : (
+                          <StatusBadge variant="warning">📦 {ruta.motivoDespacho}</StatusBadge>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button onClick={() => navigate(`/despachador/despacho/${ruta.id}`)} className="btn-primary text-xs !py-2 !px-3">Confirmar despacho</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {enCurso.length > 0 && (
+            <section>
+              <h2 className="text-lg font-bold text-white mb-4">En curso</h2>
+              <div className="card-navy p-4 space-y-3">
+                {enCurso.map((ruta) => (
+                  <div key={ruta.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <span className="text-white font-semibold text-sm">{ruta.id}</span>
+                      <span className="text-white/60 text-sm">{ruta.zona}, {ruta.ciudad}</span>
+                      <StatusBadge variant={getRouteStatusVariant(ruta.estado)}>{ruta.estado}</StatusBadge>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-white/60">
+                      <span>Conductor: {ruta.conductorAsignado}</span>
+                      <span>Vehículo: {ruta.vehiculoAsignado}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm text-muted-foreground">Vehículo: {selected.vehiculoAsignado} · Conductor: {selected.conductorAsignado}</p>
-              <p className="text-sm text-muted-foreground mt-2">La ruta ha sido confirmada y está pendiente de inicio por el conductor.</p>
-            </div>
-          ) : (
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">{selected.id} — {selected.zona}</h2>
-                <StatusBadge variant="neutral">{selected.estado}</StatusBadge>
-              </div>
-              <p className="text-sm text-muted-foreground">Esta ruta está en espera de planificación.</p>
-            </div>
+            </section>
           )}
-        </div>
-      </div>
-
-      {/* Excluir modal */}
-      {showExcluir && selected && (
-        <Modal title="Excluir Paquete" onClose={() => setShowExcluir(false)}>
-          <div className="space-y-3">
-            <label className="text-xs text-muted-foreground">Paquete a excluir</label>
-            <select className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm">
-              {selected.paquetes.map((p) => (
-                <option key={p.id}>{p.id} — {p.direccion}</option>
-              ))}
-            </select>
-            <label className="text-xs text-muted-foreground">Motivo de exclusión</label>
-            <textarea className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm h-20 resize-none" placeholder="Describa el motivo..." />
-            <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowExcluir(false)} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
-              <button onClick={() => setShowExcluir(false)} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Excluir</button>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* Forzar cierre modal */}
-      {showForzar && selected && (
-        <Modal title="Confirmar Cierre Forzado" onClose={() => setShowForzar(false)}>
-          <p className="text-sm text-muted-foreground mb-4">
-            ¿Confirmar cierre forzado? Las paradas pendientes quedarán marcadas como <strong>sin_gestión_conductor</strong>.
-          </p>
-          <div className="flex gap-3">
-            <button onClick={() => setShowForzar(false)} className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors">Cancelar</button>
-            <button onClick={() => forzarCierre(selected.id)} className="flex-1 py-2 bg-destructive text-destructive-foreground rounded-lg text-sm font-medium">Confirmar Cierre</button>
-          </div>
-        </Modal>
-      )}
-    </div>
-  );
-}
-
-// === Sub-components ===
-
-function ListaParaDespachoDetail({
-  ruta, availableVehicles, availableDrivers, vehiculoSel, conductorSel,
-  onVehiculoChange, onConductorChange, onConfirmar, onExcluir, isExpiringSoon,
-}: any) {
-  return (
-    <div className="bg-card border-2 border-foreground overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b-2 border-foreground">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold">{ruta.id} — {ruta.zona}</h2>
-          <StatusBadge variant="info">Lista para Despacho</StatusBadge>
-        </div>
-        <div className="flex gap-6 text-xs text-muted-foreground">
-          <span>Creada: {ruta.fechaCreacion}</span>
-          <span>Límite despacho: {ruta.fechaLimiteDespacho}</span>
-        </div>
-      </div>
-
-      {/* Package table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th className="px-5 py-3 text-xs text-muted-foreground font-medium">Paquete</th>
-              <th className="px-5 py-3 text-xs text-muted-foreground font-medium">Peso (kg)</th>
-              <th className="px-5 py-3 text-xs text-muted-foreground font-medium">Dirección destino</th>
-              <th className="px-5 py-3 text-xs text-muted-foreground font-medium">Fecha límite</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ruta.paquetes.map((p: any) => {
-              const expiring = isExpiringSoon(p.fechaLimiteEntrega);
-              return (
-                <tr key={p.id} className="border-b border-border last:border-0 hover:bg-[hsl(var(--hover-row))] transition-colors">
-                  <td className="px-5 py-3 font-medium">{p.id}</td>
-                  <td className="px-5 py-3">{p.peso}</td>
-                  <td className="px-5 py-3">{p.direccion}</td>
-                  <td className="px-5 py-3">
-                    <span className={expiring ? "text-accent font-semibold flex items-center gap-1" : ""}>
-                      {expiring && <AlertTriangle className="h-3.5 w-3.5" />}
-                      {p.fechaLimiteEntrega}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Vehicle & driver selection */}
-      <div className="p-5 border-t border-border space-y-4">
-        <p className="text-sm font-medium">Tipo requerido: <span className="text-primary font-semibold">{ruta.vehiculoRequerido}</span></p>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs text-muted-foreground">Vehículo físico</label>
-            <select
-              value={vehiculoSel}
-              onChange={(e) => onVehiculoChange(e.target.value)}
-              className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm mt-1"
-            >
-              <option value="">Seleccionar...</option>
-              {availableVehicles.map((v: any) => (
-                <option key={v.placa} value={v.placa}>{v.placa} — {v.modelo}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Conductor</label>
-            <select
-              value={conductorSel}
-              onChange={(e) => onConductorChange(e.target.value)}
-              className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm mt-1"
-            >
-              <option value="">Seleccionar...</option>
-              {availableDrivers.map((c: any) => (
-                <option key={c.id} value={c.nombre}>{c.nombre}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="flex gap-3 pt-2">
-          <button onClick={onExcluir} className="px-4 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">
-            Excluir paquete
-          </button>
-          <button onClick={onConfirmar} className="px-4 py-1.5 bg-foreground text-background text-xs font-bold uppercase">
-            Confirmar Despacho
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function EnTransitoDetail({ ruta, onForzarCierre }: { ruta: Ruta; onForzarCierre: () => void }) {
-  function stopVariant(s: string) {
-    switch (s) {
-      case "Exitosa": return "success" as const;
-      case "Fallida": return "danger" as const;
-      case "Novedad": return "warning" as const;
-      default: return "neutral" as const;
-    }
-  }
-  return (
-    <div className="bg-card border-2 border-foreground overflow-hidden">
-      <div className="p-4 border-b-2 border-foreground">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold uppercase">{ruta.id} — {ruta.zona}</h2>
-          <StatusBadge variant="orange">En Tránsito</StatusBadge>
-        </div>
-        <p className="text-xs text-muted-foreground">Vehículo: {ruta.vehiculoAsignado} · Conductor: {ruta.conductorAsignado}</p>
-      </div>
-      <div className="divide-y divide-border">
-        {ruta.paradas.map((p) => (
-          <div key={p.numero} className="px-4 py-2 flex items-center gap-3 hover:bg-muted">
-            <span className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-bold">{p.numero}</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{p.direccion}</p>
-              <p className="text-xs text-muted-foreground">{p.paqueteId}</p>
-            </div>
-            <StatusBadge variant={stopVariant(p.status)}>{p.status}</StatusBadge>
-          </div>
-        ))}
-      </div>
-      <div className="p-4 border-t-2 border-foreground">
-        <button onClick={onForzarCierre} className="px-4 py-1.5 border-2 border-foreground text-xs font-bold uppercase hover:bg-muted">
-          ✗ Forzar Cierre de Ruta
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function CerradaDetail({ ruta }: { ruta: Ruta }) {
-  const r = ruta.resumen;
-  return (
-    <div className="bg-card border border-border rounded-lg p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">{ruta.id} — {ruta.zona}</h2>
-        <StatusBadge variant="success">Cerrada</StatusBadge>
-      </div>
-      {r && (
-        <div className="grid grid-cols-4 gap-4 mb-4">
-          {[
-            { label: "Total paradas", value: r.total },
-            { label: "Exitosas", value: r.exitosas, color: "text-success" },
-            { label: "Fallidas", value: r.fallidas, color: "text-destructive" },
-            { label: "Novedades", value: r.novedades, color: "text-accent" },
-          ].map((s) => (
-            <div key={s.label} className="bg-muted rounded-lg p-3 text-center">
-              <p className="text-xs text-muted-foreground">{s.label}</p>
-              <p className={`text-xl font-bold mt-1 ${(s as any).color || ""}`}>{s.value}</p>
-            </div>
-          ))}
-        </div>
-      )}
-      <div className="divide-y divide-border">
-        {ruta.paradas.map((p) => (
-          <div key={p.numero} className="py-2 flex items-center gap-3 text-sm">
-            <span className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold">{p.numero}</span>
-            <span className="flex-1 truncate">{p.direccion}</span>
-            <StatusBadge variant={p.status === "Exitosa" ? "success" : p.status === "Fallida" ? "danger" : "warning"}>{p.status}</StatusBadge>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-card border-2 border-foreground p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">{title}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded"><X className="h-5 w-5" /></button>
-        </div>
-        {children}
+        </main>
       </div>
     </div>
   );
