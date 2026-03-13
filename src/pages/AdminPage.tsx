@@ -16,7 +16,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"flota" | "conductores">("flota");
   const disponibles = vehiculos.filter(v => v.estado === "Disponible").length;
   const enTransito = vehiculos.filter(v => v.estado === "En Tránsito").length;
-  const inactivos = vehiculos.filter(v => v.estado === "Inactivo" || v.estado === "En Mantenimiento").length;
+  const inactivos = vehiculos.filter(v => v.estado === "Inactivo").length;
 
   return (
     <div className="min-h-screen flex flex-col">
