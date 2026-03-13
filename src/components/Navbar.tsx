@@ -1,25 +1,28 @@
+import { ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
 
 interface NavbarProps {
-  roleName: string;
-  badgeVariant?: string;
+  title: string;
+  backTo?: string;
 }
 
-export default function Navbar({ roleName }: NavbarProps) {
+export default function Navbar({ title, backTo = "/" }: NavbarProps) {
   const navigate = useNavigate();
+
   return (
-    <header className="h-12 border-b-2 border-foreground flex items-center justify-between px-6 bg-card">
+    <header className="flex items-center gap-4 px-6 py-4 border-b border-white/10">
+      <button onClick={() => navigate(backTo)} className="text-white/60 hover:text-white">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+      <button onClick={() => navigate("/")} className="text-white/60 hover:text-white">
+        <Home className="w-5 h-5" />
+      </button>
       <div className="flex items-center gap-3">
-        <button onClick={() => navigate("/")} className="p-1 hover:bg-muted">
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <span className="text-sm font-bold tracking-tight uppercase">
-          Sistema Logístico
-        </span>
+        <span className="text-xl font-bold text-white">Logistics</span>
+        <span className="text-xl font-bold text-primary">Routes</span>
       </div>
-      <span className="text-xs font-bold border-2 border-foreground px-2 py-0.5 uppercase tracking-wide">
-        {roleName}
+      <span className="ml-auto bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-semibold">
+        {title}
       </span>
     </header>
   );
