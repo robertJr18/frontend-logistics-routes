@@ -98,6 +98,7 @@ export default function AdminPage() {
             <>
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-white">Conductores</h1>
+                <button onClick={() => navigate("/admin/registrar-conductor")} className="btn-primary">Registrar conductor</button>
               </div>
               <div className="card-navy overflow-hidden">
                 <table className="w-full">
