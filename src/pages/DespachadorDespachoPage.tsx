@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Check, X } from "lucide-react";
+import { Check, X, Edit2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StatusBadge, { getRouteStatusVariant } from "@/components/StatusBadge";
 import { rutas, vehiculos, conductores } from "@/data/mockData";
@@ -12,9 +12,27 @@ export default function DespachadorDespachoPage() {
   const { toast } = useToast();
   const ruta = rutas.find(r => r.id === id);
 
+  const [excludedPkgs, setExcludedPkgs] = useState<Set<string>>(new Set());
+  const [editingConductor, setEditingConductor] = useState(false);
+
+  // Find first available conductor (with vehicle, not in transit)
+  const conductoresDisponibles = conductores.filter(c => {
+    if (c.estado !== "Activo" || !c.vehiculoAsignado) return false;
+    const v = vehiculos.find(v => v.placa === c.vehiculoAsignado);
+    return v && v.estado !== "En Tránsito";
+  });
+
   const [selectedConductor, setSelectedConductor] = useState<string | null>(null);
   const [selectedVehiculo, setSelectedVehiculo] = useState<string | null>(null);
-  const [excludedPkgs, setExcludedPkgs] = useState<Set<string>>(new Set());
+
+  // Auto-assign first available conductor on mount
+  useEffect(() => {
+    if (conductoresDisponibles.length > 0 && !selectedConductor) {
+      const first = conductoresDisponibles[0];
+      setSelectedConductor(first.id);
+      setSelectedVehiculo(first.vehiculoAsignado);
+    }
+  }, []);
 
   if (!ruta) {
     return (
@@ -28,7 +46,10 @@ export default function DespachadorDespachoPage() {
   const paquetesActivos = ruta.paquetes.filter(p => !excludedPkgs.has(p.id));
   const pesoActual = Math.round(paquetesActivos.reduce((sum, p) => sum + p.peso, 0) * 10) / 10;
 
-  const conductoresDisponibles = conductores.filter(c => c.estado === "Activo");
+  const conductorSeleccionado = conductores.find(c => c.id === selectedConductor);
+  const vehiculoAsoc = conductorSeleccionado?.vehiculoAsignado
+    ? vehiculos.find(v => v.placa === conductorSeleccionado.vehiculoAsignado)
+    : null;
 
   const toggleExclude = (pkgId: string) => {
     setExcludedPkgs(prev => {
@@ -47,7 +68,7 @@ export default function DespachadorDespachoPage() {
     }
     toast({
       title: "Despacho confirmado",
-      description: `Ruta ${ruta.id} asignada con ${paquetesActivos.length} paquetes · ${pesoActual} kg.`,
+      description: `Ruta ${ruta.id} asignada a ${conductorSeleccionado?.nombre} con ${paquetesActivos.length} paquetes · ${pesoActual} kg.`,
     });
     navigate("/despachador");
   };
@@ -80,7 +101,7 @@ export default function DespachadorDespachoPage() {
             </div>
             <div>
               <span className="text-white/60">Motivo despacho</span>
-              <p className="text-primary font-semibold">{ruta.motivoDespacho}</p>
+              <p className="text-primary font-semibold">{ruta.motivoDespacho || "Manual"}</p>
             </div>
           </div>
         </div>
@@ -113,7 +134,7 @@ export default function DespachadorDespachoPage() {
                         onClick={() => toggleExclude(pkg.id)}
                         className={`w-6 h-6 rounded-md border flex items-center justify-center transition-colors ${
                           isExcluded
-                            ? "border-[#e05555] bg-[#e05555]/20 text-[#e05555]"
+                            ? "border-destructive bg-destructive/20 text-destructive"
                             : "border-[#4caf82] bg-[#4caf82]/20 text-[#4caf82]"
                         }`}
                       >
@@ -137,76 +158,81 @@ export default function DespachadorDespachoPage() {
           </table>
         </div>
 
-        {/* Conductor + Vehicle selection */}
+        {/* Conductor + Vehicle — auto-assigned, editable */}
         <div className="card-navy p-5 mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">Seleccionar Conductor y Vehículo</h2>
-          <div className="space-y-3">
-            {conductoresDisponibles.map((c) => {
-              const isSelected = selectedConductor === c.id;
-              const vehiculoAsoc = c.vehiculoAsignado
-                ? vehiculos.find(v => v.placa === c.vehiculoAsignado)
-                : null;
-              const isInRoute = vehiculoAsoc?.estado === "En Tránsito";
-              const noVehicle = !c.vehiculoAsignado;
-              const isDisabled = !!isInRoute || noVehicle;
-              return (
-                <button
-                  key={c.id}
-                  disabled={isDisabled}
-                  onClick={() => {
-                    setSelectedConductor(c.id);
-                    if (c.vehiculoAsignado) setSelectedVehiculo(c.vehiculoAsignado);
-                  }}
-                  className={`w-full text-left p-4 rounded-xl border transition-colors ${
-                    isSelected
-                      ? "border-primary bg-primary/10"
-                      : isDisabled
-                      ? "border-white/5 bg-white/5 opacity-40 cursor-not-allowed"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-semibold text-sm">{c.nombre}</p>
-                      <p className="text-white/60 text-xs">
-                        {vehiculoAsoc
-                          ? `${vehiculoAsoc.tipo} ${vehiculoAsoc.placa} · ${vehiculoAsoc.capacidadPeso.toLocaleString()} kg`
-                          : "Sin vehículo asignado"}
-                        {isInRoute && " · En ruta"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {vehiculoAsoc && (
-                        <StatusBadge variant={vehiculoAsoc.estado === "Disponible" ? "disponible" : vehiculoAsoc.estado === "En Tránsito" ? "en-transito-vehicle" : "inactivo"}>
-                          {vehiculoAsoc.estado}
-                        </StatusBadge>
-                      )}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-white">Conductor y Vehículo Asignado</h2>
+            {!editingConductor && selectedConductor && (
+              <button onClick={() => setEditingConductor(true)} className="flex items-center gap-1 text-primary text-sm font-medium hover:underline">
+                <Edit2 className="w-3.5 h-3.5" /> Cambiar
+              </button>
+            )}
+          </div>
+
+          {!editingConductor && selectedConductor ? (
+            <div className="flex items-center gap-4 p-4 rounded-xl border border-primary bg-primary/10">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Check className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-semibold">{conductorSeleccionado?.nombre}</p>
+                <p className="text-white/60 text-sm">
+                  {vehiculoAsoc
+                    ? `${vehiculoAsoc.tipo} ${vehiculoAsoc.placa} · ${vehiculoAsoc.capacidadPeso.toLocaleString()} kg`
+                    : "Sin vehículo"}
+                </p>
+              </div>
+              <span className="text-white/40 text-xs italic">Asignado por el sistema</span>
+            </div>
+          ) : !editingConductor && !selectedConductor ? (
+            <div className="p-4 rounded-xl border border-destructive/30 bg-destructive/5 text-center">
+              <p className="text-white/60 text-sm">No hay conductores disponibles con vehículo asignado.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-white/60 text-sm mb-2">Selecciona un conductor diferente:</p>
+              {conductoresDisponibles.map((c) => {
+                const isSelected = selectedConductor === c.id;
+                const vAsoc = c.vehiculoAsignado ? vehiculos.find(v => v.placa === c.vehiculoAsignado) : null;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      setSelectedConductor(c.id);
+                      if (c.vehiculoAsignado) setSelectedVehiculo(c.vehiculoAsignado);
+                      setEditingConductor(false);
+                    }}
+                    className={`w-full text-left p-4 rounded-xl border transition-colors ${
+                      isSelected ? "border-primary bg-primary/10" : "border-white/10 bg-white/5 hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-semibold text-sm">{c.nombre}</p>
+                        <p className="text-white/60 text-xs">
+                          {vAsoc ? `${vAsoc.tipo} ${vAsoc.placa} · ${vAsoc.capacidadPeso.toLocaleString()} kg` : "Sin vehículo"}
+                        </p>
+                      </div>
                       {isSelected && <Check className="w-5 h-5 text-primary" />}
                     </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                  </button>
+                );
+              })}
+              <button onClick={() => setEditingConductor(false)} className="text-white/40 text-sm hover:text-white">Cancelar</button>
+            </div>
+          )}
         </div>
 
         {/* Action bar */}
         <div className="flex justify-between items-center">
-          <button onClick={() => navigate("/despachador")} className="btn-secondary">
-            Cancelar
+          <button onClick={() => navigate("/despachador")} className="btn-secondary">Cancelar</button>
+          <button
+            onClick={handleConfirm}
+            disabled={!selectedConductor || !selectedVehiculo || paquetesActivos.length === 0}
+            className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Confirmar despacho y generar manifiesto
           </button>
-          <div className="flex items-center gap-4">
-            {(!selectedConductor || !selectedVehiculo) && (
-              <span className="text-[#e05555] text-sm font-medium">Selecciona conductor y vehículo</span>
-            )}
-            <button
-              onClick={handleConfirm}
-              disabled={!selectedConductor || !selectedVehiculo}
-              className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Confirmar despacho y generar manifiesto
-            </button>
-          </div>
         </div>
       </main>
     </div>
