@@ -45,6 +45,10 @@ export default function DespachadorPage() {
           {sidebarItems.map((item) => (
             <button
               key={item.label}
+              onClick={() => {
+                if (item.label === "Alertas") navigate("/despachador/alertas");
+                else if (item.label === "Historial") navigate("/despachador/historial");
+              }}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium w-full text-left ${
                 item.label === "Rutas" ? "bg-card text-white" : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
@@ -91,7 +95,7 @@ export default function DespachadorPage() {
                       </td>
                       <td className="px-4 py-3 flex gap-2">
                         <button onClick={() => navigate(`/despachador/ruta/${ruta.id}`)} className="btn-secondary text-xs !py-2 !px-3">Ver detalle</button>
-                        <button className="btn-primary text-xs !py-2 !px-3">Despachar ahora</button>
+                        <button onClick={() => navigate(`/despachador/despacho/${ruta.id}`)} className="btn-primary text-xs !py-2 !px-3">Despachar ahora</button>
                       </td>
                     </tr>
                   ))}

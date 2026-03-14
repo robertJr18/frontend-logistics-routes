@@ -83,8 +83,8 @@ export default function AdminPage() {
                           <td className="px-4 py-3 text-sm text-white">{v.conductorAsignado || "—"}</td>
                           <td className="px-4 py-3"><StatusBadge variant={getVehicleStatusVariant(v.estado)}>{v.estado}</StatusBadge></td>
                           <td className="px-4 py-3 flex gap-2">
-                            <button disabled={isTransit} className={`text-xs font-medium ${isTransit?"text-white/20 cursor-not-allowed":"text-primary hover:underline"}`}>Ver detalle</button>
-                            <button disabled={isTransit} className={`text-xs font-medium ${isTransit?"text-white/20 cursor-not-allowed":"text-primary hover:underline"}`}>Editar</button>
+                            <button onClick={() => navigate(`/admin/vehiculo/${v.placa}`)} className="text-xs font-medium text-primary hover:underline">Ver detalle</button>
+                            <button disabled={isTransit} onClick={() => !isTransit && navigate(`/admin/vehiculo/${v.placa}/editar`)} className={`text-xs font-medium ${isTransit?"text-white/20 cursor-not-allowed":"text-primary hover:underline"}`}>Editar</button>
                           </td>
                         </tr>
                       );
@@ -98,6 +98,7 @@ export default function AdminPage() {
             <>
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-white">Conductores</h1>
+                <button onClick={() => navigate("/admin/registrar-conductor")} className="btn-primary">Registrar conductor</button>
               </div>
               <div className="card-navy overflow-hidden">
                 <table className="w-full">
