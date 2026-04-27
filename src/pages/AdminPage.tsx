@@ -83,7 +83,12 @@ export default function AdminPage() {
                       return (
                         <tr key={v.placa} className="border-b border-white/5 hover:bg-white/5">
                           <td className="px-4 py-3 text-sm font-semibold text-white">{v.placa}</td>
-                          <td className="px-4 py-3 text-sm text-white">{v.tipo}</td>
+                          <td className="px-4 py-3 text-sm text-white">
+                            <span className="inline-flex items-center gap-2">
+                              <span className="text-lg leading-none" aria-hidden>{vehicleEmoji[v.tipo] ?? "🚗"}</span>
+                              {v.tipo}
+                            </span>
+                          </td>
                           <td className="px-4 py-3 text-sm text-white">{v.modelo}</td>
                           <td className="px-4 py-3 text-sm text-white">{v.capacidadPeso.toLocaleString()} kg</td>
                           <td className="px-4 py-3 text-sm text-white">{v.zona}</td>
