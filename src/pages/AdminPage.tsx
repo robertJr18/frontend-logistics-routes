@@ -11,6 +11,13 @@ const sidebarItems = [
   { label: "Asignaciones", icon: LinkIcon },
 ];
 
+const vehicleEmoji: Record<string, string> = {
+  Moto: "🏍️",
+  Van: "🚐",
+  NHR: "🚚",
+  Turbo: "🚛",
+};
+
 export default function AdminPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"flota" | "conductores">("flota");
