@@ -123,7 +123,7 @@ export default function Login() {
           </form>
 
           <div className="mt-8 p-4 rounded-lg bg-white/5 border border-white/10 text-xs text-subtle">
-            <strong className="text-white">Acceso restringido.</strong> Las cuentas son creadas por el administrador de flota. Si necesitas acceso, contacta a tu supervisor.
+            <strong className="text-white">Acceso restringido.</strong> Si necesitas acceso, contacta a tu supervisor.
           </div>
 
           <p className="text-center text-xs text-muted-soft mt-8">
