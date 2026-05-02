@@ -1,4 +1,4 @@
-import { Truck } from "lucide-react";
+import { Route as RouteIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BrandLogoProps {
@@ -17,7 +17,7 @@ export default function BrandLogo({ size = "md", className }: BrandLogoProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div className={cn("rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] shadow-lg shadow-primary/30", s.box)}>
-        <Truck className={cn("text-[hsl(var(--primary-foreground))]", s.icon)} strokeWidth={2.5} />
+        <RouteIcon className={cn("text-[hsl(var(--primary-foreground))]", s.icon)} strokeWidth={2.5} />
       </div>
       <div className={cn("font-bold tracking-tight", s.text)}>
         <span className="text-white">Logistics</span>
