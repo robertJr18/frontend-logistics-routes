@@ -1,9 +1,7 @@
 export type Role = "FLEET_ADMIN" | "DISPATCHER" | "DRIVER";
 
 export interface AuthUser {
-  id: string;
   email: string;
-  nombre: string;
   rol: Role;
 }
 
@@ -14,13 +12,13 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
-  tokenType: string;
-  user: AuthUser;
+  rol: string;
+  expiracion: string;
 }
 
 export interface JwtClaims {
   sub: string;
-  roles: string[];
+  rol: string;
   exp: number;
   iat: number;
 }

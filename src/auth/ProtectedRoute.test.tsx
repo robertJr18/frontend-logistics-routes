@@ -11,9 +11,7 @@ function renderWithAuth(opts: {
   guardRoles?: Role[];
 }) {
   const ctxValue = {
-    user: opts.role
-      ? { id: "u1", email: "x@x.com", nombre: "Test", rol: opts.role }
-      : null,
+    user: opts.role ? { email: "x@x.com", rol: opts.role } : null,
     role: opts.role,
     isAuthenticated: opts.role !== null,
     login: vi.fn(),
