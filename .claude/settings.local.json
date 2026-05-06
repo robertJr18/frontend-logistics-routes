@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Esteban Puello/.claude/projects/c--Users-Esteban-Puello-Documents-frontend-logistics-routes/memory/**)",
+      "Read(//c/Users/Esteban Puello/.claude/projects/**)",
+      "Bash(git rev-list *)"
+    ]
+  }
+}
