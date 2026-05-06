@@ -3,11 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { Check, X } from "lucide-react";
 import StatusBadge, { getStopStatusVariant, getRouteStatusVariant } from "@/components/StatusBadge";
 import { rutas } from "@/data/mockData";
+import { useAuth } from "@/auth/useAuth";
 
 export default function ConductorPage() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const ruta = rutas.find(r => r.id === "R-2049")!;
   const [estado, setEstado] = useState<"Confirmada" | "En Tránsito">(ruta.estado === "Confirmada" ? "Confirmada" : "En Tránsito");
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
   const paradas = ruta.paradas;
   const allManaged = paradas.every(p => p.status !== "Pendiente");
   const pendientes = paradas.filter(p => p.status === "Pendiente").length;
@@ -16,7 +23,7 @@ export default function ConductorPage() {
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-[480px]">
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-          <button onClick={() => navigate("/")} className="text-white/60 hover:text-white text-sm">← Inicio</button>
+          <button onClick={handleLogout} className="text-white/60 hover:text-white text-sm">← Salir</button>
           <span className="text-white font-bold text-sm">Mi Ruta</span>
           <span className="text-white/60 text-sm">Tomás Rivera</span>
         </div>

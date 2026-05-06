@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import ProtectedRoute from "@/auth/ProtectedRoute";
 
 import LandingPage from "@/pages/public/LandingPage";
 import PortalPage from "@/pages/public/PortalPage";
@@ -28,29 +29,38 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/portal" element={<PortalPage />} />
 
-      <Route path="/despachador">
-        <Route index element={<DespachadorPage />} />
-        <Route path="ruta/:id" element={<DespachadorDetallePage />} />
-        <Route path="despacho/:id" element={<DespachadorDespachoPage />} />
-        <Route path="historial" element={<DespachadorHistorialPage />} />
-        <Route path="alertas" element={<DespachadorAlertasPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/portal" element={<PortalPage />} />
       </Route>
 
-      <Route path="/conductor">
-        <Route index element={<ConductorPage />} />
-        <Route path="parada/:id" element={<ConductorParadaPage />} />
-        <Route path="cierre" element={<ConductorCierrePage />} />
+      <Route element={<ProtectedRoute roles={["DISPATCHER"]} />}>
+        <Route path="/despachador">
+          <Route index element={<DespachadorPage />} />
+          <Route path="ruta/:id" element={<DespachadorDetallePage />} />
+          <Route path="despacho/:id" element={<DespachadorDespachoPage />} />
+          <Route path="historial" element={<DespachadorHistorialPage />} />
+          <Route path="alertas" element={<DespachadorAlertasPage />} />
+        </Route>
       </Route>
 
-      <Route path="/admin">
-        <Route index element={<AdminPage />} />
-        <Route path="registrar" element={<AdminRegistrarPage />} />
-        <Route path="registrar-conductor" element={<AdminRegistrarConductorPage />} />
-        <Route path="asignaciones" element={<AdminAsignacionesPage />} />
-        <Route path="vehiculo/:placa" element={<AdminVehiculoDetallePage />} />
-        <Route path="vehiculo/:placa/editar" element={<AdminVehiculoEditarPage />} />
+      <Route element={<ProtectedRoute roles={["DRIVER"]} />}>
+        <Route path="/conductor">
+          <Route index element={<ConductorPage />} />
+          <Route path="parada/:id" element={<ConductorParadaPage />} />
+          <Route path="cierre" element={<ConductorCierrePage />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute roles={["FLEET_ADMIN"]} />}>
+        <Route path="/admin">
+          <Route index element={<AdminPage />} />
+          <Route path="registrar" element={<AdminRegistrarPage />} />
+          <Route path="registrar-conductor" element={<AdminRegistrarConductorPage />} />
+          <Route path="asignaciones" element={<AdminAsignacionesPage />} />
+          <Route path="vehiculo/:placa" element={<AdminVehiculoDetallePage />} />
+          <Route path="vehiculo/:placa/editar" element={<AdminVehiculoEditarPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
