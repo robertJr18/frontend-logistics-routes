@@ -3,19 +3,39 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import heroImg from "@/assets/hero-logistics.jpg";
+import { useAuth } from "@/auth/useAuth";
+import { HOME_BY_ROLE } from "@/auth/constants";
+import { ApiError } from "@/services/api";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPwd, setShowPwd] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Acceso visual sin validación — pendiente de integrar Spring Boot
+    if (!email || !password) {
+      setError("Ingresa correo y contraseña.");
+      return;
+    }
+    setError(null);
     setLoading(true);
-    setTimeout(() => navigate("/portal"), 400);
+    try {
+      const role = await login({ email, password });
+      navigate(HOME_BY_ROLE[role], { replace: true });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setError("Credenciales incorrectas.");
+      } else {
+        setError("No se pudo iniciar sesión. Intenta de nuevo.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -73,11 +93,11 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium mb-2">Correo o usuario</label>
+              <label className="block text-sm font-medium mb-2">Correo</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                 <input
-                  type="text"
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="usuario@empresa.com"
@@ -107,6 +127,10 @@ export default function Login() {
                 </button>
               </div>
             </div>
+
+            {error && (
+              <p className="text-[#e05555] text-sm" role="alert">{error}</p>
+            )}
 
             <label className="flex items-center gap-2 text-sm text-subtle cursor-pointer">
               <input type="checkbox" className="w-4 h-4 rounded accent-[hsl(var(--primary))]" />
