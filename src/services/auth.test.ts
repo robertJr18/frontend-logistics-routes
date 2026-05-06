@@ -1,32 +1,40 @@
 import { describe, expect, it } from "vitest";
-import { isExpired, roleFromClaims } from "./auth";
+import { isExpired, parseRole, roleFromClaims } from "./auth";
 import type { JwtClaims } from "@/types/auth";
 
 const baseClaims: JwtClaims = {
   sub: "test@test.com",
-  roles: [],
+  rol: "DISPATCHER",
   exp: Math.floor(Date.now() / 1000) + 3600,
   iat: Math.floor(Date.now() / 1000),
 };
 
 describe("roleFromClaims", () => {
-  it("extrae rol con prefijo ROLE_", () => {
-    expect(roleFromClaims({ ...baseClaims, roles: ["ROLE_DISPATCHER"] })).toBe("DISPATCHER");
-    expect(roleFromClaims({ ...baseClaims, roles: ["ROLE_FLEET_ADMIN"] })).toBe("FLEET_ADMIN");
-    expect(roleFromClaims({ ...baseClaims, roles: ["ROLE_DRIVER"] })).toBe("DRIVER");
-  });
-
-  it("acepta rol sin prefijo ROLE_", () => {
-    expect(roleFromClaims({ ...baseClaims, roles: ["DISPATCHER"] })).toBe("DISPATCHER");
-  });
-
-  it("retorna null cuando no hay roles", () => {
-    expect(roleFromClaims({ ...baseClaims, roles: [] })).toBeNull();
+  it("extrae el rol del claim singular 'rol'", () => {
+    expect(roleFromClaims({ ...baseClaims, rol: "DISPATCHER" })).toBe("DISPATCHER");
+    expect(roleFromClaims({ ...baseClaims, rol: "FLEET_ADMIN" })).toBe("FLEET_ADMIN");
+    expect(roleFromClaims({ ...baseClaims, rol: "DRIVER" })).toBe("DRIVER");
   });
 
   it("retorna null para roles desconocidos", () => {
-    expect(roleFromClaims({ ...baseClaims, roles: ["ROLE_UNKNOWN"] })).toBeNull();
-    expect(roleFromClaims({ ...baseClaims, roles: ["ROLE_SYSTEM"] })).toBeNull();
+    expect(roleFromClaims({ ...baseClaims, rol: "" })).toBeNull();
+    expect(roleFromClaims({ ...baseClaims, rol: "UNKNOWN" })).toBeNull();
+    expect(roleFromClaims({ ...baseClaims, rol: "SYSTEM" })).toBeNull();
+  });
+});
+
+describe("parseRole", () => {
+  it("acepta los 3 roles UI", () => {
+    expect(parseRole("FLEET_ADMIN")).toBe("FLEET_ADMIN");
+    expect(parseRole("DISPATCHER")).toBe("DISPATCHER");
+    expect(parseRole("DRIVER")).toBe("DRIVER");
+  });
+
+  it("rechaza valores fuera de la lista", () => {
+    expect(parseRole(undefined)).toBeNull();
+    expect(parseRole(null)).toBeNull();
+    expect(parseRole("ROLE_DISPATCHER")).toBeNull();
+    expect(parseRole("admin")).toBeNull();
   });
 });
 
