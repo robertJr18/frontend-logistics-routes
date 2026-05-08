@@ -61,6 +61,7 @@ export interface Ruta {
 }
 
 export interface Vehiculo {
+  id: string;
   placa: string;
   tipo: VehicleType;
   modelo: string;
@@ -79,9 +80,10 @@ export interface Conductor {
   turnoActivo: string | null;
 }
 
+// Capacidades en kg por tipo, según el backend (TipoVehiculo enum).
 export const capacidadVehiculo: Record<VehicleType, number> = {
-  Moto: 20,
-  Van: 500,
-  NHR: 2000,
-  Turbo: 4500,
+  Moto: 50,
+  Van: 300,
+  NHR: 1000,
+  Turbo: 3000,
 };

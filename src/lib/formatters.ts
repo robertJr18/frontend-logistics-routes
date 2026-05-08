@@ -1,4 +1,10 @@
-import type { RouteStatus, StopStatus, VehicleStatus, DriverStatus } from "@/types/domain";
+import type {
+  DriverStatus,
+  RouteStatus,
+  StopStatus,
+  VehicleStatus,
+  VehicleType,
+} from "@/types/domain";
 
 export function formatRouteStatus(dto: string): RouteStatus {
   const map: Record<string, RouteStatus> = {
@@ -41,4 +47,24 @@ export function formatStopStatus(dto: string): StopStatus {
     EXCLUIDA_DESPACHO: "Pendiente",
   };
   return map[dto] ?? "Pendiente";
+}
+
+export function formatTipoVehiculo(dto: string): VehicleType {
+  const map: Record<string, VehicleType> = {
+    MOTO: "Moto",
+    VAN: "Van",
+    NHR: "NHR",
+    TURBO: "Turbo",
+  };
+  return map[dto] ?? "Moto";
+}
+
+export function tipoVehiculoToDto(ui: VehicleType): "MOTO" | "VAN" | "NHR" | "TURBO" {
+  const map: Record<VehicleType, "MOTO" | "VAN" | "NHR" | "TURBO"> = {
+    Moto: "MOTO",
+    Van: "VAN",
+    NHR: "NHR",
+    Turbo: "TURBO",
+  };
+  return map[ui];
 }

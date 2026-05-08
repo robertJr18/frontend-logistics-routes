@@ -3,7 +3,9 @@ import {
   formatDriverStatus,
   formatRouteStatus,
   formatStopStatus,
+  formatTipoVehiculo,
   formatVehicleStatus,
+  tipoVehiculoToDto,
 } from "./formatters";
 
 describe("formatRouteStatus", () => {
@@ -54,5 +56,25 @@ describe("formatStopStatus", () => {
   it("SIN_GESTION_CONDUCTOR y EXCLUIDA_DESPACHO se muestran como Pendiente (UI no los distingue hasta PLAN-06)", () => {
     expect(formatStopStatus("SIN_GESTION_CONDUCTOR")).toBe("Pendiente");
     expect(formatStopStatus("EXCLUIDA_DESPACHO")).toBe("Pendiente");
+  });
+});
+
+describe("formatTipoVehiculo / tipoVehiculoToDto", () => {
+  it("traduce DTO a UI label", () => {
+    expect(formatTipoVehiculo("MOTO")).toBe("Moto");
+    expect(formatTipoVehiculo("VAN")).toBe("Van");
+    expect(formatTipoVehiculo("NHR")).toBe("NHR");
+    expect(formatTipoVehiculo("TURBO")).toBe("Turbo");
+  });
+
+  it("UI label a DTO", () => {
+    expect(tipoVehiculoToDto("Moto")).toBe("MOTO");
+    expect(tipoVehiculoToDto("Van")).toBe("VAN");
+    expect(tipoVehiculoToDto("NHR")).toBe("NHR");
+    expect(tipoVehiculoToDto("Turbo")).toBe("TURBO");
+  });
+
+  it("formatTipoVehiculo cae a Moto en valores desconocidos", () => {
+    expect(formatTipoVehiculo("BICI")).toBe("Moto");
   });
 });

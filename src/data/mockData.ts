@@ -39,12 +39,12 @@ export const conductores: Conductor[] = [
 ];
 
 export const vehiculos: Vehiculo[] = [
-  { placa: "ABC-001", tipo: "Moto", modelo: "AKT TT 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Norte, Santa Marta", estado: "En Tránsito", conductorAsignado: "Carlos Mendoza" },
-  { placa: "XYZ-002", tipo: "Moto", modelo: "Yamaha FZ 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Rodadero, Santa Marta", estado: "Disponible", conductorAsignado: null },
-  { placa: "PQR-110", tipo: "Van", modelo: "Chevrolet N300", capacidadPeso: 500, volumenMax: 4.2, zona: "Zona El Prado, Barranquilla", estado: "Disponible", conductorAsignado: "Luisa Fernández" },
-  { placa: "STU-220", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Zona Centro, Santa Marta", estado: "Inactivo", conductorAsignado: null },
-  { placa: "DEF-330", tipo: "NHR", modelo: "Chevrolet NHR", capacidadPeso: 2000, volumenMax: 12, zona: "Zona Soledad, Barranquilla", estado: "Disponible", conductorAsignado: "Tomás Rivera" },
-  { placa: "GHI-440", tipo: "Turbo", modelo: "Hino Dutro", capacidadPeso: 4500, volumenMax: 20, zona: "Zona Bonda, Santa Marta", estado: "Inactivo", conductorAsignado: null },
+  { id: "00000000-0000-0000-0000-000000000001", placa: "ABC-001", tipo: "Moto", modelo: "AKT TT 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Norte, Santa Marta", estado: "En Tránsito", conductorAsignado: "Carlos Mendoza" },
+  { id: "00000000-0000-0000-0000-000000000002", placa: "XYZ-002", tipo: "Moto", modelo: "Yamaha FZ 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Rodadero, Santa Marta", estado: "Disponible", conductorAsignado: null },
+  { id: "00000000-0000-0000-0000-000000000003", placa: "PQR-110", tipo: "Van", modelo: "Chevrolet N300", capacidadPeso: 500, volumenMax: 4.2, zona: "Zona El Prado, Barranquilla", estado: "Disponible", conductorAsignado: "Luisa Fernández" },
+  { id: "00000000-0000-0000-0000-000000000004", placa: "STU-220", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Zona Centro, Santa Marta", estado: "Inactivo", conductorAsignado: null },
+  { id: "00000000-0000-0000-0000-000000000005", placa: "DEF-330", tipo: "NHR", modelo: "Chevrolet NHR", capacidadPeso: 2000, volumenMax: 12, zona: "Zona Soledad, Barranquilla", estado: "Disponible", conductorAsignado: "Tomás Rivera" },
+  { id: "00000000-0000-0000-0000-000000000006", placa: "GHI-440", tipo: "Turbo", modelo: "Hino Dutro", capacidadPeso: 4500, volumenMax: 20, zona: "Zona Bonda, Santa Marta", estado: "Inactivo", conductorAsignado: null },
 ];
 
 export const rutas: Ruta[] = [
