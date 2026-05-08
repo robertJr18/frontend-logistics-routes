@@ -27,6 +27,7 @@ export interface Paquete {
 }
 
 export interface Parada {
+  id: string;
   numero: number;
   paqueteId: string;
   direccion: string;

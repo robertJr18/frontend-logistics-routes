@@ -15,6 +15,12 @@ export type MotivoNovedadDto =
   | "EXTRAVIADO"
   | "DEVOLUCION";
 
+export interface GestionarParadaRequest {
+  tipo: "EXITOSA" | "FALLIDA" | "NOVEDAD";
+  motivoNovedad?: MotivoNovedadDto;
+  nombreReceptor?: string;
+}
+
 export interface ParadaResponse {
   id: string;
   rutaId: string;

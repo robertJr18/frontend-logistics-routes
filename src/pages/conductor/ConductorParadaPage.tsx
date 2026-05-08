@@ -1,29 +1,40 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Check, X, AlertTriangle, Upload, PenLine } from "lucide-react";
-import { rutas } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { useRutaActiva } from "@/hooks/conductor/useRutaActiva";
+import { useGestionarParada } from "@/hooks/conductor/useGestionarParada";
+import { formatMotivoNovedad } from "@/lib/formatters";
+import type { MotivoNovedadDto } from "@/types/dto/parada";
 
-const motivosFallo = [
+const motivosFallo: MotivoNovedadDto[] = [
   "CLIENTE_AUSENTE",
   "DIRECCION_INCORRECTA",
-  "RECHAZADO_CLIENTE",
+  "RECHAZADO_POR_CLIENTE",
   "ZONA_DIFICIL_ACCESO",
 ];
 
-const tiposNovedad = ["DAÑADO", "EXTRAVIADO", "DEVOLUCION"];
+const tiposNovedad: MotivoNovedadDto[] = ["DAÑADO_EN_RUTA", "EXTRAVIADO", "DEVOLUCION"];
 
 export default function ConductorParadaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const ruta = rutas.find((r) => r.id === "R-2049")!;
-  const parada = ruta.paradas.find((p) => p.numero === Number(id));
+  const { data: ruta, isLoading } = useRutaActiva();
+  const gestionar = useGestionarParada();
+
+  const parada = ruta?.paradas.find((p) => p.id === id);
 
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [motivoFallo, setMotivoFallo] = useState(motivosFallo[0]);
-  const [tipoNovedad, setTipoNovedad] = useState(tiposNovedad[0]);
+  const [motivoFallo, setMotivoFallo] = useState<MotivoNovedadDto>(motivosFallo[0]);
+  const [tipoNovedad, setTipoNovedad] = useState<MotivoNovedadDto>(tiposNovedad[0]);
   const [nombreReceptor, setNombreReceptor] = useState("");
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white/60">Cargando…</div>
+    );
+  }
 
   if (!parada) {
     return (
@@ -33,23 +44,41 @@ export default function ConductorParadaPage() {
     );
   }
 
-  const handleConfirm = (type: string) => {
-    toast({
-      title:
-        type === "exitosa"
-          ? "Entrega registrada"
-          : type === "fallida"
-            ? "Fallo registrado"
-            : "Novedad registrada",
-      description: `Parada ${parada.numero} actualizada correctamente.`,
-    });
-    navigate("/conductor");
+  const handleConfirm = async (tipo: "EXITOSA" | "FALLIDA" | "NOVEDAD") => {
+    try {
+      await gestionar.mutateAsync({
+        paradaId: parada.id,
+        req: {
+          tipo,
+          motivoNovedad:
+            tipo === "FALLIDA" ? motivoFallo : tipo === "NOVEDAD" ? tipoNovedad : undefined,
+          nombreReceptor: tipo === "EXITOSA" && nombreReceptor ? nombreReceptor : undefined,
+        },
+      });
+      toast({
+        title:
+          tipo === "EXITOSA"
+            ? "Entrega registrada"
+            : tipo === "FALLIDA"
+              ? "Fallo registrado"
+              : "Novedad registrada",
+        description: `Parada ${parada.numero} actualizada correctamente.`,
+      });
+      navigate("/conductor");
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo registrar la gestión.",
+      });
+    }
   };
+
+  const totalParadas = ruta?.paradas.length ?? 0;
 
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-[480px]">
-        {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
           <button
             onClick={() => navigate("/conductor")}
@@ -60,10 +89,9 @@ export default function ConductorParadaPage() {
         </div>
 
         <div className="px-4 py-4">
-          {/* Stop info */}
           <div className="card-navy p-4 mb-6">
             <p className="text-white/60 text-sm mb-1">
-              Parada {parada.numero} de {ruta.paradas.length}
+              Parada {parada.numero} de {totalParadas}
             </p>
             <h1 className="text-lg font-bold text-white">{parada.direccion}</h1>
             <div className="flex gap-4 mt-2 text-sm text-white/60">
@@ -72,7 +100,6 @@ export default function ConductorParadaPage() {
             </div>
           </div>
 
-          {/* Action cards */}
           <div className="space-y-4">
             {/* Entrega Exitosa */}
             <div
@@ -112,8 +139,9 @@ export default function ConductorParadaPage() {
                     className="w-full input-dark px-4 py-3 text-sm"
                   />
                   <button
-                    onClick={() => handleConfirm("exitosa")}
-                    className="btn-primary w-full text-center !bg-[#4caf82]"
+                    onClick={() => handleConfirm("EXITOSA")}
+                    disabled={gestionar.isPending}
+                    className="btn-primary w-full text-center !bg-[#4caf82] disabled:opacity-50"
                   >
                     Confirmar Entrega
                   </button>
@@ -142,18 +170,19 @@ export default function ConductorParadaPage() {
                   <p className="text-white/60 text-xs">Intento 1 de 2</p>
                   <select
                     value={motivoFallo}
-                    onChange={(e) => setMotivoFallo(e.target.value)}
+                    onChange={(e) => setMotivoFallo(e.target.value as MotivoNovedadDto)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   >
                     {motivosFallo.map((m) => (
                       <option key={m} value={m} className="bg-[#314595]">
-                        {m.replace(/_/g, " ")}
+                        {formatMotivoNovedad(m)}
                       </option>
                     ))}
                   </select>
                   <button
-                    onClick={() => handleConfirm("fallida")}
-                    className="btn-primary w-full text-center !bg-[#e05555]"
+                    onClick={() => handleConfirm("FALLIDA")}
+                    disabled={gestionar.isPending}
+                    className="btn-primary w-full text-center !bg-[#e05555] disabled:opacity-50"
                   >
                     Registrar parada fallida
                   </button>
@@ -183,18 +212,19 @@ export default function ConductorParadaPage() {
                 <div className="px-4 pb-4 space-y-4">
                   <select
                     value={tipoNovedad}
-                    onChange={(e) => setTipoNovedad(e.target.value)}
+                    onChange={(e) => setTipoNovedad(e.target.value as MotivoNovedadDto)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   >
                     {tiposNovedad.map((t) => (
                       <option key={t} value={t} className="bg-[#314595]">
-                        {t}
+                        {formatMotivoNovedad(t)}
                       </option>
                     ))}
                   </select>
                   <button
-                    onClick={() => handleConfirm("novedad")}
-                    className="btn-primary w-full text-center !bg-[#cc7a00]"
+                    onClick={() => handleConfirm("NOVEDAD")}
+                    disabled={gestionar.isPending}
+                    className="btn-primary w-full text-center !bg-[#cc7a00] disabled:opacity-50"
                   >
                     Registrar novedad
                   </button>

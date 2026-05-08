@@ -14,5 +14,8 @@ export const queryKeys = {
     list: () => [...queryKeys.rutas.all, "list"] as const,
     historial: () => [...queryKeys.rutas.all, "historial"] as const,
   },
-  // PLAN-05 agrega: conductor.rutaActiva
+  conductor: {
+    all: ["conductor"] as const,
+    rutaActiva: () => [...queryKeys.conductor.all, "rutaActiva"] as const,
+  },
 };

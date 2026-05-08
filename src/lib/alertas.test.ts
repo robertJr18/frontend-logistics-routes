@@ -64,6 +64,7 @@ describe("derivarAlertas", () => {
       estado: "En Tránsito",
       paradas: [
         {
+          id: "par-1",
           numero: 1,
           paqueteId: "p1",
           direccion: "Dir 1",
@@ -72,6 +73,7 @@ describe("derivarAlertas", () => {
           status: "Exitosa",
         },
         {
+          id: "par-2",
           numero: 2,
           paqueteId: "p2",
           direccion: "Dir 2",
@@ -80,6 +82,7 @@ describe("derivarAlertas", () => {
           status: "Fallida",
         },
         {
+          id: "par-3",
           numero: 3,
           paqueteId: "p3",
           direccion: "Dir 3",
@@ -105,6 +108,7 @@ describe("derivarAlertas", () => {
       estado: "En Tránsito",
       paradas: [
         {
+          id: "par-1",
           numero: 1,
           paqueteId: "p1",
           direccion: "D",
