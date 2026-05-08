@@ -77,3 +77,16 @@ export function formatModeloContrato(dto: string): ModeloContrato {
 export function modeloContratoToDto(ui: ModeloContrato): "RECORRIDO_COMPLETO" | "POR_PARADA" {
   return ui === "Recorrido completo" ? "RECORRIDO_COMPLETO" : "POR_PARADA";
 }
+
+export function formatMotivoNovedad(dto: string): string {
+  const map: Record<string, string> = {
+    CLIENTE_AUSENTE: "Cliente ausente",
+    DIRECCION_INCORRECTA: "Dirección incorrecta",
+    ZONA_DIFICIL_ACCESO: "Zona difícil acceso",
+    RECHAZADO_POR_CLIENTE: "Rechazado por cliente",
+    DAÑADO_EN_RUTA: "Dañado en ruta",
+    EXTRAVIADO: "Extraviado",
+    DEVOLUCION: "Devolución",
+  };
+  return map[dto] ?? dto;
+}

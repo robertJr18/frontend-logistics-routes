@@ -1,0 +1,15 @@
+import { formatStopStatus } from "@/lib/formatters";
+import type { Parada } from "@/types/domain";
+import type { ParadaResponse } from "@/types/dto/parada";
+
+export function toParada(dto: ParadaResponse, indice: number): Parada {
+  return {
+    numero: dto.orden || indice + 1,
+    paqueteId: dto.paqueteId,
+    direccion: dto.direccion,
+    destinatario: dto.nombreReceptor ?? "—",
+    peso: 0,
+    status: formatStopStatus(dto.estado),
+    motivoFallo: dto.motivoNovedad ?? undefined,
+  };
+}

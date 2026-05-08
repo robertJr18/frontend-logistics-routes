@@ -9,6 +9,10 @@ export const queryKeys = {
     list: () => [...queryKeys.conductores.all, "list"] as const,
     historial: (id: string) => [...queryKeys.conductores.all, "historial", id] as const,
   },
-  // PLAN-04 agrega: rutas, despacho, paradas
+  rutas: {
+    all: ["rutas"] as const,
+    list: () => [...queryKeys.rutas.all, "list"] as const,
+    historial: () => [...queryKeys.rutas.all, "historial"] as const,
+  },
   // PLAN-05 agrega: conductor.rutaActiva
 };

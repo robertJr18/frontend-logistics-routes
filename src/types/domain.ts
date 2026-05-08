@@ -58,6 +58,7 @@ export interface Ruta {
   motivoDespacho?: string;
   vehiculoAsignado?: string;
   conductorAsignado?: string;
+  fechaCierre?: string;
   paradas: Parada[];
   resumen?: ResumenRuta;
 }
