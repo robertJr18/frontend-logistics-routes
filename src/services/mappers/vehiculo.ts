@@ -8,13 +8,8 @@ import type {
   VehiculoResponse,
 } from "@/types/dto/vehiculo";
 
-export function toVehiculo(
-  dto: VehiculoResponse,
-  conductores: ConductorResponse[] = [],
-): Vehiculo {
-  const conductor = dto.conductorId
-    ? conductores.find((c) => c.id === dto.conductorId)
-    : null;
+export function toVehiculo(dto: VehiculoResponse, conductores: ConductorResponse[] = []): Vehiculo {
+  const conductor = dto.conductorId ? conductores.find((c) => c.id === dto.conductorId) : null;
 
   return {
     id: dto.id,
@@ -53,9 +48,7 @@ export function toVehiculoRequest(form: VehiculoFormInput): VehiculoRequest {
   };
 }
 
-export function toActualizarVehiculoRequest(
-  form: VehiculoFormInput,
-): ActualizarVehiculoRequest {
+export function toActualizarVehiculoRequest(form: VehiculoFormInput): ActualizarVehiculoRequest {
   const { placa: _placa, ...rest } = toVehiculoRequest(form);
   return rest;
 }

@@ -1,15 +1,9 @@
 import { formatModeloContrato, modeloContratoToDto } from "@/lib/formatters";
 import type { Conductor, ModeloContrato } from "@/types/domain";
-import type {
-  ConductorResponse,
-  RegistrarConductorRequest,
-} from "@/types/dto/conductor";
+import type { ConductorResponse, RegistrarConductorRequest } from "@/types/dto/conductor";
 import type { VehiculoResponse } from "@/types/dto/vehiculo";
 
-export function toConductor(
-  dto: ConductorResponse,
-  vehiculos: VehiculoResponse[] = [],
-): Conductor {
+export function toConductor(dto: ConductorResponse, vehiculos: VehiculoResponse[] = []): Conductor {
   const vehiculo = dto.vehiculoAsignadoId
     ? vehiculos.find((v) => v.id === dto.vehiculoAsignadoId)
     : null;
@@ -29,9 +23,7 @@ export interface ConductorFormInput {
   modeloContrato: ModeloContrato;
 }
 
-export function toRegistrarConductorRequest(
-  form: ConductorFormInput,
-): RegistrarConductorRequest {
+export function toRegistrarConductorRequest(form: ConductorFormInput): RegistrarConductorRequest {
   return {
     nombre: form.nombre.trim(),
     email: form.email.trim(),

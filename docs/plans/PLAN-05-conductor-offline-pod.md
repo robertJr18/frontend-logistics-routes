@@ -31,6 +31,7 @@ Reemplazar `mockData` en las 3 pantallas del conductor (lista de paradas, gesti�
 ### 2. `idb-keyval` para IndexedDB (no Dexie)
 
 **Decisión:** instalar `idb-keyval` (~700 bytes). Usamos solo dos almacenes:
+
 - Una key `conductor.rutaActiva` con el snapshot del último GET ruta-activa.
 - Una key `conductor.queue` con un array de mutaciones pendientes (orden FIFO).
 
@@ -86,6 +87,7 @@ Reemplazar `mockData` en las 3 pantallas del conductor (lista de paradas, gesti�
 **Decisión:** al detectar transición offline → online, drenar la cola en orden FIFO. Cada mutación se procesa secuencialmente (no en paralelo) para mantener orden temporal. Si falla por 5xx o red → detener drain, esperar próximo evento online. Si falla por 4xx (validación) → eliminar de cola, log el error, mostrar toast tipo "No se pudo sincronizar la parada X — contacta al despachador".
 
 Drain también se dispara:
+
 - Al cargar la app (por si quedaron pendientes de sesión anterior).
 - Manualmente con botón "Sincronizar ahora".
 
@@ -105,16 +107,16 @@ Drain también se dispara:
 
 ## Estado actual (delta a aplicar)
 
-| Archivo | Estado | Acción |
-|---|---|---|
-| [ConductorPage.tsx:9](../../src/pages/conductor/ConductorPage.tsx#L9) | Hardcoded R-2049 | `useRutaActiva()`. Confirmar inicio de tránsito vía `useIniciarTransito()`. |
-| [ConductorParadaPage.tsx:24](../../src/pages/conductor/ConductorParadaPage.tsx#L24) | Hardcoded R-2049, mock confirm | `useRutaActiva()` + `useRegistrarParada()`. POD upload con blob → IndexedDB → sync. |
-| [ConductorCierrePage.tsx:9](../../src/pages/conductor/ConductorCierrePage.tsx#L9) | Hardcoded R-2049, mock close | `useRutaActiva()` + `useCerrarRuta()`. |
-| [vite.config.ts](../../vite.config.ts) | Sin PWA | Agregar plugin `vite-plugin-pwa` |
-| [src/auth/AuthContext.tsx](../../src/auth/AuthContext.tsx) | (PLAN-01) | Trigger drain al login |
-| [src/App.tsx](../../src/App.tsx) | (PLAN-02) | Montar `<SyncProvider>` arriba de `<AppRoutes />` |
-| `package.json` | Sin `idb-keyval`, sin `vite-plugin-pwa` | Agregar |
-| Nuevos archivos | — | Service, mappers, hooks, IndexedDB, sync engine, UI indicador (ver estructura) |
+| Archivo                                                                             | Estado                                  | Acción                                                                              |
+| ----------------------------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- |
+| [ConductorPage.tsx:9](../../src/pages/conductor/ConductorPage.tsx#L9)               | Hardcoded R-2049                        | `useRutaActiva()`. Confirmar inicio de tránsito vía `useIniciarTransito()`.         |
+| [ConductorParadaPage.tsx:24](../../src/pages/conductor/ConductorParadaPage.tsx#L24) | Hardcoded R-2049, mock confirm          | `useRutaActiva()` + `useRegistrarParada()`. POD upload con blob → IndexedDB → sync. |
+| [ConductorCierrePage.tsx:9](../../src/pages/conductor/ConductorCierrePage.tsx#L9)   | Hardcoded R-2049, mock close            | `useRutaActiva()` + `useCerrarRuta()`.                                              |
+| [vite.config.ts](../../vite.config.ts)                                              | Sin PWA                                 | Agregar plugin `vite-plugin-pwa`                                                    |
+| [src/auth/AuthContext.tsx](../../src/auth/AuthContext.tsx)                          | (PLAN-01)                               | Trigger drain al login                                                              |
+| [src/App.tsx](../../src/App.tsx)                                                    | (PLAN-02)                               | Montar `<SyncProvider>` arriba de `<AppRoutes />`                                   |
+| `package.json`                                                                      | Sin `idb-keyval`, sin `vite-plugin-pwa` | Agregar                                                                             |
+| Nuevos archivos                                                                     | —                                       | Service, mappers, hooks, IndexedDB, sync engine, UI indicador (ver estructura)      |
 
 ---
 
@@ -233,7 +235,7 @@ export interface RegistrarParadaRequest {
   urlFoto?: string;
   urlFirma?: string;
   nombreReceptor?: string;
-  fechaHoraAccion: string;  // ISO 8601 — capturado en cliente
+  fechaHoraAccion: string; // ISO 8601 — capturado en cliente
 }
 
 export interface CerrarRutaRequest {
@@ -334,7 +336,7 @@ export type PendingMutation =
       paqueteId: string;
       paradaId: string;
       payload: import("@/types/dto/conductor-operacion").RegistrarParadaRequest;
-      podLocal?: boolean;  // si urlFoto empieza con "local://"
+      podLocal?: boolean; // si urlFoto empieza con "local://"
       enqueuedAt: string;
     }
   | {
@@ -610,7 +612,10 @@ export function useRegistrarParada() {
       if (input.fotoBlob) {
         if (isOnline()) {
           // Subir directo
-          const { url } = await conductorOperacionService.uploadFoto(input.paradaId, input.fotoBlob);
+          const { url } = await conductorOperacionService.uploadFoto(
+            input.paradaId,
+            input.fotoBlob,
+          );
           urlFoto = url;
         } else {
           // Persistir blob, dejar URL placeholder
@@ -652,7 +657,15 @@ export function useRegistrarParada() {
           ...old,
           paradas: old.paradas.map((p: any) =>
             p.paqueteId === input.paqueteId
-              ? { ...p, status: input.resultado === "EXITOSA" ? "Exitosa" : input.resultado === "FALLIDA" ? "Fallida" : "Novedad" }
+              ? {
+                  ...p,
+                  status:
+                    input.resultado === "EXITOSA"
+                      ? "Exitosa"
+                      : input.resultado === "FALLIDA"
+                        ? "Fallida"
+                        : "Novedad",
+                }
               : p,
           ),
         };
@@ -756,7 +769,7 @@ toast({ title: isOnline ? "Entrega registrada" : "Guardada — sincronizará al 
 navigate("/conductor");
 ```
 
-  - Para FALLIDA y NOVEDAD: similar pero con `motivoNovedad` y sin foto
+- Para FALLIDA y NOVEDAD: similar pero con `motivoNovedad` y sin foto
 
 ### F8.3 — ConductorCierrePage
 
@@ -773,11 +786,17 @@ const handleClose = async () => {
       rutaId: ruta.id,
       confirmarConPendientes: sinGestionar > 0,
     });
-    toast({ title: "Ruta cerrada", description: isOnline ? "Informe enviado." : "Pendiente de sincronización." });
+    toast({
+      title: "Ruta cerrada",
+      description: isOnline ? "Informe enviado." : "Pendiente de sincronización.",
+    });
     navigate("/conductor");
   } catch (err) {
     if (err instanceof ApiError && err.status === 409) {
-      toast({ variant: "destructive", description: "Aún hay paradas pendientes. Vuelve a la ruta." });
+      toast({
+        variant: "destructive",
+        description: "Aún hay paradas pendientes. Vuelve a la ruta.",
+      });
     } else {
       toast({ variant: "destructive", description: "No se pudo cerrar la ruta." });
     }
@@ -785,8 +804,8 @@ const handleClose = async () => {
 };
 ```
 
-  - `<SyncBadge />` en el header
-  - `<PendientesBanner />` arriba si hay queue pending
+- `<SyncBadge />` en el header
+- `<PendientesBanner />` arriba si hay queue pending
 
 ---
 

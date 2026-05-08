@@ -11,18 +11,14 @@ const motivosFallo = [
   "ZONA_DIFICIL_ACCESO",
 ];
 
-const tiposNovedad = [
-  "DAÑADO",
-  "EXTRAVIADO",
-  "DEVOLUCION",
-];
+const tiposNovedad = ["DAÑADO", "EXTRAVIADO", "DEVOLUCION"];
 
 export default function ConductorParadaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const ruta = rutas.find(r => r.id === "R-2049")!;
-  const parada = ruta.paradas.find(p => p.numero === Number(id));
+  const ruta = rutas.find((r) => r.id === "R-2049")!;
+  const parada = ruta.paradas.find((p) => p.numero === Number(id));
 
   const [expanded, setExpanded] = useState<string | null>(null);
   const [motivoFallo, setMotivoFallo] = useState(motivosFallo[0]);
@@ -39,7 +35,12 @@ export default function ConductorParadaPage() {
 
   const handleConfirm = (type: string) => {
     toast({
-      title: type === "exitosa" ? "Entrega registrada" : type === "fallida" ? "Fallo registrado" : "Novedad registrada",
+      title:
+        type === "exitosa"
+          ? "Entrega registrada"
+          : type === "fallida"
+            ? "Fallo registrado"
+            : "Novedad registrada",
       description: `Parada ${parada.numero} actualizada correctamente.`,
     });
     navigate("/conductor");
@@ -50,7 +51,10 @@ export default function ConductorParadaPage() {
       <div className="w-full max-w-[480px]">
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
-          <button onClick={() => navigate("/conductor")} className="text-white/60 hover:text-white text-sm">
+          <button
+            onClick={() => navigate("/conductor")}
+            className="text-white/60 hover:text-white text-sm"
+          >
             ← Volver
           </button>
         </div>
@@ -58,7 +62,9 @@ export default function ConductorParadaPage() {
         <div className="px-4 py-4">
           {/* Stop info */}
           <div className="card-navy p-4 mb-6">
-            <p className="text-white/60 text-sm mb-1">Parada {parada.numero} de {ruta.paradas.length}</p>
+            <p className="text-white/60 text-sm mb-1">
+              Parada {parada.numero} de {ruta.paradas.length}
+            </p>
             <h1 className="text-lg font-bold text-white">{parada.direccion}</h1>
             <div className="flex gap-4 mt-2 text-sm text-white/60">
               <span>{parada.paqueteId}</span>
@@ -69,7 +75,9 @@ export default function ConductorParadaPage() {
           {/* Action cards */}
           <div className="space-y-4">
             {/* Entrega Exitosa */}
-            <div className={`rounded-2xl border-2 transition-colors ${expanded === "exitosa" ? "border-[#4caf82] bg-[#4caf82]/5" : "border-[#4caf82]/30"}`}>
+            <div
+              className={`rounded-2xl border-2 transition-colors ${expanded === "exitosa" ? "border-[#4caf82] bg-[#4caf82]/5" : "border-[#4caf82]/30"}`}
+            >
               <button
                 onClick={() => setExpanded(expanded === "exitosa" ? null : "exitosa")}
                 className="w-full p-4 text-left flex items-center gap-3"
@@ -79,7 +87,9 @@ export default function ConductorParadaPage() {
                 </div>
                 <div>
                   <p className="text-white font-semibold">Entrega Exitosa</p>
-                  <p className="text-white/60 text-xs">Requiere foto de evidencia y firma del receptor</p>
+                  <p className="text-white/60 text-xs">
+                    Requiere foto de evidencia y firma del receptor
+                  </p>
                 </div>
               </button>
               {expanded === "exitosa" && (
@@ -98,10 +108,13 @@ export default function ConductorParadaPage() {
                     type="text"
                     placeholder="Nombre del receptor"
                     value={nombreReceptor}
-                    onChange={e => setNombreReceptor(e.target.value)}
+                    onChange={(e) => setNombreReceptor(e.target.value)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   />
-                  <button onClick={() => handleConfirm("exitosa")} className="btn-primary w-full text-center !bg-[#4caf82]">
+                  <button
+                    onClick={() => handleConfirm("exitosa")}
+                    className="btn-primary w-full text-center !bg-[#4caf82]"
+                  >
                     Confirmar Entrega
                   </button>
                 </div>
@@ -109,7 +122,9 @@ export default function ConductorParadaPage() {
             </div>
 
             {/* Parada Fallida */}
-            <div className={`rounded-2xl border-2 transition-colors ${expanded === "fallida" ? "border-white/30 bg-white/5" : "border-white/10"}`}>
+            <div
+              className={`rounded-2xl border-2 transition-colors ${expanded === "fallida" ? "border-white/30 bg-white/5" : "border-white/10"}`}
+            >
               <button
                 onClick={() => setExpanded(expanded === "fallida" ? null : "fallida")}
                 className="w-full p-4 text-left flex items-center gap-3"
@@ -127,14 +142,19 @@ export default function ConductorParadaPage() {
                   <p className="text-white/60 text-xs">Intento 1 de 2</p>
                   <select
                     value={motivoFallo}
-                    onChange={e => setMotivoFallo(e.target.value)}
+                    onChange={(e) => setMotivoFallo(e.target.value)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   >
-                    {motivosFallo.map(m => (
-                      <option key={m} value={m} className="bg-[#314595]">{m.replace(/_/g, " ")}</option>
+                    {motivosFallo.map((m) => (
+                      <option key={m} value={m} className="bg-[#314595]">
+                        {m.replace(/_/g, " ")}
+                      </option>
                     ))}
                   </select>
-                  <button onClick={() => handleConfirm("fallida")} className="btn-primary w-full text-center !bg-[#e05555]">
+                  <button
+                    onClick={() => handleConfirm("fallida")}
+                    className="btn-primary w-full text-center !bg-[#e05555]"
+                  >
                     Registrar parada fallida
                   </button>
                 </div>
@@ -142,7 +162,9 @@ export default function ConductorParadaPage() {
             </div>
 
             {/* Novedad Grave */}
-            <div className={`rounded-2xl border-2 transition-colors ${expanded === "novedad" ? "border-[#e05555] bg-[#e05555]/5" : "border-[#e05555]/30"}`}>
+            <div
+              className={`rounded-2xl border-2 transition-colors ${expanded === "novedad" ? "border-[#e05555] bg-[#e05555]/5" : "border-[#e05555]/30"}`}
+            >
               <button
                 onClick={() => setExpanded(expanded === "novedad" ? null : "novedad")}
                 className="w-full p-4 text-left flex items-center gap-3"
@@ -152,21 +174,28 @@ export default function ConductorParadaPage() {
                 </div>
                 <div>
                   <p className="text-white font-semibold">Novedad Grave</p>
-                  <p className="text-white/60 text-xs">Se notificará al sistema de gestión de paquetes de inmediato</p>
+                  <p className="text-white/60 text-xs">
+                    Se notificará al sistema de gestión de paquetes de inmediato
+                  </p>
                 </div>
               </button>
               {expanded === "novedad" && (
                 <div className="px-4 pb-4 space-y-4">
                   <select
                     value={tipoNovedad}
-                    onChange={e => setTipoNovedad(e.target.value)}
+                    onChange={(e) => setTipoNovedad(e.target.value)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   >
-                    {tiposNovedad.map(t => (
-                      <option key={t} value={t} className="bg-[#314595]">{t}</option>
+                    {tiposNovedad.map((t) => (
+                      <option key={t} value={t} className="bg-[#314595]">
+                        {t}
+                      </option>
                     ))}
                   </select>
-                  <button onClick={() => handleConfirm("novedad")} className="btn-primary w-full text-center !bg-[#cc7a00]">
+                  <button
+                    onClick={() => handleConfirm("novedad")}
+                    className="btn-primary w-full text-center !bg-[#cc7a00]"
+                  >
                     Registrar novedad
                   </button>
                 </div>

@@ -48,8 +48,7 @@ export default function AdminAsignacionesPage() {
         toast({
           variant: "destructive",
           title: "Asignación bloqueada",
-          description:
-            "El conductor ya tiene vehículo asignado o el vehículo no está disponible.",
+          description: "El conductor ya tiene vehículo asignado o el vehículo no está disponible.",
         });
       } else if (err instanceof ApiError && err.status === 404) {
         toast({
@@ -106,9 +105,7 @@ export default function AdminAsignacionesPage() {
                             <span className="text-white/50 text-xs">{c.modeloContrato}</span>
                           </div>
                         </div>
-                        {selectedConductor === c.id && (
-                          <Check className="w-5 h-5 text-primary" />
-                        )}
+                        {selectedConductor === c.id && <Check className="w-5 h-5 text-primary" />}
                       </div>
                     </div>
                   ))
@@ -143,9 +140,7 @@ export default function AdminAsignacionesPage() {
                             {v.zona} · {v.capacidadPeso.toLocaleString()} kg
                           </p>
                         </div>
-                        {selectedVehiculo === v.id && (
-                          <Check className="w-5 h-5 text-primary" />
-                        )}
+                        {selectedVehiculo === v.id && <Check className="w-5 h-5 text-primary" />}
                       </div>
                     </div>
                   ))

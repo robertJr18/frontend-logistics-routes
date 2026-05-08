@@ -38,19 +38,19 @@ Convertir la app en una SPA capaz de consumir cualquier endpoint protegido del b
 new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30_000,           // 30s — balance fresh vs traffic
-      gcTime: 5 * 60_000,          // 5min — datos en cache después de unmount
+      staleTime: 30_000, // 30s — balance fresh vs traffic
+      gcTime: 5 * 60_000, // 5min — datos en cache después de unmount
       refetchOnWindowFocus: false, // evita ruido en operación de campo
       retry: (failureCount, error) => {
         if (error instanceof ApiError && [401, 403, 404, 422].includes(error.status)) return false;
-        return failureCount < 1;   // un solo retry para errores transitorios
+        return failureCount < 1; // un solo retry para errores transitorios
       },
     },
     mutations: {
-      retry: 0,                    // mutaciones nunca se reintentan automáticamente
+      retry: 0, // mutaciones nunca se reintentan automáticamente
     },
   },
-})
+});
 ```
 
 **Por qué `refetchOnWindowFocus: false`:** el conductor en campo cambia de tab/app constantemente; refetch en cada foco satura. Cada hook puede sobrescribirlo si lo necesita.
@@ -116,7 +116,7 @@ PLAN-02 deja `queryKeys.ts` con un namespace de **ejemplo** (vehículos). Cada P
 export function useVehiculos() {
   return useQuery({
     queryKey: queryKeys.vehiculos.list(),
-    queryFn: () => vehiculoService.listar().then(dtos => dtos.map(toVehiculo)),
+    queryFn: () => vehiculoService.listar().then((dtos) => dtos.map(toVehiculo)),
   });
 }
 
@@ -131,6 +131,7 @@ export function useRegistrarVehiculo() {
 ```
 
 **Reglas:**
+
 - Un hook = una operación (no `useVehiculos()` que devuelva CRUD entero).
 - El mapper se invoca dentro del `queryFn`, no fuera. La pantalla recibe tipos UI listos.
 - `onSuccess` invalida la query "raíz" del dominio (`.all`) salvo que el cambio sea muy local. Mejor sobre-invalidar y simplificar.
@@ -148,17 +149,17 @@ export function useRegistrarVehiculo() {
 
 ## Estado actual (delta a aplicar)
 
-| Archivo | Estado | Acción |
-|---|---|---|
-| [src/services/api.ts](../../src/services/api.ts) | Sin Authorization, sin handling 401 | Inyectar header desde `authStorage`, despachar evento en 401 |
-| [src/auth/AuthContext.tsx](../../src/auth/AuthContext.tsx) | (Creado en PLAN-01) | Suscribirse a `auth:unauthorized` y llamar `logout()` |
-| [src/App.tsx](../../src/App.tsx) | `new QueryClient()` sin opciones | Pasar `defaultOptions` documentados en decisión 3 |
-| `src/lib/queryKeys.ts` | No existe | Crear con namespace de ejemplo |
-| `src/lib/formatters.ts` | No existe | Crear con `formatRouteStatus`, `formatVehicleStatus`, `formatStopStatus` |
-| `src/types/dto/` | No existe | Crear carpeta vacía con `.gitkeep` (cada PLAN posterior agrega su archivo) |
-| `src/services/mappers/` | No existe | Crear carpeta vacía con `.gitkeep` |
-| `src/hooks/` | No existe | Crear carpeta vacía con `.gitkeep` |
-| `src/env.d.ts` | (Creado en PLAN-00) | Agregar declaración de `WindowEventMap["auth:unauthorized"]` |
+| Archivo                                                    | Estado                              | Acción                                                                     |
+| ---------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------- |
+| [src/services/api.ts](../../src/services/api.ts)           | Sin Authorization, sin handling 401 | Inyectar header desde `authStorage`, despachar evento en 401               |
+| [src/auth/AuthContext.tsx](../../src/auth/AuthContext.tsx) | (Creado en PLAN-01)                 | Suscribirse a `auth:unauthorized` y llamar `logout()`                      |
+| [src/App.tsx](../../src/App.tsx)                           | `new QueryClient()` sin opciones    | Pasar `defaultOptions` documentados en decisión 3                          |
+| `src/lib/queryKeys.ts`                                     | No existe                           | Crear con namespace de ejemplo                                             |
+| `src/lib/formatters.ts`                                    | No existe                           | Crear con `formatRouteStatus`, `formatVehicleStatus`, `formatStopStatus`   |
+| `src/types/dto/`                                           | No existe                           | Crear carpeta vacía con `.gitkeep` (cada PLAN posterior agrega su archivo) |
+| `src/services/mappers/`                                    | No existe                           | Crear carpeta vacía con `.gitkeep`                                         |
+| `src/hooks/`                                               | No existe                           | Crear carpeta vacía con `.gitkeep`                                         |
+| `src/env.d.ts`                                             | (Creado en PLAN-00)                 | Agregar declaración de `WindowEventMap["auth:unauthorized"]`               |
 
 ---
 
@@ -213,7 +214,11 @@ import { authStorage } from "@/lib/authStorage";
 const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string, public body?: unknown) {
+  constructor(
+    public status: number,
+    message: string,
+    public body?: unknown,
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -258,14 +263,16 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 export const api = {
-  get: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "GET" }),
+  get: <T>(path: string, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: "GET" }),
   post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, { ...options, method: "POST", body }),
   put: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, { ...options, method: "PUT", body }),
   patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, { ...options, method: "PATCH", body }),
-  delete: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "DELETE" }),
+  delete: <T>(path: string, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: "DELETE" }),
 };
 ```
 
@@ -388,7 +395,7 @@ export function formatDriverStatus(dto: string): DriverStatus {
   const map: Record<string, DriverStatus> = {
     ACTIVO: "Activo",
     INACTIVO: "Inactivo",
-    EN_RUTA: "Activo",  // EN_RUTA no existe en el tipo UI; se mapea a Activo (operacional)
+    EN_RUTA: "Activo", // EN_RUTA no existe en el tipo UI; se mapea a Activo (operacional)
   };
   return map[dto] ?? "Inactivo";
 }
@@ -446,10 +453,10 @@ export function formatStopStatus(dto: string): StopStatus {
 - [ ] T216 Forzar 401: borrar manualmente el token (`localStorage.removeItem("auth.token")`) y disparar una request al backend desde la consola:
 
 ```js
-fetch("/api/vehiculos/disponibilidad").then(r => console.log(r.status))
+fetch("/api/vehiculos/disponibilidad").then((r) => console.log(r.status));
 ```
 
-  → debe responder 401 → la app debe limpiar la sesión y redirigir a `/login` (gracias al evento `auth:unauthorized` y al ProtectedRoute).
+→ debe responder 401 → la app debe limpiar la sesión y redirigir a `/login` (gracias al evento `auth:unauthorized` y al ProtectedRoute).
 
 - [ ] T217 `npm run typecheck`, `npm run lint`, `npm run test` pasan.
 

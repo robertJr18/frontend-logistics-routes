@@ -50,7 +50,7 @@
 
 Hoy `import.meta.env.VITE_API_URL` no está tipado, vuelve `string | undefined`. Al crecer las env vars (token storage key, endpoint de S3 presigned, feature flags) esto se complica.
 
-**Decisión:** crear `src/env.d.ts` con un `interface ImportMetaEnv` que declare todas las VITE_*. Mantener `.env.example` como fuente de verdad de qué necesita el equipo.
+**Decisión:** crear `src/env.d.ts` con un `interface ImportMetaEnv` que declare todas las VITE\_\*. Mantener `.env.example` como fuente de verdad de qué necesita el equipo.
 
 ### 6. Versión de Node fijada
 
@@ -77,20 +77,20 @@ El proyecto fue iniciado con Lovable y arrastra restos:
 
 ## Estado actual (delta a aplicar)
 
-| Archivo | Estado | Acción |
-|---|---|---|
-| [package.json](../../package.json) | Sin `engines`, sin `typecheck`/`format` | Agregar `engines.node`, scripts |
-| [vite.config.ts](../../vite.config.ts) | Puerto 8080, sin proxy | Cambiar a 5173, agregar proxy `/api` |
-| [tsconfig.json](../../tsconfig.json) | `strict: false`, redundante | Limpiar; las opciones reales viven en los referenciados |
-| [tsconfig.app.json](../../tsconfig.app.json) | `strict: false`, `strictNullChecks: false` | Activar `strict: true` |
-| [eslint.config.js](../../eslint.config.js) | `no-unused-vars: "off"` | Cambiar a `"warn"` con `argsIgnorePattern` |
-| [tailwind.config.ts](../../tailwind.config.ts) | `content` con paths Next.js | Dejar solo `./src/**/*.{ts,tsx}` |
-| [.env.example](../../.env.example) | Apunta a `http://localhost:8080` | Documentar como override; default vacío con proxy |
-| `src/env.d.ts` | No existe | Crear con tipos de `ImportMetaEnv` |
-| `.prettierrc` | No existe | Crear |
-| `.prettierignore` | No existe | Crear |
-| `.nvmrc` | No existe | Crear con `20.18.0` |
-| [src/services/api.ts:1](../../src/services/api.ts#L1) | `?? "http://localhost:8080"` | `?? ""` (relativo, usa proxy) |
+| Archivo                                               | Estado                                     | Acción                                                  |
+| ----------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
+| [package.json](../../package.json)                    | Sin `engines`, sin `typecheck`/`format`    | Agregar `engines.node`, scripts                         |
+| [vite.config.ts](../../vite.config.ts)                | Puerto 8080, sin proxy                     | Cambiar a 5173, agregar proxy `/api`                    |
+| [tsconfig.json](../../tsconfig.json)                  | `strict: false`, redundante                | Limpiar; las opciones reales viven en los referenciados |
+| [tsconfig.app.json](../../tsconfig.app.json)          | `strict: false`, `strictNullChecks: false` | Activar `strict: true`                                  |
+| [eslint.config.js](../../eslint.config.js)            | `no-unused-vars: "off"`                    | Cambiar a `"warn"` con `argsIgnorePattern`              |
+| [tailwind.config.ts](../../tailwind.config.ts)        | `content` con paths Next.js                | Dejar solo `./src/**/*.{ts,tsx}`                        |
+| [.env.example](../../.env.example)                    | Apunta a `http://localhost:8080`           | Documentar como override; default vacío con proxy       |
+| `src/env.d.ts`                                        | No existe                                  | Crear con tipos de `ImportMetaEnv`                      |
+| `.prettierrc`                                         | No existe                                  | Crear                                                   |
+| `.prettierignore`                                     | No existe                                  | Crear                                                   |
+| `.nvmrc`                                              | No existe                                  | Crear con `20.18.0`                                     |
+| [src/services/api.ts:1](../../src/services/api.ts#L1) | `?? "http://localhost:8080"`               | `?? ""` (relativo, usa proxy)                           |
 
 ---
 
@@ -132,10 +132,7 @@ server: {
 ```json
 {
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
 ```
 

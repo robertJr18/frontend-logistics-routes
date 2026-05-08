@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -7,12 +7,12 @@
 @layer base {
   :root {
     /* Brand palette — refined */
-    --background: 228 61% 14%;          /* deeper navy for landing */
+    --background: 228 61% 14%; /* deeper navy for landing */
     --foreground: 0 0% 100%;
 
-    --surface-1: 228 55% 20%;           /* page surface */
-    --surface-2: 228 52% 26%;           /* card */
-    --surface-3: 228 48% 32%;           /* elevated card */
+    --surface-1: 228 55% 20%; /* page surface */
+    --surface-2: 228 52% 26%; /* card */
+    --surface-3: 228 48% 32%; /* elevated card */
 
     --card: 228 52% 26%;
     --card-foreground: 0 0% 100%;
@@ -20,7 +20,7 @@
     --popover: 228 52% 26%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 28 92% 55%;              /* vivid orange */
+    --primary: 28 92% 55%; /* vivid orange */
     --primary-foreground: 228 61% 14%;
     --primary-glow: 36 95% 62%;
 
@@ -60,9 +60,19 @@
     --hover-row: 228 52% 32%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(228 61% 12%) 0%, hsl(228 55% 22%) 60%, hsl(228 52% 28%) 100%);
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(228 61% 12%) 0%,
+      hsl(228 55% 22%) 60%,
+      hsl(228 52% 28%) 100%
+    );
     --gradient-primary: linear-gradient(135deg, hsl(28 92% 55%) 0%, hsl(36 95% 62%) 100%);
-    --gradient-overlay: linear-gradient(180deg, hsl(228 61% 14% / 0.2) 0%, hsl(228 61% 14% / 0.85) 70%, hsl(228 61% 14%) 100%);
+    --gradient-overlay: linear-gradient(
+      180deg,
+      hsl(228 61% 14% / 0.2) 0%,
+      hsl(228 61% 14% / 0.85) 70%,
+      hsl(228 61% 14%) 100%
+    );
     --gradient-card: linear-gradient(160deg, hsl(228 52% 28%) 0%, hsl(228 52% 22%) 100%);
 
     /* Shadows */
@@ -83,18 +93,33 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Poppins", sans-serif;
     letter-spacing: -0.02em;
   }
 
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: hsl(228 61% 12%); }
-  ::-webkit-scrollbar-thumb { background: hsl(0 0% 100% / 0.15); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(0 0% 100% / 0.25); }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(228 61% 12%);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 100% / 0.15);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(0 0% 100% / 0.25);
+  }
 }
 
 @layer utilities {
@@ -127,10 +152,16 @@
     outline: none;
   }
 
-  .input-dark::placeholder { color: hsl(0 0% 100% / 0.4); }
+  .input-dark::placeholder {
+    color: hsl(0 0% 100% / 0.4);
+  }
 
-  .text-subtle { color: hsl(0 0% 100% / 0.65); }
-  .text-muted-soft { color: hsl(0 0% 100% / 0.5); }
+  .text-subtle {
+    color: hsl(0 0% 100% / 0.65);
+  }
+  .text-muted-soft {
+    color: hsl(0 0% 100% / 0.5);
+  }
 
   .btn-primary {
     background: var(--gradient-primary);
@@ -162,7 +193,9 @@
     color: hsl(var(--primary));
   }
 
-  .gradient-hero { background: var(--gradient-hero); }
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
   .gradient-primary-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -170,7 +203,9 @@
     color: transparent;
   }
 
-  .glow-primary { box-shadow: var(--shadow-glow); }
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
 
   .glass {
     background: hsl(228 60% 18% / 0.7);

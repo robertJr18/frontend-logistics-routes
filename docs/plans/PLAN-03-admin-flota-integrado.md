@@ -32,6 +32,7 @@ Reemplazar `mockData` en las 6 pantallas del Administrador de Flota con queries 
 - `DELETE /api/vehiculos/{id}` "da de baja" (estado → INACTIVO)
 
 **Decisión:**
+
 - Quitar el toggle de estado del form de edición.
 - En la pantalla de Detalle, agregar botón "Dar de baja" → llama `DELETE /api/vehiculos/{id}` con confirmación.
 - **Reactivación de vehículos inactivos:** T301 verifica si el backend lo soporta. Si no, no se expone en UI; quedan como histórico inmutable.
@@ -94,6 +95,7 @@ Frontend [mockData.ts:19-31](../../src/data/mockData.ts#L19-L31) usa zonas descr
 ### 9. Manejo de errores específicos del dominio
 
 El backend lanza:
+
 - `PlacaDuplicadaException` → HTTP 409
 - `VehiculoEnTransitoException` → HTTP 409 (al editar/borrar vehículo en tránsito)
 - `ConductorYaAsignadoException` → HTTP 409 (al asignar)
@@ -103,7 +105,8 @@ El backend lanza:
 ```ts
 if (err instanceof ApiError && err.status === 409) {
   if (err.body?.code === "PLACA_DUPLICADA") toast({ description: "Esa placa ya está registrada." });
-  else if (err.body?.code === "VEHICULO_EN_TRANSITO") toast({ description: "No se puede modificar un vehículo en tránsito." });
+  else if (err.body?.code === "VEHICULO_EN_TRANSITO")
+    toast({ description: "No se puede modificar un vehículo en tránsito." });
   else toast({ description: err.body?.message ?? "Conflicto." });
 }
 ```
@@ -114,24 +117,24 @@ T301 confirma que el backend retorna `{ code, message }` o similar. Si solo reto
 
 ## Estado actual (delta a aplicar)
 
-| Archivo | Estado | Acción |
-|---|---|---|
-| [AdminPage.tsx](../../src/pages/admin/AdminPage.tsx) | Lee `vehiculos`, `conductores` de mockData | Reemplazar por `useVehiculos()` y `useConductores()`. Quitar columna "Turno Activo", agregar "Modelo Contrato". |
-| [AdminRegistrarPage.tsx](../../src/pages/admin/AdminRegistrarPage.tsx) | `handleSubmit` mock, valida con `vehiculos.some(...)` | `useRegistrarVehiculo()`. Quitar validación local de placa duplicada (la hace el backend → 409). |
-| [AdminRegistrarConductorPage.tsx](../../src/pages/admin/AdminRegistrarConductorPage.tsx) | Form con campos inexistentes en backend | Rehacer form: `nombre`, `email`, `modeloContrato`. `useRegistrarConductor()`. |
-| [AdminAsignacionesPage.tsx](../../src/pages/admin/AdminAsignacionesPage.tsx) | Mock `handleAssign` | `useAsignarVehiculoConductor()`. |
-| [AdminVehiculoDetallePage.tsx](../../src/pages/admin/AdminVehiculoDetallePage.tsx) | Lee de mockData | `useVehiculoByPlaca(placa)`. Ocultar secciones de rutas. Agregar botón "Dar de baja" → `useDarDeBajaVehiculo()`. |
-| [AdminVehiculoEditarPage.tsx](../../src/pages/admin/AdminVehiculoEditarPage.tsx) | Toggle estado, `handleSave` mock | `useActualizarVehiculo()`. Quitar toggle estado. Resolver `placa → id` desde cache. |
-| `src/types/dto/vehiculo.ts` | No existe | Crear (DTOs request + response) |
-| `src/types/dto/conductor.ts` | No existe | Crear |
-| `src/services/vehiculos.ts` | No existe | Crear |
-| `src/services/conductores.ts` | No existe | Crear |
-| `src/services/mappers/vehiculo.ts` | No existe | Crear |
-| `src/services/mappers/conductor.ts` | No existe | Crear |
-| `src/hooks/vehiculos/*` | No existe | Crear (un archivo por hook) |
-| `src/hooks/conductores/*` | No existe | Crear |
-| [src/lib/queryKeys.ts](../../src/lib/queryKeys.ts) | Solo namespace `vehiculos` (PLAN-02) | Agregar namespace `conductores` |
-| [src/types/domain.ts](../../src/types/domain.ts) | Conductor con `turnoActivo`; sin `email`/`modeloContrato` | Actualizar tipo `Conductor`: quitar `turnoActivo`, agregar `email` y `modeloContrato`. |
+| Archivo                                                                                  | Estado                                                    | Acción                                                                                                           |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| [AdminPage.tsx](../../src/pages/admin/AdminPage.tsx)                                     | Lee `vehiculos`, `conductores` de mockData                | Reemplazar por `useVehiculos()` y `useConductores()`. Quitar columna "Turno Activo", agregar "Modelo Contrato".  |
+| [AdminRegistrarPage.tsx](../../src/pages/admin/AdminRegistrarPage.tsx)                   | `handleSubmit` mock, valida con `vehiculos.some(...)`     | `useRegistrarVehiculo()`. Quitar validación local de placa duplicada (la hace el backend → 409).                 |
+| [AdminRegistrarConductorPage.tsx](../../src/pages/admin/AdminRegistrarConductorPage.tsx) | Form con campos inexistentes en backend                   | Rehacer form: `nombre`, `email`, `modeloContrato`. `useRegistrarConductor()`.                                    |
+| [AdminAsignacionesPage.tsx](../../src/pages/admin/AdminAsignacionesPage.tsx)             | Mock `handleAssign`                                       | `useAsignarVehiculoConductor()`.                                                                                 |
+| [AdminVehiculoDetallePage.tsx](../../src/pages/admin/AdminVehiculoDetallePage.tsx)       | Lee de mockData                                           | `useVehiculoByPlaca(placa)`. Ocultar secciones de rutas. Agregar botón "Dar de baja" → `useDarDeBajaVehiculo()`. |
+| [AdminVehiculoEditarPage.tsx](../../src/pages/admin/AdminVehiculoEditarPage.tsx)         | Toggle estado, `handleSave` mock                          | `useActualizarVehiculo()`. Quitar toggle estado. Resolver `placa → id` desde cache.                              |
+| `src/types/dto/vehiculo.ts`                                                              | No existe                                                 | Crear (DTOs request + response)                                                                                  |
+| `src/types/dto/conductor.ts`                                                             | No existe                                                 | Crear                                                                                                            |
+| `src/services/vehiculos.ts`                                                              | No existe                                                 | Crear                                                                                                            |
+| `src/services/conductores.ts`                                                            | No existe                                                 | Crear                                                                                                            |
+| `src/services/mappers/vehiculo.ts`                                                       | No existe                                                 | Crear                                                                                                            |
+| `src/services/mappers/conductor.ts`                                                      | No existe                                                 | Crear                                                                                                            |
+| `src/hooks/vehiculos/*`                                                                  | No existe                                                 | Crear (un archivo por hook)                                                                                      |
+| `src/hooks/conductores/*`                                                                | No existe                                                 | Crear                                                                                                            |
+| [src/lib/queryKeys.ts](../../src/lib/queryKeys.ts)                                       | Solo namespace `vehiculos` (PLAN-02)                      | Agregar namespace `conductores`                                                                                  |
+| [src/types/domain.ts](../../src/types/domain.ts)                                         | Conductor con `turnoActivo`; sin `email`/`modeloContrato` | Actualizar tipo `Conductor`: quitar `turnoActivo`, agregar `email` y `modeloContrato`.                           |
 
 ---
 
@@ -275,7 +278,7 @@ export interface Conductor {
   email: string;
   modeloContrato: ModeloContrato;
   estado: DriverStatus;
-  vehiculoAsignado: string | null;  // mantenemos placa para compatibilidad UI
+  vehiculoAsignado: string | null; // mantenemos placa para compatibilidad UI
 }
 ```
 
@@ -295,14 +298,20 @@ export function modeloContratoToDto(ui: ModeloContrato): "RECORRIDO_COMPLETO" | 
 
 export function formatTipoVehiculo(dto: string): VehicleType {
   const map: Record<string, VehicleType> = {
-    MOTO: "Moto", VAN: "Van", NHR: "NHR", TURBO: "Turbo",
+    MOTO: "Moto",
+    VAN: "Van",
+    NHR: "NHR",
+    TURBO: "Turbo",
   };
   return map[dto] ?? "Moto";
 }
 
 export function tipoVehiculoToDto(ui: VehicleType): "MOTO" | "VAN" | "NHR" | "TURBO" {
   const map: Record<VehicleType, "MOTO" | "VAN" | "NHR" | "TURBO"> = {
-    Moto: "MOTO", Van: "VAN", NHR: "NHR", Turbo: "TURBO",
+    Moto: "MOTO",
+    Van: "VAN",
+    NHR: "NHR",
+    Turbo: "TURBO",
   };
   return map[ui];
 }
@@ -321,7 +330,7 @@ import { formatTipoVehiculo, formatVehicleStatus, tipoVehiculoToDto } from "@/li
 import type { ConductorResponse } from "@/types/dto/conductor";
 
 export function toVehiculo(dto: VehiculoResponse, conductores: ConductorResponse[] = []): Vehiculo {
-  const conductor = dto.conductorId ? conductores.find(c => c.id === dto.conductorId) : null;
+  const conductor = dto.conductorId ? conductores.find((c) => c.id === dto.conductorId) : null;
   return {
     placa: dto.placa,
     tipo: formatTipoVehiculo(dto.tipo),
@@ -365,7 +374,9 @@ import { modeloContratoToDto } from "@/lib/formatters";
 import type { VehiculoResponse } from "@/types/dto/vehiculo";
 
 export function toConductor(dto: ConductorResponse, vehiculos: VehiculoResponse[] = []): Conductor {
-  const vehiculo = dto.vehiculoAsignadoId ? vehiculos.find(v => v.id === dto.vehiculoAsignadoId) : null;
+  const vehiculo = dto.vehiculoAsignadoId
+    ? vehiculos.find((v) => v.id === dto.vehiculoAsignadoId)
+    : null;
   return {
     id: dto.id,
     nombre: dto.nombre,
@@ -426,12 +437,15 @@ import type {
 
 export const conductorService = {
   listar: () => api.get<ConductorResponse[]>("/api/conductores"),
-  registrar: (req: RegistrarConductorRequest) => api.post<ConductorResponse>("/api/conductores", req),
+  registrar: (req: RegistrarConductorRequest) =>
+    api.post<ConductorResponse>("/api/conductores", req),
   asignarVehiculo: (id: string, req: AsignarVehiculoRequest) =>
     api.post<void>(`/api/conductores/${id}/asignar-vehiculo`, req),
-  desvincularVehiculo: (id: string) => api.delete<void>(`/api/conductores/${id}/desvincular-vehiculo`),
+  desvincularVehiculo: (id: string) =>
+    api.delete<void>(`/api/conductores/${id}/desvincular-vehiculo`),
   darDeBaja: (id: string) => api.delete<void>(`/api/conductores/${id}`),
-  historial: (id: string) => api.get<HistorialAsignacionResponse[]>(`/api/conductores/${id}/historial-asignaciones`),
+  historial: (id: string) =>
+    api.get<HistorialAsignacionResponse[]>(`/api/conductores/${id}/historial-asignaciones`),
 };
 ```
 
@@ -481,7 +495,7 @@ export function useVehiculos() {
         vehiculoService.listar(),
         conductorService.listar(),
       ]);
-      return vehiculos.map(v => toVehiculo(v, conductores));
+      return vehiculos.map((v) => toVehiculo(v, conductores));
     },
   });
 }
@@ -496,7 +510,7 @@ export function useVehiculoByPlaca(placa: string | undefined) {
   const query = useVehiculos();
   return {
     ...query,
-    data: placa ? query.data?.find(v => v.placa === placa) : undefined,
+    data: placa ? query.data?.find((v) => v.placa === placa) : undefined,
   };
 }
 ```
@@ -535,7 +549,7 @@ export function useRegistrarVehiculo() {
 onSuccess: () => {
   qc.invalidateQueries({ queryKey: queryKeys.vehiculos.all });
   qc.invalidateQueries({ queryKey: queryKeys.conductores.all });
-}
+};
 ```
 
 - [ ] T324 [src/hooks/conductores/useDesvincularVehiculoConductor.ts](../../src/hooks/conductores/useDesvincularVehiculoConductor.ts) — misma invalidación cruzada.
@@ -566,7 +580,9 @@ onSuccess: () => {
 const handleSubmit = async () => {
   // ... validación local (placa no vacía, capacidad > 0, etc.)
   try {
-    await registrar.mutateAsync(toRegistrarVehiculoRequest({ placa, tipo, modelo, capacidad, volumen, zona }));
+    await registrar.mutateAsync(
+      toRegistrarVehiculoRequest({ placa, tipo, modelo, capacidad, volumen, zona }),
+    );
     toast({ title: "Vehículo registrado", description: `${tipo} ${placa} registrado.` });
     navigate("/admin");
   } catch (err) {
@@ -579,7 +595,7 @@ const handleSubmit = async () => {
 };
 ```
 
-  - Botón con `disabled={registrar.isPending}` y label dinámico ("Registrando..." mientras pendiente).
+- Botón con `disabled={registrar.isPending}` y label dinámico ("Registrando..." mientras pendiente).
 
 ### F9.3 — AdminRegistrarConductorPage
 
