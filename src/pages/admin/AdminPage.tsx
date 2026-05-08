@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Truck, Users, Link as LinkIcon } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StatusBadge, { getVehicleStatusVariant } from "@/components/StatusBadge";
-import { conductores } from "@/data/mockData";
 import { useVehiculos } from "@/hooks/vehiculos/useVehiculos";
+import { useConductores } from "@/hooks/conductores/useConductores";
 
 const sidebarItems = [
   { label: "Flota", icon: Truck },
@@ -23,6 +23,11 @@ export default function AdminPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"flota" | "conductores">("flota");
   const { data: vehiculos = [], isLoading, isError } = useVehiculos();
+  const {
+    data: conductores = [],
+    isLoading: cargandoConductores,
+    isError: errorConductores,
+  } = useConductores();
 
   const disponibles = vehiculos.filter((v) => v.estado === "Disponible").length;
   const enTransito = vehiculos.filter((v) => v.estado === "En Tránsito").length;
@@ -182,36 +187,57 @@ export default function AdminPage() {
                 </button>
               </div>
               <div className="card-navy overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      {["Nombre", "Estado", "Vehículo Asignado", "Turno Activo"].map((col) => (
-                        <th
-                          key={col}
-                          className="text-left text-xs font-semibold text-white/60 px-4 py-3"
-                        >
-                          {col}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {conductores.map((c) => (
-                      <tr key={c.id} className="border-b border-white/5 hover:bg-white/5">
-                        <td className="px-4 py-3 text-sm font-semibold text-white">{c.nombre}</td>
-                        <td className="px-4 py-3">
-                          <StatusBadge variant={c.estado === "Activo" ? "disponible" : "inactivo"}>
-                            {c.estado}
-                          </StatusBadge>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-white">
-                          {c.vehiculoAsignado || "Sin asignar"}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-white">{c.turnoActivo || "—"}</td>
+                {cargandoConductores ? (
+                  <p className="text-white/60 text-sm p-6">Cargando conductores…</p>
+                ) : errorConductores ? (
+                  <p className="text-[#e05555] text-sm p-6">No se pudo cargar los conductores.</p>
+                ) : (
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        {["Nombre", "Email", "Modelo Contrato", "Estado", "Vehículo Asignado"].map(
+                          (col) => (
+                            <th
+                              key={col}
+                              className="text-left text-xs font-semibold text-white/60 px-4 py-3"
+                            >
+                              {col}
+                            </th>
+                          ),
+                        )}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {conductores.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="text-center text-white/40 py-8 text-sm">
+                            No hay conductores registrados.
+                          </td>
+                        </tr>
+                      ) : (
+                        conductores.map((c) => (
+                          <tr key={c.id} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="px-4 py-3 text-sm font-semibold text-white">
+                              {c.nombre}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-white/80">{c.email}</td>
+                            <td className="px-4 py-3 text-sm text-white">{c.modeloContrato}</td>
+                            <td className="px-4 py-3">
+                              <StatusBadge
+                                variant={c.estado === "Activo" ? "disponible" : "inactivo"}
+                              >
+                                {c.estado}
+                              </StatusBadge>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-white">
+                              {c.vehiculoAsignado || "Sin asignar"}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </>
           )}

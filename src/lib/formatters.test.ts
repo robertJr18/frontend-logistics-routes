@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   formatDriverStatus,
+  formatModeloContrato,
   formatRouteStatus,
   formatStopStatus,
   formatTipoVehiculo,
   formatVehicleStatus,
+  modeloContratoToDto,
   tipoVehiculoToDto,
 } from "./formatters";
 
@@ -76,5 +78,21 @@ describe("formatTipoVehiculo / tipoVehiculoToDto", () => {
 
   it("formatTipoVehiculo cae a Moto en valores desconocidos", () => {
     expect(formatTipoVehiculo("BICI")).toBe("Moto");
+  });
+});
+
+describe("formatModeloContrato / modeloContratoToDto", () => {
+  it("DTO -> UI label", () => {
+    expect(formatModeloContrato("RECORRIDO_COMPLETO")).toBe("Recorrido completo");
+    expect(formatModeloContrato("POR_PARADA")).toBe("Por parada");
+  });
+
+  it("valor desconocido cae a 'Por parada'", () => {
+    expect(formatModeloContrato("INVENTADO")).toBe("Por parada");
+  });
+
+  it("UI label -> DTO", () => {
+    expect(modeloContratoToDto("Recorrido completo")).toBe("RECORRIDO_COMPLETO");
+    expect(modeloContratoToDto("Por parada")).toBe("POR_PARADA");
   });
 });

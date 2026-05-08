@@ -9,3 +9,22 @@ export interface ConductorResponse {
   estado: EstadoConductorDto;
   vehiculoAsignadoId: string | null;
 }
+
+export interface RegistrarConductorRequest {
+  nombre: string;
+  email: string;
+  modeloContrato: ModeloContratoDto;
+}
+
+export interface AsignacionRequest {
+  vehiculoId: string;
+}
+
+export interface HistorialAsignacionResponse {
+  id: string;
+  conductorId: string;
+  vehiculoId: string;
+  fechaHoraInicio: string;
+  fechaHoraFin: string | null;
+  activo: boolean;
+}

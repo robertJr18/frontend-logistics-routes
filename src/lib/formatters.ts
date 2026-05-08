@@ -1,5 +1,6 @@
 import type {
   DriverStatus,
+  ModeloContrato,
   RouteStatus,
   StopStatus,
   VehicleStatus,
@@ -67,4 +68,12 @@ export function tipoVehiculoToDto(ui: VehicleType): "MOTO" | "VAN" | "NHR" | "TU
     Turbo: "TURBO",
   };
   return map[ui];
+}
+
+export function formatModeloContrato(dto: string): ModeloContrato {
+  return dto === "RECORRIDO_COMPLETO" ? "Recorrido completo" : "Por parada";
+}
+
+export function modeloContratoToDto(ui: ModeloContrato): "RECORRIDO_COMPLETO" | "POR_PARADA" {
+  return ui === "Recorrido completo" ? "RECORRIDO_COMPLETO" : "POR_PARADA";
 }
