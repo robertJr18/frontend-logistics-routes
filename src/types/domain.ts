@@ -15,6 +15,8 @@ export type VehicleStatus = "Disponible" | "En Tránsito" | "Inactivo";
 
 export type DriverStatus = "Activo" | "Inactivo";
 
+export type ModeloContrato = "Recorrido completo" | "Por parada";
+
 export interface Paquete {
   id: string;
   peso: number;
@@ -61,6 +63,7 @@ export interface Ruta {
 }
 
 export interface Vehiculo {
+  id: string;
   placa: string;
   tipo: VehicleType;
   modelo: string;
@@ -74,14 +77,16 @@ export interface Vehiculo {
 export interface Conductor {
   id: string;
   nombre: string;
+  email: string;
+  modeloContrato: ModeloContrato;
   estado: DriverStatus;
   vehiculoAsignado: string | null;
-  turnoActivo: string | null;
 }
 
+// Capacidades en kg por tipo, según el backend (TipoVehiculo enum).
 export const capacidadVehiculo: Record<VehicleType, number> = {
-  Moto: 20,
-  Van: 500,
-  NHR: 2000,
-  Turbo: 4500,
+  Moto: 50,
+  Van: 300,
+  NHR: 1000,
+  Turbo: 3000,
 };

@@ -6,6 +6,7 @@ export type {
   VehicleType,
   VehicleStatus,
   DriverStatus,
+  ModeloContrato,
   Paquete,
   Parada,
   ResumenRuta,
@@ -31,20 +32,20 @@ export const zonas = [
 ];
 
 export const conductores: Conductor[] = [
-  { id: "DRV-001", nombre: "Carlos Mendoza", estado: "Activo", vehiculoAsignado: "ABC-001", turnoActivo: "06:00 - 14:00" },
-  { id: "DRV-002", nombre: "Luisa Fernández", estado: "Activo", vehiculoAsignado: "PQR-110", turnoActivo: "06:00 - 14:00" },
-  { id: "DRV-003", nombre: "Tomás Rivera", estado: "Activo", vehiculoAsignado: "DEF-330", turnoActivo: "14:00 - 22:00" },
-  { id: "DRV-004", nombre: "Andrea Solano", estado: "Activo", vehiculoAsignado: null, turnoActivo: "06:00 - 14:00" },
-  { id: "DRV-005", nombre: "Diego Hernández", estado: "Inactivo", vehiculoAsignado: null, turnoActivo: null },
+  { id: "DRV-001", nombre: "Carlos Mendoza", email: "carlos.mendoza@example.com", modeloContrato: "Por parada", estado: "Activo", vehiculoAsignado: "ABC-001" },
+  { id: "DRV-002", nombre: "Luisa Fernández", email: "luisa.fernandez@example.com", modeloContrato: "Recorrido completo", estado: "Activo", vehiculoAsignado: "PQR-110" },
+  { id: "DRV-003", nombre: "Tomás Rivera", email: "tomas.rivera@example.com", modeloContrato: "Recorrido completo", estado: "Activo", vehiculoAsignado: "DEF-330" },
+  { id: "DRV-004", nombre: "Andrea Solano", email: "andrea.solano@example.com", modeloContrato: "Por parada", estado: "Activo", vehiculoAsignado: null },
+  { id: "DRV-005", nombre: "Diego Hernández", email: "diego.hernandez@example.com", modeloContrato: "Por parada", estado: "Inactivo", vehiculoAsignado: null },
 ];
 
 export const vehiculos: Vehiculo[] = [
-  { placa: "ABC-001", tipo: "Moto", modelo: "AKT TT 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Norte, Santa Marta", estado: "En Tránsito", conductorAsignado: "Carlos Mendoza" },
-  { placa: "XYZ-002", tipo: "Moto", modelo: "Yamaha FZ 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Rodadero, Santa Marta", estado: "Disponible", conductorAsignado: null },
-  { placa: "PQR-110", tipo: "Van", modelo: "Chevrolet N300", capacidadPeso: 500, volumenMax: 4.2, zona: "Zona El Prado, Barranquilla", estado: "Disponible", conductorAsignado: "Luisa Fernández" },
-  { placa: "STU-220", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Zona Centro, Santa Marta", estado: "Inactivo", conductorAsignado: null },
-  { placa: "DEF-330", tipo: "NHR", modelo: "Chevrolet NHR", capacidadPeso: 2000, volumenMax: 12, zona: "Zona Soledad, Barranquilla", estado: "Disponible", conductorAsignado: "Tomás Rivera" },
-  { placa: "GHI-440", tipo: "Turbo", modelo: "Hino Dutro", capacidadPeso: 4500, volumenMax: 20, zona: "Zona Bonda, Santa Marta", estado: "Inactivo", conductorAsignado: null },
+  { id: "00000000-0000-0000-0000-000000000001", placa: "ABC-001", tipo: "Moto", modelo: "AKT TT 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Norte, Santa Marta", estado: "En Tránsito", conductorAsignado: "Carlos Mendoza" },
+  { id: "00000000-0000-0000-0000-000000000002", placa: "XYZ-002", tipo: "Moto", modelo: "Yamaha FZ 150", capacidadPeso: 20, volumenMax: 0.3, zona: "Zona Rodadero, Santa Marta", estado: "Disponible", conductorAsignado: null },
+  { id: "00000000-0000-0000-0000-000000000003", placa: "PQR-110", tipo: "Van", modelo: "Chevrolet N300", capacidadPeso: 500, volumenMax: 4.2, zona: "Zona El Prado, Barranquilla", estado: "Disponible", conductorAsignado: "Luisa Fernández" },
+  { id: "00000000-0000-0000-0000-000000000004", placa: "STU-220", tipo: "Van", modelo: "Renault Kangoo", capacidadPeso: 500, volumenMax: 3.8, zona: "Zona Centro, Santa Marta", estado: "Inactivo", conductorAsignado: null },
+  { id: "00000000-0000-0000-0000-000000000005", placa: "DEF-330", tipo: "NHR", modelo: "Chevrolet NHR", capacidadPeso: 2000, volumenMax: 12, zona: "Zona Soledad, Barranquilla", estado: "Disponible", conductorAsignado: "Tomás Rivera" },
+  { id: "00000000-0000-0000-0000-000000000006", placa: "GHI-440", tipo: "Turbo", modelo: "Hino Dutro", capacidadPeso: 4500, volumenMax: 20, zona: "Zona Bonda, Santa Marta", estado: "Inactivo", conductorAsignado: null },
 ];
 
 export const rutas: Ruta[] = [

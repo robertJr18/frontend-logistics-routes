@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   formatDriverStatus,
+  formatModeloContrato,
   formatRouteStatus,
   formatStopStatus,
+  formatTipoVehiculo,
   formatVehicleStatus,
+  modeloContratoToDto,
+  tipoVehiculoToDto,
 } from "./formatters";
 
 describe("formatRouteStatus", () => {
@@ -54,5 +58,41 @@ describe("formatStopStatus", () => {
   it("SIN_GESTION_CONDUCTOR y EXCLUIDA_DESPACHO se muestran como Pendiente (UI no los distingue hasta PLAN-06)", () => {
     expect(formatStopStatus("SIN_GESTION_CONDUCTOR")).toBe("Pendiente");
     expect(formatStopStatus("EXCLUIDA_DESPACHO")).toBe("Pendiente");
+  });
+});
+
+describe("formatTipoVehiculo / tipoVehiculoToDto", () => {
+  it("traduce DTO a UI label", () => {
+    expect(formatTipoVehiculo("MOTO")).toBe("Moto");
+    expect(formatTipoVehiculo("VAN")).toBe("Van");
+    expect(formatTipoVehiculo("NHR")).toBe("NHR");
+    expect(formatTipoVehiculo("TURBO")).toBe("Turbo");
+  });
+
+  it("UI label a DTO", () => {
+    expect(tipoVehiculoToDto("Moto")).toBe("MOTO");
+    expect(tipoVehiculoToDto("Van")).toBe("VAN");
+    expect(tipoVehiculoToDto("NHR")).toBe("NHR");
+    expect(tipoVehiculoToDto("Turbo")).toBe("TURBO");
+  });
+
+  it("formatTipoVehiculo cae a Moto en valores desconocidos", () => {
+    expect(formatTipoVehiculo("BICI")).toBe("Moto");
+  });
+});
+
+describe("formatModeloContrato / modeloContratoToDto", () => {
+  it("DTO -> UI label", () => {
+    expect(formatModeloContrato("RECORRIDO_COMPLETO")).toBe("Recorrido completo");
+    expect(formatModeloContrato("POR_PARADA")).toBe("Por parada");
+  });
+
+  it("valor desconocido cae a 'Por parada'", () => {
+    expect(formatModeloContrato("INVENTADO")).toBe("Por parada");
+  });
+
+  it("UI label -> DTO", () => {
+    expect(modeloContratoToDto("Recorrido completo")).toBe("RECORRIDO_COMPLETO");
+    expect(modeloContratoToDto("Por parada")).toBe("POR_PARADA");
   });
 });
