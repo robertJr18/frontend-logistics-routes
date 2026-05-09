@@ -1,10 +1,13 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, X } from "lucide-react";
 import StatusBadge, { getStopStatusVariant, getRouteStatusVariant } from "@/components/StatusBadge";
+import { SyncStatusBar } from "@/components/SyncStatusBar";
 import { useAuth } from "@/auth/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useRutaActiva } from "@/hooks/conductor/useRutaActiva";
 import { useIniciarRuta } from "@/hooks/conductor/useIniciarRuta";
+import { initSyncEngine } from "@/lib/syncEngine";
 import { ApiError } from "@/services/api";
 
 export default function ConductorPage() {
@@ -15,6 +18,10 @@ export default function ConductorPage() {
   const iniciar = useIniciarRuta();
 
   const displayName = user?.email?.split("@")[0] ?? "Conductor";
+
+  useEffect(() => {
+    initSyncEngine();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -62,6 +69,7 @@ export default function ConductorPage() {
             <span className="text-white font-bold text-sm">Mi Ruta</span>
             <span className="text-white/60 text-sm">{displayName}</span>
           </div>
+          <SyncStatusBar />
           <div className="flex-1 flex items-center justify-center p-8 text-white/60 text-sm text-center mt-20">
             No tienes una ruta asignada en este momento.
           </div>
@@ -84,6 +92,7 @@ export default function ConductorPage() {
           <span className="text-white font-bold text-sm">Mi Ruta</span>
           <span className="text-white/60 text-sm">{displayName}</span>
         </div>
+        <SyncStatusBar />
 
         <div className="card-navy mx-4 mt-4 p-4">
           <div className="flex items-center justify-between mb-2">
@@ -140,7 +149,6 @@ export default function ConductorPage() {
                     <p className="text-white/60 text-xs mt-1">{parada.direccion}</p>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-white/40 text-xs">{parada.paqueteId}</span>
-                      <span className="text-white/40 text-xs">{parada.peso} kg</span>
                     </div>
                     {parada.motivoFallo && (
                       <p className="text-[#e05555] text-xs mt-1">{parada.motivoFallo}</p>

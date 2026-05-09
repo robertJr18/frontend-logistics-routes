@@ -4,7 +4,7 @@ import { Check, X, AlertTriangle, Upload, PenLine } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRutaActiva } from "@/hooks/conductor/useRutaActiva";
 import { useRegistrarParada } from "@/hooks/conductor/useGestionarParada";
-import { miRutaService } from "@/services/conductor";
+import { SyncStatusBar } from "@/components/SyncStatusBar";
 import { ApiError } from "@/services/api";
 import { formatMotivoNovedad } from "@/lib/formatters";
 import type { MotivoNovedadDto, TipoResultadoParada } from "@/types/dto/parada";
@@ -34,7 +34,6 @@ export default function ConductorParadaPage() {
   const [nombreReceptor, setNombreReceptor] = useState("");
   const [fotoBlob, setFotoBlob] = useState<Blob | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
-  const [subiendoFoto, setSubiendoFoto] = useState(false);
 
   if (isLoading) {
     return (
@@ -67,27 +66,16 @@ export default function ConductorParadaPage() {
       return;
     }
 
-    const fechaAccion = new Date().toISOString();
-
     try {
-      let fotoUrl: string | undefined;
-      if (tipo === "EXITOSA" && fotoBlob) {
-        setSubiendoFoto(true);
-        const res = await miRutaService.subirFoto(parada.id, fotoBlob);
-        fotoUrl = res.url;
-        setSubiendoFoto(false);
-      }
-
       await registrar.mutateAsync({
         paradaId: parada.id,
         req: {
           tipo,
-          fechaAccion,
-          fotoUrl,
+          fechaAccion: new Date().toISOString(),
           nombreReceptor: tipo === "EXITOSA" && nombreReceptor ? nombreReceptor : undefined,
-          motivo:
-            tipo === "FALLIDA" ? motivoFallo : tipo === "NOVEDAD" ? tipoNovedad : undefined,
+          motivo: tipo === "FALLIDA" ? motivoFallo : tipo === "NOVEDAD" ? tipoNovedad : undefined,
         },
+        fotoBlob: tipo === "EXITOSA" && fotoBlob ? fotoBlob : undefined,
       });
 
       toast({
@@ -97,11 +85,12 @@ export default function ConductorParadaPage() {
             : tipo === "FALLIDA"
               ? "Fallo registrado"
               : "Novedad registrada",
-        description: `Parada ${parada.numero} actualizada correctamente.`,
+        description: navigator.onLine
+          ? `Parada ${parada.numero} actualizada correctamente.`
+          : `Parada ${parada.numero} guardada. Se sincronizará al recuperar conexión.`,
       });
       navigate("/conductor");
     } catch (err) {
-      setSubiendoFoto(false);
       const msg =
         err instanceof ApiError && err.status === 422
           ? "Datos inválidos. Si es entrega exitosa, asegúrate de adjuntar la foto."
@@ -111,7 +100,6 @@ export default function ConductorParadaPage() {
   };
 
   const totalParadas = ruta?.paradas.length ?? 0;
-  const isPending = registrar.isPending || subiendoFoto;
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -124,6 +112,7 @@ export default function ConductorParadaPage() {
             ← Volver
           </button>
         </div>
+        <SyncStatusBar />
 
         <div className="px-4 py-4">
           <div className="card-navy p-4 mb-6">
@@ -133,7 +122,6 @@ export default function ConductorParadaPage() {
             <h1 className="text-lg font-bold text-white">{parada.direccion}</h1>
             <div className="flex gap-4 mt-2 text-sm text-white/60">
               <span>{parada.paqueteId}</span>
-              <span>{parada.peso} kg</span>
             </div>
           </div>
 
@@ -203,14 +191,14 @@ export default function ConductorParadaPage() {
                   />
                   <button
                     onClick={() => handleConfirm("EXITOSA")}
-                    disabled={isPending || !fotoBlob}
+                    disabled={registrar.isPending || !fotoBlob}
                     className="btn-primary w-full text-center !bg-[#4caf82] disabled:opacity-50"
                   >
-                    {subiendoFoto
-                      ? "Subiendo foto…"
-                      : registrar.isPending
-                        ? "Registrando…"
-                        : "Confirmar Entrega"}
+                    {registrar.isPending
+                      ? navigator.onLine
+                        ? "Subiendo y registrando…"
+                        : "Guardando offline…"
+                      : "Confirmar Entrega"}
                   </button>
                 </div>
               )}
@@ -248,7 +236,7 @@ export default function ConductorParadaPage() {
                   </select>
                   <button
                     onClick={() => handleConfirm("FALLIDA")}
-                    disabled={isPending}
+                    disabled={registrar.isPending}
                     className="btn-primary w-full text-center !bg-[#e05555] disabled:opacity-50"
                   >
                     {registrar.isPending ? "Registrando…" : "Registrar parada fallida"}
@@ -290,7 +278,7 @@ export default function ConductorParadaPage() {
                   </select>
                   <button
                     onClick={() => handleConfirm("NOVEDAD")}
-                    disabled={isPending}
+                    disabled={registrar.isPending}
                     className="btn-primary w-full text-center !bg-[#cc7a00] disabled:opacity-50"
                   >
                     {registrar.isPending ? "Registrando…" : "Registrar novedad"}
