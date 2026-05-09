@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Check, X, AlertTriangle, Upload, PenLine } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRutaActiva } from "@/hooks/conductor/useRutaActiva";
-import { useGestionarParada } from "@/hooks/conductor/useGestionarParada";
+import { useRegistrarParada } from "@/hooks/conductor/useGestionarParada";
+import { miRutaService } from "@/services/conductor";
+import { ApiError } from "@/services/api";
 import { formatMotivoNovedad } from "@/lib/formatters";
-import type { MotivoNovedadDto } from "@/types/dto/parada";
+import type { MotivoNovedadDto, TipoResultadoParada } from "@/types/dto/parada";
 
 const motivosFallo: MotivoNovedadDto[] = [
   "CLIENTE_AUSENTE",
@@ -21,7 +23,8 @@ export default function ConductorParadaPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: ruta, isLoading } = useRutaActiva();
-  const gestionar = useGestionarParada();
+  const registrar = useRegistrarParada();
+  const fotoInputRef = useRef<HTMLInputElement | null>(null);
 
   const parada = ruta?.paradas.find((p) => p.id === id);
 
@@ -29,6 +32,9 @@ export default function ConductorParadaPage() {
   const [motivoFallo, setMotivoFallo] = useState<MotivoNovedadDto>(motivosFallo[0]);
   const [tipoNovedad, setTipoNovedad] = useState<MotivoNovedadDto>(tiposNovedad[0]);
   const [nombreReceptor, setNombreReceptor] = useState("");
+  const [fotoBlob, setFotoBlob] = useState<Blob | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
 
   if (isLoading) {
     return (
@@ -44,17 +50,46 @@ export default function ConductorParadaPage() {
     );
   }
 
-  const handleConfirm = async (tipo: "EXITOSA" | "FALLIDA" | "NOVEDAD") => {
+  const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFotoBlob(file);
+    setFotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleConfirm = async (tipo: TipoResultadoParada) => {
+    if (tipo === "EXITOSA" && !fotoBlob) {
+      toast({
+        variant: "destructive",
+        title: "Foto requerida",
+        description: "Para confirmar entrega exitosa necesitas adjuntar el POD.",
+      });
+      return;
+    }
+
+    const fechaAccion = new Date().toISOString();
+
     try {
-      await gestionar.mutateAsync({
+      let fotoUrl: string | undefined;
+      if (tipo === "EXITOSA" && fotoBlob) {
+        setSubiendoFoto(true);
+        const res = await miRutaService.subirFoto(parada.id, fotoBlob);
+        fotoUrl = res.url;
+        setSubiendoFoto(false);
+      }
+
+      await registrar.mutateAsync({
         paradaId: parada.id,
         req: {
           tipo,
-          motivoNovedad:
-            tipo === "FALLIDA" ? motivoFallo : tipo === "NOVEDAD" ? tipoNovedad : undefined,
+          fechaAccion,
+          fotoUrl,
           nombreReceptor: tipo === "EXITOSA" && nombreReceptor ? nombreReceptor : undefined,
+          motivo:
+            tipo === "FALLIDA" ? motivoFallo : tipo === "NOVEDAD" ? tipoNovedad : undefined,
         },
       });
+
       toast({
         title:
           tipo === "EXITOSA"
@@ -65,16 +100,18 @@ export default function ConductorParadaPage() {
         description: `Parada ${parada.numero} actualizada correctamente.`,
       });
       navigate("/conductor");
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo registrar la gestión.",
-      });
+    } catch (err) {
+      setSubiendoFoto(false);
+      const msg =
+        err instanceof ApiError && err.status === 422
+          ? "Datos inválidos. Si es entrega exitosa, asegúrate de adjuntar la foto."
+          : "No se pudo registrar la gestión.";
+      toast({ variant: "destructive", title: "Error", description: msg });
     }
   };
 
   const totalParadas = ruta?.paradas.length ?? 0;
+  const isPending = registrar.isPending || subiendoFoto;
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -121,16 +158,42 @@ export default function ConductorParadaPage() {
               </button>
               {expanded === "exitosa" && (
                 <div className="px-4 pb-4 space-y-4">
-                  <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center">
-                    <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
-                    <p className="text-white/60 text-sm">Foto de evidencia (POD)</p>
-                    <p className="text-white/40 text-xs">Toca para tomar o subir foto</p>
-                  </div>
+                  <input
+                    ref={fotoInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFotoChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fotoInputRef.current?.click()}
+                    className="w-full border-2 border-dashed border-white/20 rounded-xl p-6 text-center hover:border-white/40 transition-colors"
+                  >
+                    {fotoPreview ? (
+                      <img
+                        src={fotoPreview}
+                        alt="POD"
+                        className="max-h-48 mx-auto rounded-lg object-cover"
+                      />
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
+                        <p className="text-white/60 text-sm">Foto de evidencia (POD)</p>
+                        <p className="text-white/40 text-xs">Toca para tomar o subir foto</p>
+                      </>
+                    )}
+                  </button>
+
                   <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center">
                     <PenLine className="w-8 h-8 text-white/40 mx-auto mb-2" />
                     <p className="text-white/60 text-sm">Firma del receptor</p>
-                    <p className="text-white/40 text-xs">Toca para firmar</p>
+                    <p className="text-white/40 text-xs">
+                      Pendiente de implementación (PLAN-06)
+                    </p>
                   </div>
+
                   <input
                     type="text"
                     placeholder="Nombre del receptor"
@@ -140,10 +203,14 @@ export default function ConductorParadaPage() {
                   />
                   <button
                     onClick={() => handleConfirm("EXITOSA")}
-                    disabled={gestionar.isPending}
+                    disabled={isPending || !fotoBlob}
                     className="btn-primary w-full text-center !bg-[#4caf82] disabled:opacity-50"
                   >
-                    Confirmar Entrega
+                    {subiendoFoto
+                      ? "Subiendo foto…"
+                      : registrar.isPending
+                        ? "Registrando…"
+                        : "Confirmar Entrega"}
                   </button>
                 </div>
               )}
@@ -181,10 +248,10 @@ export default function ConductorParadaPage() {
                   </select>
                   <button
                     onClick={() => handleConfirm("FALLIDA")}
-                    disabled={gestionar.isPending}
+                    disabled={isPending}
                     className="btn-primary w-full text-center !bg-[#e05555] disabled:opacity-50"
                   >
-                    Registrar parada fallida
+                    {registrar.isPending ? "Registrando…" : "Registrar parada fallida"}
                   </button>
                 </div>
               )}
@@ -223,10 +290,10 @@ export default function ConductorParadaPage() {
                   </select>
                   <button
                     onClick={() => handleConfirm("NOVEDAD")}
-                    disabled={gestionar.isPending}
+                    disabled={isPending}
                     className="btn-primary w-full text-center !bg-[#cc7a00] disabled:opacity-50"
                   >
-                    Registrar novedad
+                    {registrar.isPending ? "Registrando…" : "Registrar novedad"}
                   </button>
                 </div>
               )}

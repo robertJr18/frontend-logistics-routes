@@ -15,10 +15,31 @@ export type MotivoNovedadDto =
   | "EXTRAVIADO"
   | "DEVOLUCION";
 
-export interface GestionarParadaRequest {
-  tipo: "EXITOSA" | "FALLIDA" | "NOVEDAD";
-  motivoNovedad?: MotivoNovedadDto;
+export type TipoResultadoParada = "EXITOSA" | "FALLIDA" | "NOVEDAD";
+
+/**
+ * Body de POST /api/conductor/paradas/{paradaId}/registrar.
+ * El backend respeta `fechaAccion` del request (timestamp del cliente,
+ * soporte offline — NO usa Instant.now()).
+ *
+ * Reglas de validación del backend:
+ * - tipo: obligatorio
+ * - fechaAccion: obligatorio (ISO 8601)
+ * - tipo === EXITOSA → fotoUrl obligatorio (POD)
+ * - tipo === FALLIDA | NOVEDAD → motivo obligatorio
+ */
+export interface RegistrarParadaRequest {
+  tipo: TipoResultadoParada;
+  fechaAccion: string;
+  fotoUrl?: string;
+  firmaUrl?: string;
   nombreReceptor?: string;
+  motivo?: MotivoNovedadDto;
+}
+
+/** Body de POST /api/conductor/rutas/{id}/cerrar */
+export interface CierreRutaRequest {
+  confirmarConPendientes: boolean;
 }
 
 export interface ParadaResponse {

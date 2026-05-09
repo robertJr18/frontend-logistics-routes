@@ -2,23 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
 import { miRutaService } from "@/services/conductor";
 import { vehiculoService } from "@/services/vehiculos";
-import { toRuta } from "@/services/mappers/ruta";
-import { ApiError } from "@/services/api";
+import { toRutaConductor } from "@/services/mappers/ruta-conductor";
 
+/**
+ * Lee la ruta activa del conductor.
+ * El backend retorna 204 (sin body) cuando no hay ruta — `api.ts` lo convierte
+ * en `undefined`, así que mapeamos a `null` antes de pasarlo al UI.
+ */
 export function useRutaActiva() {
   return useQuery({
     queryKey: queryKeys.conductor.rutaActiva(),
     queryFn: async () => {
-      try {
-        const [rutaDto, vehiculos] = await Promise.all([
-          miRutaService.rutaActiva(),
-          vehiculoService.listar(),
-        ]);
-        return toRuta(rutaDto, vehiculos, []);
-      } catch (err) {
-        if (err instanceof ApiError && err.status === 404) return null;
-        throw err;
-      }
+      const [rutaDto, vehiculos] = await Promise.all([
+        miRutaService.rutaActiva(),
+        vehiculoService.listar(),
+      ]);
+      if (!rutaDto) return null;
+      return toRutaConductor(rutaDto, vehiculos);
     },
     refetchInterval: 15_000,
   });

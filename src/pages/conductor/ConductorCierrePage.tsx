@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRutaActiva } from "@/hooks/conductor/useRutaActiva";
 import { useCerrarRuta } from "@/hooks/conductor/useCerrarRuta";
+import { ApiError } from "@/services/api";
 
 export default function ConductorCierrePage() {
   const navigate = useNavigate();
@@ -34,18 +35,22 @@ export default function ConductorCierrePage() {
 
   const handleClose = async () => {
     try {
-      await cerrar.mutateAsync(ruta.id);
+      await cerrar.mutateAsync({
+        rutaId: ruta.id,
+        confirmarConPendientes: resumen.sinGestion > 0,
+      });
       toast({
         title: "Ruta cerrada",
-        description: "El informe de cierre ha sido enviado al Sistema de Facturación y Liquidación.",
+        description:
+          "El informe de cierre ha sido enviado al Sistema de Facturación y Liquidación.",
       });
       navigate("/portal");
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo cerrar la ruta.",
-      });
+    } catch (err) {
+      const description =
+        err instanceof ApiError && err.status === 409
+          ? "Aún hay paradas pendientes. Vuelve a la ruta o confirma con pendientes."
+          : "No se pudo cerrar la ruta.";
+      toast({ variant: "destructive", title: "Error", description });
     }
   };
 
