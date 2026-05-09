@@ -2,7 +2,6 @@ import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/auth/ProtectedRoute";
 
 import LandingPage from "@/pages/public/LandingPage";
-import PortalPage from "@/pages/public/PortalPage";
 import NotFoundPage from "@/pages/public/NotFoundPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
@@ -29,10 +28,6 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
-
-      <Route element={<ProtectedRoute />}>
-        <Route path="/portal" element={<PortalPage />} />
-      </Route>
 
       <Route element={<ProtectedRoute roles={["DISPATCHER"]} />}>
         <Route path="/despachador">

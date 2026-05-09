@@ -8,7 +8,7 @@ interface NavbarProps {
   backTo?: string;
 }
 
-export default function Navbar({ title, backTo = "/portal" }: NavbarProps) {
+export default function Navbar({ title, backTo }: NavbarProps) {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -19,13 +19,15 @@ export default function Navbar({ title, backTo = "/portal" }: NavbarProps) {
 
   return (
     <header className="flex items-center gap-4 px-6 py-4 border-b border-white/10 bg-[hsl(var(--surface-1))]">
-      <button
-        onClick={() => navigate(backTo)}
-        className="text-white/60 hover:text-white transition-colors"
-        aria-label="Volver"
-      >
-        <ArrowLeft className="w-5 h-5" />
-      </button>
+      {backTo && (
+        <button
+          onClick={() => navigate(backTo)}
+          className="text-white/60 hover:text-white transition-colors"
+          aria-label="Volver"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+      )}
       <BrandLogo size="sm" />
       <span className="ml-auto bg-primary/20 text-primary px-3 py-1.5 rounded-full text-sm font-semibold">
         {title}
