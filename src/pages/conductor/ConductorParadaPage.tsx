@@ -177,9 +177,7 @@ export default function ConductorParadaPage() {
                   <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center">
                     <PenLine className="w-8 h-8 text-white/40 mx-auto mb-2" />
                     <p className="text-white/60 text-sm">Firma del receptor</p>
-                    <p className="text-white/40 text-xs">
-                      Pendiente de implementación (PLAN-06)
-                    </p>
+                    <p className="text-white/40 text-xs">Próximamente disponible</p>
                   </div>
 
                   <input
