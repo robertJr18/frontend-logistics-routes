@@ -20,7 +20,6 @@ export function toRuta(
     ciudad: "",
     paquetes: dto.paradas.map((p) => ({
       id: p.paqueteId,
-      peso: 0,
       direccion: p.direccion,
       zona: geohashToLabel(dto.zona),
       fechaLimiteEntrega: p.fechaLimiteEntrega ?? "",

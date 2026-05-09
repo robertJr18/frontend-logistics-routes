@@ -26,7 +26,6 @@ export function toRutaConductor(
     ciudad: "",
     paquetes: dto.paradas.map((p) => ({
       id: p.paqueteId,
-      peso: 0,
       direccion: p.direccion,
       zona: geohashToLabel(dto.zona),
       fechaLimiteEntrega: p.fechaLimiteEntrega ?? "",
@@ -49,7 +48,6 @@ function toParadaConductor(dto: ParadaConductorItemDto, indice: number): Parada 
     paqueteId: dto.paqueteId,
     direccion: dto.direccion,
     destinatario: dto.nombreReceptor ?? "—",
-    peso: 0,
     status: formatStopStatus(dto.estado),
     motivoFallo: dto.motivoNovedad ?? undefined,
   };
