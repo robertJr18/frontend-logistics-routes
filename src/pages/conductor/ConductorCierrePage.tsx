@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRutaActiva } from "@/hooks/conductor/useRutaActiva";
 import { useCerrarRuta } from "@/hooks/conductor/useCerrarRuta";
+import { SyncStatusBar } from "@/components/SyncStatusBar";
 import { ApiError } from "@/services/api";
 
 export default function ConductorCierrePage() {
@@ -65,6 +66,7 @@ export default function ConductorCierrePage() {
             ← Volver
           </button>
         </div>
+        <SyncStatusBar />
 
         <div className="px-4 py-4">
           <h1 className="text-xl font-bold text-white mb-6">
