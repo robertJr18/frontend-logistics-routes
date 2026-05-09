@@ -21,6 +21,7 @@ Hay un **bug de flujo** en el prototipo: el botón "Despachar ahora" sobre una r
 [DespachadorPage.tsx:97-99](../../src/pages/despachador/DespachadorPage.tsx#L97-L99) navega directo a `/despachador/despacho/{id}` desde una ruta `CREADA`. La ruta no se puede confirmar hasta transitionar a `LISTA_PARA_DESPACHO`.
 
 **Decisión:**
+
 - En `DespachadorPage`, el botón "Despachar ahora" (solo visible en CREADA) primero llama `useDespachoManual(rutaId)`. Al éxito, navega a `/despachador/despacho/{id}`.
 - En LISTA_PARA_DESPACHO, el botón "Confirmar despacho" navega directo (la ruta ya está lista).
 - Mientras la mutation está pendiente, deshabilitar el botón con label "Procesando…".
@@ -73,6 +74,7 @@ WebSocket en tiempo real queda como mejora futura (no se documenta acá; cuando 
 El backend acepta `DELETE /api/despacho/rutas/{id}/paquetes/{paqueteId}?motivo=<texto>` por paquete (uno a la vez).
 
 **Decisión:** [DespachadorDespachoPage.tsx:54-61](../../src/pages/despachador/DespachadorDespachoPage.tsx#L54-L61) hoy mantiene un `Set<string>` local de exclusiones que no envía al backend. Cambia a:
+
 - Cada toggle dispara `useExcluirPaquete(rutaId, paqueteId, motivo)` inmediatamente
 - La cache invalida la ruta y vuelve a leer la lista de paquetes
 - Loading state por paquete (disabled durante el pending)
@@ -84,10 +86,12 @@ El backend acepta `DELETE /api/despacho/rutas/{id}/paquetes/{paqueteId}?motivo=<
 `POST /api/despacho/rutas/{id}/confirmar` recibe `{ conductorId, vehiculoId }` (per [PLAN-02 backend T217](../../../docs/plans/PLAN-02-despacho-rutas.md#T217)). El form actual auto-asigna conductor con vehículo y permite cambiarlo.
 
 **Decisión:** mantener el flujo actual (auto-pick + cambiar). Validaciones de cliente:
+
 - `conductorId` y `vehiculoId` ambos requeridos
 - Si la ruta tiene `tipoVehiculoRequerido` definido, el vehículo seleccionado debe ser de ese tipo (defensa cliente; el backend valida también).
 
 Errores 409 esperados:
+
 - `ConductorNoDisponibleException` → "El conductor ya no está activo. Selecciona otro."
 - `VehiculoNoDisponibleException` → "El vehículo no está disponible. Selecciona otro."
 
@@ -105,24 +109,24 @@ PLAN-03 (decisión 5) ocultó las secciones "Ruta Activa" e "Historial de Rutas"
 
 ## Estado actual (delta a aplicar)
 
-| Archivo | Estado | Acción |
-|---|---|---|
-| [DespachadorPage.tsx](../../src/pages/despachador/DespachadorPage.tsx) | Lee `rutas` de mockData, agrupa por estado | `useRutas()`, agrupar en cliente. Botón "Despachar ahora" llama `despacho-manual`. |
-| [DespachadorDetallePage.tsx](../../src/pages/despachador/DespachadorDetallePage.tsx) | Lee de mockData; selector tipo vehículo editable | `useRutaById(id)`. Selector tipo vehículo → display. Agregar "Forzar cierre" si EN_TRANSITO. |
-| [DespachadorDespachoPage.tsx](../../src/pages/despachador/DespachadorDespachoPage.tsx) | Mock de exclusión local; auto-asigna conductor de mockData | `useRutaById(id)` + `useConductores()` + `useVehiculos()` (de PLAN-03). Exclusión vía `useExcluirPaquete`. Confirmación vía `useConfirmarDespacho`. |
-| [DespachadorHistorialPage.tsx](../../src/pages/despachador/DespachadorHistorialPage.tsx) | Array hardcoded `rutasCerradas` | `useRutasHistorial()` — bloqueada por T401 hasta confirmar endpoint. |
-| [DespachadorAlertasPage.tsx](../../src/pages/despachador/DespachadorAlertasPage.tsx) | Array hardcoded | Computar alertas en cliente desde `useRutas()`. Sidebar badge debe reflejar el conteo real. |
-| [AdminVehiculoDetallePage.tsx](../../src/pages/admin/AdminVehiculoDetallePage.tsx) | Secciones de rutas ocultas (PLAN-03) | Re-habilitar usando `useRutas()` filtrado por vehículo. |
-| `src/types/dto/ruta.ts` | No existe | Crear |
-| `src/types/dto/parada.ts` | No existe | Crear |
-| `src/services/rutas.ts` | No existe | Crear |
-| `src/services/despacho.ts` | No existe | Crear |
-| `src/services/planificacion.ts` | No existe | Crear |
-| `src/services/mappers/ruta.ts` | No existe | Crear |
-| `src/services/mappers/parada.ts` | No existe | Crear |
-| `src/hooks/rutas/*` | No existe | Crear |
-| `src/hooks/despacho/*` | No existe | Crear |
-| [src/lib/queryKeys.ts](../../src/lib/queryKeys.ts) | Solo `vehiculos`, `conductores` (PLAN-02/03) | Agregar namespace `rutas` |
+| Archivo                                                                                  | Estado                                                     | Acción                                                                                                                                              |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [DespachadorPage.tsx](../../src/pages/despachador/DespachadorPage.tsx)                   | Lee `rutas` de mockData, agrupa por estado                 | `useRutas()`, agrupar en cliente. Botón "Despachar ahora" llama `despacho-manual`.                                                                  |
+| [DespachadorDetallePage.tsx](../../src/pages/despachador/DespachadorDetallePage.tsx)     | Lee de mockData; selector tipo vehículo editable           | `useRutaById(id)`. Selector tipo vehículo → display. Agregar "Forzar cierre" si EN_TRANSITO.                                                        |
+| [DespachadorDespachoPage.tsx](../../src/pages/despachador/DespachadorDespachoPage.tsx)   | Mock de exclusión local; auto-asigna conductor de mockData | `useRutaById(id)` + `useConductores()` + `useVehiculos()` (de PLAN-03). Exclusión vía `useExcluirPaquete`. Confirmación vía `useConfirmarDespacho`. |
+| [DespachadorHistorialPage.tsx](../../src/pages/despachador/DespachadorHistorialPage.tsx) | Array hardcoded `rutasCerradas`                            | `useRutasHistorial()` — bloqueada por T401 hasta confirmar endpoint.                                                                                |
+| [DespachadorAlertasPage.tsx](../../src/pages/despachador/DespachadorAlertasPage.tsx)     | Array hardcoded                                            | Computar alertas en cliente desde `useRutas()`. Sidebar badge debe reflejar el conteo real.                                                         |
+| [AdminVehiculoDetallePage.tsx](../../src/pages/admin/AdminVehiculoDetallePage.tsx)       | Secciones de rutas ocultas (PLAN-03)                       | Re-habilitar usando `useRutas()` filtrado por vehículo.                                                                                             |
+| `src/types/dto/ruta.ts`                                                                  | No existe                                                  | Crear                                                                                                                                               |
+| `src/types/dto/parada.ts`                                                                | No existe                                                  | Crear                                                                                                                                               |
+| `src/services/rutas.ts`                                                                  | No existe                                                  | Crear                                                                                                                                               |
+| `src/services/despacho.ts`                                                               | No existe                                                  | Crear                                                                                                                                               |
+| `src/services/planificacion.ts`                                                          | No existe                                                  | Crear                                                                                                                                               |
+| `src/services/mappers/ruta.ts`                                                           | No existe                                                  | Crear                                                                                                                                               |
+| `src/services/mappers/parada.ts`                                                         | No existe                                                  | Crear                                                                                                                                               |
+| `src/hooks/rutas/*`                                                                      | No existe                                                  | Crear                                                                                                                                               |
+| `src/hooks/despacho/*`                                                                   | No existe                                                  | Crear                                                                                                                                               |
+| [src/lib/queryKeys.ts](../../src/lib/queryKeys.ts)                                       | Solo `vehiculos`, `conductores` (PLAN-02/03)               | Agregar namespace `rutas`                                                                                                                           |
 
 ---
 
@@ -178,12 +182,21 @@ src/
 
 ```ts
 export type EstadoParadaDto =
-  | "PENDIENTE" | "EXITOSA" | "FALLIDA" | "NOVEDAD"
-  | "SIN_GESTION_CONDUCTOR" | "EXCLUIDA_DESPACHO";
+  | "PENDIENTE"
+  | "EXITOSA"
+  | "FALLIDA"
+  | "NOVEDAD"
+  | "SIN_GESTION_CONDUCTOR"
+  | "EXCLUIDA_DESPACHO";
 
 export type MotivoNovedadDto =
-  | "CLIENTE_AUSENTE" | "DIRECCION_INCORRECTA" | "ZONA_DIFICIL_ACCESO"
-  | "RECHAZADO_POR_CLIENTE" | "DAÑADO_EN_RUTA" | "EXTRAVIADO" | "DEVOLUCION";
+  | "CLIENTE_AUSENTE"
+  | "DIRECCION_INCORRECTA"
+  | "ZONA_DIFICIL_ACCESO"
+  | "RECHAZADO_POR_CLIENTE"
+  | "DAÑADO_EN_RUTA"
+  | "EXTRAVIADO"
+  | "DEVOLUCION";
 
 export interface ParadaResponse {
   id: string;
@@ -213,8 +226,13 @@ import type { TipoVehiculoDto } from "./vehiculo";
 import type { ParadaResponse } from "./parada";
 
 export type EstadoRutaDto =
-  | "CREADA" | "LISTA_PARA_DESPACHO" | "CONFIRMADA" | "EN_TRANSITO"
-  | "CERRADA_MANUAL" | "CERRADA_AUTOMATICA" | "CERRADA_FORZADA";
+  | "CREADA"
+  | "LISTA_PARA_DESPACHO"
+  | "CONFIRMADA"
+  | "EN_TRANSITO"
+  | "CERRADA_MANUAL"
+  | "CERRADA_AUTOMATICA"
+  | "CERRADA_FORZADA";
 
 export type TipoCierreDto = "MANUAL" | "AUTOMATICO" | "FORZADO_DESPACHADOR";
 
@@ -256,7 +274,7 @@ export function formatMotivoNovedad(dto: string): string {
     DIRECCION_INCORRECTA: "Dirección incorrecta",
     ZONA_DIFICIL_ACCESO: "Zona difícil acceso",
     RECHAZADO_POR_CLIENTE: "Rechazado por cliente",
-    "DAÑADO_EN_RUTA": "Dañado en ruta",
+    DAÑADO_EN_RUTA: "Dañado en ruta",
     EXTRAVIADO: "Extraviado",
     DEVOLUCION: "Devolución",
   };
@@ -277,7 +295,7 @@ export function toParada(dto: ParadaResponse, indice: number): Parada {
     paqueteId: dto.paqueteId,
     direccion: dto.direccion,
     destinatario: dto.nombreReceptor ?? "—",
-    peso: 0,  // el peso del paquete no está en ParadaResponse; se obtiene del backend si lo expone, sino mockeado
+    peso: 0, // el peso del paquete no está en ParadaResponse; se obtiene del backend si lo expone, sino mockeado
     status: formatStopStatus(dto.estado),
     motivoFallo: dto.motivoNovedad ?? undefined,
   };
@@ -301,14 +319,14 @@ export function toRuta(
   vehiculos: VehiculoResponse[] = [],
   conductores: ConductorResponse[] = [],
 ): Ruta {
-  const vehiculo = dto.vehiculoId ? vehiculos.find(v => v.id === dto.vehiculoId) : null;
-  const conductor = dto.conductorId ? conductores.find(c => c.id === dto.conductorId) : null;
+  const vehiculo = dto.vehiculoId ? vehiculos.find((v) => v.id === dto.vehiculoId) : null;
+  const conductor = dto.conductorId ? conductores.find((c) => c.id === dto.conductorId) : null;
 
   return {
     id: dto.id,
     zona: dto.zona,
-    ciudad: "—",  // backend no separa ciudad; PLAN-06 unifica el modelo
-    paquetes: dto.paradas.map(p => ({
+    ciudad: "—", // backend no separa ciudad; PLAN-06 unifica el modelo
+    paquetes: dto.paradas.map((p) => ({
       id: p.paqueteId,
       peso: 0,
       direccion: p.direccion,
@@ -360,9 +378,10 @@ export const despachoService = {
   confirmar: (rutaId: string, req: ConfirmarDespachoRequest) =>
     api.post<RutaResponse>(`/api/despacho/rutas/${rutaId}/confirmar`, req),
   excluirPaquete: (rutaId: string, paqueteId: string, motivo: string) =>
-    api.delete<void>(`/api/despacho/rutas/${rutaId}/paquetes/${paqueteId}?motivo=${encodeURIComponent(motivo)}`),
-  forzarCierre: (rutaId: string) =>
-    api.post<void>(`/api/despacho/rutas/${rutaId}/forzar-cierre`),
+    api.delete<void>(
+      `/api/despacho/rutas/${rutaId}/paquetes/${paqueteId}?motivo=${encodeURIComponent(motivo)}`,
+    ),
+  forzarCierre: (rutaId: string) => api.post<void>(`/api/despacho/rutas/${rutaId}/forzar-cierre`),
 };
 ```
 
@@ -414,7 +433,7 @@ export function useRutas() {
         vehiculoService.listar(),
         conductorService.listar(),
       ]);
-      return rutas.map(r => toRuta(r, vehiculos, conductores));
+      return rutas.map((r) => toRuta(r, vehiculos, conductores));
     },
     refetchInterval: 30_000,
   });
@@ -444,8 +463,15 @@ export function useDespachoManual() {
 
 ```ts
 return useMutation({
-  mutationFn: ({ rutaId, paqueteId, motivo }: { rutaId: string; paqueteId: string; motivo: string }) =>
-    despachoService.excluirPaquete(rutaId, paqueteId, motivo),
+  mutationFn: ({
+    rutaId,
+    paqueteId,
+    motivo,
+  }: {
+    rutaId: string;
+    paqueteId: string;
+    motivo: string;
+  }) => despachoService.excluirPaquete(rutaId, paqueteId, motivo),
   onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.rutas.all }),
 });
 ```
@@ -476,7 +502,7 @@ const HOUR = 60 * 60 * 1000;
 export function derivarAlertas(rutas: Ruta[], now: Date = new Date()): Alerta[] {
   const alertas: Alerta[] = [];
 
-  rutas.forEach(r => {
+  rutas.forEach((r) => {
     // Vencimiento próximo
     if (r.estado === "Creada") {
       const limite = new Date(r.fechaLimiteDespacho).getTime();
@@ -508,8 +534,8 @@ export function derivarAlertas(rutas: Ruta[], now: Date = new Date()): Alerta[] 
 
     // Parada fallida en EN_TRANSITO
     if (r.estado === "En Tránsito") {
-      const fallidas = r.paradas.filter(p => p.status === "Fallida" || p.status === "Novedad");
-      fallidas.forEach(p => {
+      const fallidas = r.paradas.filter((p) => p.status === "Fallida" || p.status === "Novedad");
+      fallidas.forEach((p) => {
         alertas.push({
           id: `fail-${r.id}-${p.numero}`,
           tipo: "info",
@@ -557,13 +583,16 @@ const handleDespacharAhora = async (rutaId: string) => {
     navigate(`/despachador/despacho/${rutaId}`);
   } catch (err) {
     if (err instanceof ApiError && err.status === 409) {
-      toast({ variant: "destructive", description: err.body?.message ?? "No se pudo pasar a despacho." });
+      toast({
+        variant: "destructive",
+        description: err.body?.message ?? "No se pudo pasar a despacho.",
+      });
     }
   }
 };
 ```
 
-  - Manejar `getTimeRemaining` con la fecha actual real (no `2026-03-13` hardcoded). Si la fecha es del pasado lejano, mostrar "Vencido".
+- Manejar `getTimeRemaining` con la fecha actual real (no `2026-03-13` hardcoded). Si la fecha es del pasado lejano, mostrar "Vencido".
 
 ### F8.2 — DespachadorDetallePage
 
@@ -575,17 +604,22 @@ const handleDespacharAhora = async (rutaId: string) => {
 <p className="text-white font-semibold">{ruta.vehiculoRequerido}</p>
 ```
 
-  Eliminar `vehiculoTipo` state, `setVehiculoTipo`, `capacidad`, `porcentaje` del `vehiculoTipo` mutable. La barra de progreso usa `ruta.vehiculoRequerido` directamente.
-  - El toggle de exclusión local se queda PARA EL DETALLE (no muta backend desde aquí — la mutación vive en `DespachadorDespachoPage`). Esta pantalla es solo lectura/preview.
-  - Agregar botón "Forzar cierre" si `estado === "En Tránsito"`:
+Eliminar `vehiculoTipo` state, `setVehiculoTipo`, `capacidad`, `porcentaje` del `vehiculoTipo` mutable. La barra de progreso usa `ruta.vehiculoRequerido` directamente.
+
+- El toggle de exclusión local se queda PARA EL DETALLE (no muta backend desde aquí — la mutación vive en `DespachadorDespachoPage`). Esta pantalla es solo lectura/preview.
+- Agregar botón "Forzar cierre" si `estado === "En Tránsito"`:
 
 ```tsx
-{ruta.estado === "En Tránsito" && (
-  <button onClick={openForzarCierreDialog} className="btn-destructive">Forzar cierre</button>
-)}
+{
+  ruta.estado === "En Tránsito" && (
+    <button onClick={openForzarCierreDialog} className="btn-destructive">
+      Forzar cierre
+    </button>
+  );
+}
 ```
 
-  Con `<AlertDialog>` de shadcn que advierte el comportamiento. Llama `useForzarCierreRuta()`.
+Con `<AlertDialog>` de shadcn que advierte el comportamiento. Llama `useForzarCierreRuta()`.
 
 ### F8.3 — DespachadorDespachoPage
 
@@ -601,9 +635,10 @@ const toggleExclude = (paqueteId: string) => {
 };
 ```
 
-  Mostrar un dialog con input de motivo antes de excluir (el backend lo requiere como query param).
-  - El estado `excludedPkgs` local desaparece — el ground truth es el backend (paquetes con estado `EXCLUIDA_DESPACHO` o ausentes de la lista).
-  - `handleConfirm` llama `useConfirmarDespacho().mutateAsync({ conductorId, vehiculoId })`. En éxito: toast + navigate. En error 409: mensaje específico (ver decisión 8).
+Mostrar un dialog con input de motivo antes de excluir (el backend lo requiere como query param).
+
+- El estado `excludedPkgs` local desaparece — el ground truth es el backend (paquetes con estado `EXCLUIDA_DESPACHO` o ausentes de la lista).
+- `handleConfirm` llama `useConfirmarDespacho().mutateAsync({ conductorId, vehiculoId })`. En éxito: toast + navigate. En error 409: mensaje específico (ver decisión 8).
 
 ### F8.4 — DespachadorHistorialPage
 
@@ -621,8 +656,8 @@ const { data: rutas = [] } = useRutas();
 const alertas = useMemo(() => derivarAlertas(rutas), [rutas]);
 ```
 
-  - Sidebar badge: usar el conteo real de urgentes
-  - El click en "Despachar ahora" sigue navegando a `/despachador/despacho/{rutaId}` (recordar: si la ruta es CREADA, ese flujo debe llamar despacho-manual primero — usar el mismo handler de F8.1, refactorizar a un hook común si es necesario).
+- Sidebar badge: usar el conteo real de urgentes
+- El click en "Despachar ahora" sigue navegando a `/despachador/despacho/{rutaId}` (recordar: si la ruta es CREADA, ese flujo debe llamar despacho-manual primero — usar el mismo handler de F8.1, refactorizar a un hook común si es necesario).
 
 - [ ] T429 Sincronizar el badge de "Alertas" en el sidebar de TODAS las páginas de despachador (DespachadorPage, HistorialPage, AlertasPage). Hoy cada una tiene un array `sidebarItems` con `badge: "2"` hardcoded. Extraer a un componente compartido `<DespachadorSidebar />` que lea el conteo desde `useRutas` + `derivarAlertas`.
 

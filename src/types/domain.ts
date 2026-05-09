@@ -27,6 +27,7 @@ export interface Paquete {
 }
 
 export interface Parada {
+  id: string;
   numero: number;
   paqueteId: string;
   direccion: string;
@@ -58,6 +59,7 @@ export interface Ruta {
   motivoDespacho?: string;
   vehiculoAsignado?: string;
   conductorAsignado?: string;
+  fechaCierre?: string;
   paradas: Parada[];
   resumen?: ResumenRuta;
 }

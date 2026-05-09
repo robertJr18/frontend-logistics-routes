@@ -41,10 +41,7 @@ describe("toVehiculo", () => {
   });
 
   it("resuelve conductorId al nombre cuando se pasa la lista", () => {
-    const ui = toVehiculo(
-      { ...sampleDto, conductorId: "c-1" },
-      [conductor],
-    );
+    const ui = toVehiculo({ ...sampleDto, conductorId: "c-1" }, [conductor]);
     expect(ui.conductorAsignado).toBe("Carlos Mendoza");
   });
 

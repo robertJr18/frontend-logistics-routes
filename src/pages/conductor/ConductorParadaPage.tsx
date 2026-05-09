@@ -1,33 +1,46 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Check, X, AlertTriangle, Upload, PenLine } from "lucide-react";
-import { rutas } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { useRutaActiva } from "@/hooks/conductor/useRutaActiva";
+import { useRegistrarParada } from "@/hooks/conductor/useGestionarParada";
+import { miRutaService } from "@/services/conductor";
+import { ApiError } from "@/services/api";
+import { formatMotivoNovedad } from "@/lib/formatters";
+import type { MotivoNovedadDto, TipoResultadoParada } from "@/types/dto/parada";
 
-const motivosFallo = [
+const motivosFallo: MotivoNovedadDto[] = [
   "CLIENTE_AUSENTE",
   "DIRECCION_INCORRECTA",
-  "RECHAZADO_CLIENTE",
+  "RECHAZADO_POR_CLIENTE",
   "ZONA_DIFICIL_ACCESO",
 ];
 
-const tiposNovedad = [
-  "DAÑADO",
-  "EXTRAVIADO",
-  "DEVOLUCION",
-];
+const tiposNovedad: MotivoNovedadDto[] = ["DAÑADO_EN_RUTA", "EXTRAVIADO", "DEVOLUCION"];
 
 export default function ConductorParadaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const ruta = rutas.find(r => r.id === "R-2049")!;
-  const parada = ruta.paradas.find(p => p.numero === Number(id));
+  const { data: ruta, isLoading } = useRutaActiva();
+  const registrar = useRegistrarParada();
+  const fotoInputRef = useRef<HTMLInputElement | null>(null);
+
+  const parada = ruta?.paradas.find((p) => p.id === id);
 
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [motivoFallo, setMotivoFallo] = useState(motivosFallo[0]);
-  const [tipoNovedad, setTipoNovedad] = useState(tiposNovedad[0]);
+  const [motivoFallo, setMotivoFallo] = useState<MotivoNovedadDto>(motivosFallo[0]);
+  const [tipoNovedad, setTipoNovedad] = useState<MotivoNovedadDto>(tiposNovedad[0]);
   const [nombreReceptor, setNombreReceptor] = useState("");
+  const [fotoBlob, setFotoBlob] = useState<Blob | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white/60">Cargando…</div>
+    );
+  }
 
   if (!parada) {
     return (
@@ -37,28 +50,86 @@ export default function ConductorParadaPage() {
     );
   }
 
-  const handleConfirm = (type: string) => {
-    toast({
-      title: type === "exitosa" ? "Entrega registrada" : type === "fallida" ? "Fallo registrado" : "Novedad registrada",
-      description: `Parada ${parada.numero} actualizada correctamente.`,
-    });
-    navigate("/conductor");
+  const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFotoBlob(file);
+    setFotoPreview(URL.createObjectURL(file));
   };
+
+  const handleConfirm = async (tipo: TipoResultadoParada) => {
+    if (tipo === "EXITOSA" && !fotoBlob) {
+      toast({
+        variant: "destructive",
+        title: "Foto requerida",
+        description: "Para confirmar entrega exitosa necesitas adjuntar el POD.",
+      });
+      return;
+    }
+
+    const fechaAccion = new Date().toISOString();
+
+    try {
+      let fotoUrl: string | undefined;
+      if (tipo === "EXITOSA" && fotoBlob) {
+        setSubiendoFoto(true);
+        const res = await miRutaService.subirFoto(parada.id, fotoBlob);
+        fotoUrl = res.url;
+        setSubiendoFoto(false);
+      }
+
+      await registrar.mutateAsync({
+        paradaId: parada.id,
+        req: {
+          tipo,
+          fechaAccion,
+          fotoUrl,
+          nombreReceptor: tipo === "EXITOSA" && nombreReceptor ? nombreReceptor : undefined,
+          motivo:
+            tipo === "FALLIDA" ? motivoFallo : tipo === "NOVEDAD" ? tipoNovedad : undefined,
+        },
+      });
+
+      toast({
+        title:
+          tipo === "EXITOSA"
+            ? "Entrega registrada"
+            : tipo === "FALLIDA"
+              ? "Fallo registrado"
+              : "Novedad registrada",
+        description: `Parada ${parada.numero} actualizada correctamente.`,
+      });
+      navigate("/conductor");
+    } catch (err) {
+      setSubiendoFoto(false);
+      const msg =
+        err instanceof ApiError && err.status === 422
+          ? "Datos inválidos. Si es entrega exitosa, asegúrate de adjuntar la foto."
+          : "No se pudo registrar la gestión.";
+      toast({ variant: "destructive", title: "Error", description: msg });
+    }
+  };
+
+  const totalParadas = ruta?.paradas.length ?? 0;
+  const isPending = registrar.isPending || subiendoFoto;
 
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-[480px]">
-        {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
-          <button onClick={() => navigate("/conductor")} className="text-white/60 hover:text-white text-sm">
+          <button
+            onClick={() => navigate("/conductor")}
+            className="text-white/60 hover:text-white text-sm"
+          >
             ← Volver
           </button>
         </div>
 
         <div className="px-4 py-4">
-          {/* Stop info */}
           <div className="card-navy p-4 mb-6">
-            <p className="text-white/60 text-sm mb-1">Parada {parada.numero} de {ruta.paradas.length}</p>
+            <p className="text-white/60 text-sm mb-1">
+              Parada {parada.numero} de {totalParadas}
+            </p>
             <h1 className="text-lg font-bold text-white">{parada.direccion}</h1>
             <div className="flex gap-4 mt-2 text-sm text-white/60">
               <span>{parada.paqueteId}</span>
@@ -66,10 +137,11 @@ export default function ConductorParadaPage() {
             </div>
           </div>
 
-          {/* Action cards */}
           <div className="space-y-4">
             {/* Entrega Exitosa */}
-            <div className={`rounded-2xl border-2 transition-colors ${expanded === "exitosa" ? "border-[#4caf82] bg-[#4caf82]/5" : "border-[#4caf82]/30"}`}>
+            <div
+              className={`rounded-2xl border-2 transition-colors ${expanded === "exitosa" ? "border-[#4caf82] bg-[#4caf82]/5" : "border-[#4caf82]/30"}`}
+            >
               <button
                 onClick={() => setExpanded(expanded === "exitosa" ? null : "exitosa")}
                 className="w-full p-4 text-left flex items-center gap-3"
@@ -79,37 +151,75 @@ export default function ConductorParadaPage() {
                 </div>
                 <div>
                   <p className="text-white font-semibold">Entrega Exitosa</p>
-                  <p className="text-white/60 text-xs">Requiere foto de evidencia y firma del receptor</p>
+                  <p className="text-white/60 text-xs">
+                    Requiere foto de evidencia y firma del receptor
+                  </p>
                 </div>
               </button>
               {expanded === "exitosa" && (
                 <div className="px-4 pb-4 space-y-4">
-                  <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center">
-                    <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
-                    <p className="text-white/60 text-sm">Foto de evidencia (POD)</p>
-                    <p className="text-white/40 text-xs">Toca para tomar o subir foto</p>
-                  </div>
+                  <input
+                    ref={fotoInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFotoChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fotoInputRef.current?.click()}
+                    className="w-full border-2 border-dashed border-white/20 rounded-xl p-6 text-center hover:border-white/40 transition-colors"
+                  >
+                    {fotoPreview ? (
+                      <img
+                        src={fotoPreview}
+                        alt="POD"
+                        className="max-h-48 mx-auto rounded-lg object-cover"
+                      />
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
+                        <p className="text-white/60 text-sm">Foto de evidencia (POD)</p>
+                        <p className="text-white/40 text-xs">Toca para tomar o subir foto</p>
+                      </>
+                    )}
+                  </button>
+
                   <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center">
                     <PenLine className="w-8 h-8 text-white/40 mx-auto mb-2" />
                     <p className="text-white/60 text-sm">Firma del receptor</p>
-                    <p className="text-white/40 text-xs">Toca para firmar</p>
+                    <p className="text-white/40 text-xs">
+                      Pendiente de implementación (PLAN-06)
+                    </p>
                   </div>
+
                   <input
                     type="text"
                     placeholder="Nombre del receptor"
                     value={nombreReceptor}
-                    onChange={e => setNombreReceptor(e.target.value)}
+                    onChange={(e) => setNombreReceptor(e.target.value)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   />
-                  <button onClick={() => handleConfirm("exitosa")} className="btn-primary w-full text-center !bg-[#4caf82]">
-                    Confirmar Entrega
+                  <button
+                    onClick={() => handleConfirm("EXITOSA")}
+                    disabled={isPending || !fotoBlob}
+                    className="btn-primary w-full text-center !bg-[#4caf82] disabled:opacity-50"
+                  >
+                    {subiendoFoto
+                      ? "Subiendo foto…"
+                      : registrar.isPending
+                        ? "Registrando…"
+                        : "Confirmar Entrega"}
                   </button>
                 </div>
               )}
             </div>
 
             {/* Parada Fallida */}
-            <div className={`rounded-2xl border-2 transition-colors ${expanded === "fallida" ? "border-white/30 bg-white/5" : "border-white/10"}`}>
+            <div
+              className={`rounded-2xl border-2 transition-colors ${expanded === "fallida" ? "border-white/30 bg-white/5" : "border-white/10"}`}
+            >
               <button
                 onClick={() => setExpanded(expanded === "fallida" ? null : "fallida")}
                 className="w-full p-4 text-left flex items-center gap-3"
@@ -127,22 +237,30 @@ export default function ConductorParadaPage() {
                   <p className="text-white/60 text-xs">Intento 1 de 2</p>
                   <select
                     value={motivoFallo}
-                    onChange={e => setMotivoFallo(e.target.value)}
+                    onChange={(e) => setMotivoFallo(e.target.value as MotivoNovedadDto)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   >
-                    {motivosFallo.map(m => (
-                      <option key={m} value={m} className="bg-[#314595]">{m.replace(/_/g, " ")}</option>
+                    {motivosFallo.map((m) => (
+                      <option key={m} value={m} className="bg-[#314595]">
+                        {formatMotivoNovedad(m)}
+                      </option>
                     ))}
                   </select>
-                  <button onClick={() => handleConfirm("fallida")} className="btn-primary w-full text-center !bg-[#e05555]">
-                    Registrar parada fallida
+                  <button
+                    onClick={() => handleConfirm("FALLIDA")}
+                    disabled={isPending}
+                    className="btn-primary w-full text-center !bg-[#e05555] disabled:opacity-50"
+                  >
+                    {registrar.isPending ? "Registrando…" : "Registrar parada fallida"}
                   </button>
                 </div>
               )}
             </div>
 
             {/* Novedad Grave */}
-            <div className={`rounded-2xl border-2 transition-colors ${expanded === "novedad" ? "border-[#e05555] bg-[#e05555]/5" : "border-[#e05555]/30"}`}>
+            <div
+              className={`rounded-2xl border-2 transition-colors ${expanded === "novedad" ? "border-[#e05555] bg-[#e05555]/5" : "border-[#e05555]/30"}`}
+            >
               <button
                 onClick={() => setExpanded(expanded === "novedad" ? null : "novedad")}
                 className="w-full p-4 text-left flex items-center gap-3"
@@ -152,22 +270,30 @@ export default function ConductorParadaPage() {
                 </div>
                 <div>
                   <p className="text-white font-semibold">Novedad Grave</p>
-                  <p className="text-white/60 text-xs">Se notificará al sistema de gestión de paquetes de inmediato</p>
+                  <p className="text-white/60 text-xs">
+                    Se notificará al sistema de gestión de paquetes de inmediato
+                  </p>
                 </div>
               </button>
               {expanded === "novedad" && (
                 <div className="px-4 pb-4 space-y-4">
                   <select
                     value={tipoNovedad}
-                    onChange={e => setTipoNovedad(e.target.value)}
+                    onChange={(e) => setTipoNovedad(e.target.value as MotivoNovedadDto)}
                     className="w-full input-dark px-4 py-3 text-sm"
                   >
-                    {tiposNovedad.map(t => (
-                      <option key={t} value={t} className="bg-[#314595]">{t}</option>
+                    {tiposNovedad.map((t) => (
+                      <option key={t} value={t} className="bg-[#314595]">
+                        {formatMotivoNovedad(t)}
+                      </option>
                     ))}
                   </select>
-                  <button onClick={() => handleConfirm("novedad")} className="btn-primary w-full text-center !bg-[#cc7a00]">
-                    Registrar novedad
+                  <button
+                    onClick={() => handleConfirm("NOVEDAD")}
+                    disabled={isPending}
+                    className="btn-primary w-full text-center !bg-[#cc7a00] disabled:opacity-50"
+                  >
+                    {registrar.isPending ? "Registrando…" : "Registrar novedad"}
                   </button>
                 </div>
               )}

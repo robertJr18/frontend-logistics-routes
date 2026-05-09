@@ -42,11 +42,26 @@ export default function Login() {
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* LEFT — visual */}
       <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden">
-        <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" width={1920} height={1080} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsl(228 61% 14% / 0.85) 0%, hsl(228 55% 22% / 0.7) 100%)" }} />
+        <img
+          src={heroImg}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
+          width={1920}
+          height={1080}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, hsl(228 61% 14% / 0.85) 0%, hsl(228 55% 22% / 0.7) 100%)",
+          }}
+        />
 
         <div className="relative">
-          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors mb-12">
+          <button
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors mb-12"
+          >
             <ArrowLeft className="w-4 h-4" /> Volver al inicio
           </button>
           <BrandLogo size="md" />
@@ -57,7 +72,8 @@ export default function Login() {
             Tu operación logística, <span className="gradient-primary-text">bajo control</span>.
           </h2>
           <p className="text-subtle max-w-md">
-            Accede al panel correspondiente a tu rol y opera con la información que necesitas en tiempo real.
+            Accede al panel correspondiente a tu rol y opera con la información que necesitas en
+            tiempo real.
           </p>
 
           <div className="mt-10 flex items-center gap-8">
@@ -78,7 +94,10 @@ export default function Login() {
       {/* RIGHT — form */}
       <div className="flex flex-col items-center justify-center p-6 md:p-12 bg-background">
         <div className="lg:hidden mb-8 self-start">
-          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors">
+          <button
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" /> Volver
           </button>
         </div>
@@ -110,7 +129,9 @@ export default function Login() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-medium">Contraseña</label>
-                <button type="button" className="text-xs text-primary hover:underline">¿Olvidaste tu contraseña?</button>
+                <button type="button" className="text-xs text-primary hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </button>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -122,14 +143,20 @@ export default function Login() {
                   className="input-dark w-full h-12 pl-10 pr-10 text-sm"
                   autoComplete="current-password"
                 />
-                <button type="button" onClick={() => setShowPwd((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                >
                   {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             {error && (
-              <p className="text-[#e05555] text-sm" role="alert">{error}</p>
+              <p className="text-[#e05555] text-sm" role="alert">
+                {error}
+              </p>
             )}
 
             <label className="flex items-center gap-2 text-sm text-subtle cursor-pointer">
@@ -142,12 +169,19 @@ export default function Login() {
               disabled={loading}
               className="btn-primary w-full h-12 flex items-center justify-center gap-2 disabled:opacity-70"
             >
-              {loading ? "Ingresando..." : (<>Ingresar <ArrowRight className="w-4 h-4" /></>)}
+              {loading ? (
+                "Ingresando..."
+              ) : (
+                <>
+                  Ingresar <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 
           <div className="mt-8 p-4 rounded-lg bg-white/5 border border-white/10 text-xs text-subtle">
-            <strong className="text-white">Acceso restringido.</strong> Si necesitas acceso, contacta a tu supervisor.
+            <strong className="text-white">Acceso restringido.</strong> Si necesitas acceso,
+            contacta a tu supervisor.
           </div>
 
           <p className="text-center text-xs text-muted-soft mt-8">

@@ -84,21 +84,21 @@ T101 verifica esto contra el backend real con `curl`. Si difiere (p.ej. `usernam
 
 ## Estado actual (delta a aplicar)
 
-| Archivo | Estado | Acción |
-|---|---|---|
-| [LoginPage.tsx:14-19](../../src/pages/auth/LoginPage.tsx#L14-L19) | `setTimeout` mock → navigate("/portal") | Llamar `login()` del AuthContext, redirigir al home del rol |
-| [PortalPage.tsx](../../src/pages/public/PortalPage.tsx) | Selector visual de 3 roles | Reemplazar por `<Navigate>` a home del rol |
-| [AppRoutes.tsx](../../src/routes/AppRoutes.tsx) | Rutas sin protección | Envolver `/admin`, `/despachador`, `/conductor`, `/portal` con `ProtectedRoute` |
-| [App.tsx](../../src/App.tsx) | Sin AuthProvider | Envolver `<AppRoutes />` con `<AuthProvider>` dentro de `<BrowserRouter>` |
-| [Navbar.tsx:22](../../src/components/Navbar.tsx#L22) | `onClick={() => navigate("/")}` (Salir) | Llamar `useAuth().logout()` antes del navigate |
-| `src/types/auth.ts` | No existe | Crear |
-| `src/lib/authStorage.ts` | No existe | Crear (wrapper localStorage) |
-| `src/services/auth.ts` | No existe | Crear (login + decode + roleFromClaims) |
-| `src/auth/AuthContext.tsx` | No existe | Crear |
-| `src/auth/useAuth.ts` | No existe | Crear |
-| `src/auth/ProtectedRoute.tsx` | No existe | Crear |
-| `src/auth/constants.ts` | No existe | Crear (`HOME_BY_ROLE`) |
-| `package.json` | Sin `jwt-decode` | Agregar |
+| Archivo                                                           | Estado                                  | Acción                                                                          |
+| ----------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------- |
+| [LoginPage.tsx:14-19](../../src/pages/auth/LoginPage.tsx#L14-L19) | `setTimeout` mock → navigate("/portal") | Llamar `login()` del AuthContext, redirigir al home del rol                     |
+| [PortalPage.tsx](../../src/pages/public/PortalPage.tsx)           | Selector visual de 3 roles              | Reemplazar por `<Navigate>` a home del rol                                      |
+| [AppRoutes.tsx](../../src/routes/AppRoutes.tsx)                   | Rutas sin protección                    | Envolver `/admin`, `/despachador`, `/conductor`, `/portal` con `ProtectedRoute` |
+| [App.tsx](../../src/App.tsx)                                      | Sin AuthProvider                        | Envolver `<AppRoutes />` con `<AuthProvider>` dentro de `<BrowserRouter>`       |
+| [Navbar.tsx:22](../../src/components/Navbar.tsx#L22)              | `onClick={() => navigate("/")}` (Salir) | Llamar `useAuth().logout()` antes del navigate                                  |
+| `src/types/auth.ts`                                               | No existe                               | Crear                                                                           |
+| `src/lib/authStorage.ts`                                          | No existe                               | Crear (wrapper localStorage)                                                    |
+| `src/services/auth.ts`                                            | No existe                               | Crear (login + decode + roleFromClaims)                                         |
+| `src/auth/AuthContext.tsx`                                        | No existe                               | Crear                                                                           |
+| `src/auth/useAuth.ts`                                             | No existe                               | Crear                                                                           |
+| `src/auth/ProtectedRoute.tsx`                                     | No existe                               | Crear                                                                           |
+| `src/auth/constants.ts`                                           | No existe                               | Crear (`HOME_BY_ROLE`)                                                          |
+| `package.json`                                                    | Sin `jwt-decode`                        | Agregar                                                                         |
 
 ---
 
@@ -139,6 +139,7 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 ```
 
 Confirmar:
+
 - shape del request (`email` o `username`)
 - shape de la respuesta (¿incluye `user` o solo `token`?)
 - claim de roles en el JWT (`roles` vs `authorities` vs `scope`)

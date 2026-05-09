@@ -20,23 +20,23 @@ export type BadgeVariant =
   | "warning";
 
 const variantStyles: Record<BadgeVariant, string> = {
-  "creada": "bg-[#314595] text-white",
+  creada: "bg-[#314595] text-white",
   "lista-despacho": "bg-[#ec9731] text-white",
-  "confirmada": "bg-[#4a6fa5] text-white",
+  confirmada: "bg-[#4a6fa5] text-white",
   "en-transito": "bg-[#4caf82] text-white",
   "cerrada-manual": "bg-white/15 text-white",
   "cerrada-automatica": "bg-white/15 text-white",
   "cerrada-forzada": "bg-[#e05555] text-white",
-  "disponible": "bg-[#4caf82] text-white",
+  disponible: "bg-[#4caf82] text-white",
   "en-transito-vehicle": "bg-[#ec9731] text-white",
-  "inactivo": "bg-white/10 text-white/50",
+  inactivo: "bg-white/10 text-white/50",
   "en-mantenimiento": "bg-[#e05555] text-white",
-  "pendiente": "bg-white/20 text-white",
-  "exitosa": "bg-[#4caf82] text-white",
-  "fallida": "bg-[#e05555] text-white",
-  "novedad": "bg-[#cc7a00] text-white",
-  "danger": "bg-[#e05555] text-white",
-  "warning": "bg-[#ec9731] text-white",
+  pendiente: "bg-white/20 text-white",
+  exitosa: "bg-[#4caf82] text-white",
+  fallida: "bg-[#e05555] text-white",
+  novedad: "bg-[#cc7a00] text-white",
+  danger: "bg-[#e05555] text-white",
+  warning: "bg-[#ec9731] text-white",
 };
 
 interface StatusBadgeProps {
@@ -51,7 +51,7 @@ export default function StatusBadge({ variant, children, className }: StatusBadg
       className={cn(
         "inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap",
         variantStyles[variant],
-        className
+        className,
       )}
     >
       {children}
@@ -62,9 +62,9 @@ export default function StatusBadge({ variant, children, className }: StatusBadg
 // Helper to map route/vehicle status strings to badge variants
 export function getRouteStatusVariant(status: string): BadgeVariant {
   const map: Record<string, BadgeVariant> = {
-    "Creada": "creada",
+    Creada: "creada",
     "Lista para Despacho": "lista-despacho",
-    "Confirmada": "confirmada",
+    Confirmada: "confirmada",
     "En Tránsito": "en-transito",
     "Cerrada Manual": "cerrada-manual",
     "Cerrada Automática": "cerrada-automatica",
@@ -75,9 +75,9 @@ export function getRouteStatusVariant(status: string): BadgeVariant {
 
 export function getVehicleStatusVariant(status: string): BadgeVariant {
   const map: Record<string, BadgeVariant> = {
-    "Disponible": "disponible",
+    Disponible: "disponible",
     "En Tránsito": "en-transito-vehicle",
-    "Inactivo": "inactivo",
+    Inactivo: "inactivo",
     "En Mantenimiento": "en-mantenimiento",
   };
   return map[status] || "inactivo";
@@ -85,10 +85,10 @@ export function getVehicleStatusVariant(status: string): BadgeVariant {
 
 export function getStopStatusVariant(status: string): BadgeVariant {
   const map: Record<string, BadgeVariant> = {
-    "Pendiente": "pendiente",
-    "Exitosa": "exitosa",
-    "Fallida": "fallida",
-    "Novedad": "novedad",
+    Pendiente: "pendiente",
+    Exitosa: "exitosa",
+    Fallida: "fallida",
+    Novedad: "novedad",
   };
   return map[status] || "pendiente";
 }

@@ -23,6 +23,7 @@ PLAN-02 (decisión 4) mantuvo dos modelos paralelos: tipos UI en español (`"Cre
 **Decisión:** unificar usando el formato del backend como fuente de verdad. Los tipos UI pasan a usar las mismas constantes uppercase. Los formatters ahora son **funciones de display** (`statusLabel`, no `formatStatus` ni `mapStatus`).
 
 **Antes:**
+
 ```ts
 // types/domain.ts
 type RouteStatus = "Creada" | "En Tránsito" | ...;
@@ -35,6 +36,7 @@ toRuta(dto): Ruta { estado: formatRouteStatus(dto.estado) }
 ```
 
 **Después:**
+
 ```ts
 // types/domain.ts
 type RouteStatus = "CREADA" | "EN_TRANSITO" | ...;  // re-exporta de DTO
@@ -62,6 +64,7 @@ Una vez las pantallas leen de hooks, `mockData.ts` solo se usa para tests (si ac
 PLAN-01 (decisión 6) lo dejó como redirector "para no romper el `Navbar.backTo`". Ahora `backTo` puede leer el rol del `useAuth()` y redirigir al home correspondiente directamente.
 
 **Decisión:**
+
 - Modificar [Navbar.tsx](../../src/components/Navbar.tsx) para que `backTo` sea opcional y, si no se pasa, use `HOME_BY_ROLE[role]` del contexto.
 - Eliminar [src/pages/public/PortalPage.tsx](../../src/pages/public/PortalPage.tsx).
 - Eliminar la ruta `/portal` de [AppRoutes.tsx](../../src/routes/AppRoutes.tsx).
@@ -90,26 +93,26 @@ Lo que se queda **fuera** y se documenta como referencia para futuro:
 - **Endpoint de historial backend** (PLAN-04 T401): si quedó pendiente.
 - **Compresión de fotos POD antes de IndexedDB** (PLAN-05): blob crudo de 5MB satura el storage. Comprimir a 800px / 80% jpeg al captura.
 
-Cada uno puede ser un PR aparte cuando el equipo lo priorice. No se documentan como planes (PLAN-XX-*) hasta que se quieran abordar.
+Cada uno puede ser un PR aparte cuando el equipo lo priorice. No se documentan como planes (PLAN-XX-\*) hasta que se quieran abordar.
 
 ---
 
 ## Estado actual (delta a aplicar)
 
-| Archivo | Estado | Acción |
-|---|---|---|
-| [src/types/domain.ts](../../src/types/domain.ts) | Tipos en español ("Creada", "En Tránsito") | Re-exportar tipos uppercase desde `types/dto/` o redefinir como aliases |
-| [src/lib/formatters.ts](../../src/lib/formatters.ts) | Funciones tipo `formatXStatus(dto): UIType` | Renombrar a `xStatusLabel(value): string` (display only) |
-| [src/components/StatusBadge.tsx](../../src/components/StatusBadge.tsx) | `getRouteStatusVariant("Creada")` | Cambiar a `getRouteStatusVariant("CREADA")` |
-| Todos los componentes | Comparan `ruta.estado === "Creada"` | Cambiar a `=== "CREADA"` |
-| Todos los mappers | Llaman `formatXStatus(dto.estado)` | Devolver `dto.estado` directamente |
-| [src/data/mockData.ts](../../src/data/mockData.ts) | Existe | Eliminar |
-| [src/pages/public/PortalPage.tsx](../../src/pages/public/PortalPage.tsx) | Redirector | Eliminar |
-| [src/routes/AppRoutes.tsx](../../src/routes/AppRoutes.tsx) | Ruta `/portal` activa | Eliminar la ruta |
-| [src/components/Navbar.tsx](../../src/components/Navbar.tsx) | `backTo` default `/portal` | `backTo` opcional, default = home del rol |
-| [tsconfig.app.json](../../tsconfig.app.json) | `strict: ?` (depende de T008) | Confirmar `strict: true` y resolver errores remanentes |
-| `README.md` | No existe | Crear con setup, scripts, env vars, estructura |
-| `src/lib/constants.ts` | No existe | Mover `zonas`, `capacidadVehiculo` desde mockData |
+| Archivo                                                                  | Estado                                      | Acción                                                                  |
+| ------------------------------------------------------------------------ | ------------------------------------------- | ----------------------------------------------------------------------- |
+| [src/types/domain.ts](../../src/types/domain.ts)                         | Tipos en español ("Creada", "En Tránsito")  | Re-exportar tipos uppercase desde `types/dto/` o redefinir como aliases |
+| [src/lib/formatters.ts](../../src/lib/formatters.ts)                     | Funciones tipo `formatXStatus(dto): UIType` | Renombrar a `xStatusLabel(value): string` (display only)                |
+| [src/components/StatusBadge.tsx](../../src/components/StatusBadge.tsx)   | `getRouteStatusVariant("Creada")`           | Cambiar a `getRouteStatusVariant("CREADA")`                             |
+| Todos los componentes                                                    | Comparan `ruta.estado === "Creada"`         | Cambiar a `=== "CREADA"`                                                |
+| Todos los mappers                                                        | Llaman `formatXStatus(dto.estado)`          | Devolver `dto.estado` directamente                                      |
+| [src/data/mockData.ts](../../src/data/mockData.ts)                       | Existe                                      | Eliminar                                                                |
+| [src/pages/public/PortalPage.tsx](../../src/pages/public/PortalPage.tsx) | Redirector                                  | Eliminar                                                                |
+| [src/routes/AppRoutes.tsx](../../src/routes/AppRoutes.tsx)               | Ruta `/portal` activa                       | Eliminar la ruta                                                        |
+| [src/components/Navbar.tsx](../../src/components/Navbar.tsx)             | `backTo` default `/portal`                  | `backTo` opcional, default = home del rol                               |
+| [tsconfig.app.json](../../tsconfig.app.json)                             | `strict: ?` (depende de T008)               | Confirmar `strict: true` y resolver errores remanentes                  |
+| `README.md`                                                              | No existe                                   | Crear con setup, scripts, env vars, estructura                          |
+| `src/lib/constants.ts`                                                   | No existe                                   | Mover `zonas`, `capacidadVehiculo` desde mockData                       |
 
 ---
 
@@ -186,7 +189,14 @@ export type ModeloContrato = ModeloContratoDto;
 - [ ] T608 Actualizar [src/lib/formatters.ts](../../src/lib/formatters.ts) — convertir las funciones a **labels de display** (no mappers de tipo):
 
 ```ts
-import type { RouteStatus, StopStatus, VehicleStatus, DriverStatus, ModeloContrato, VehicleType } from "@/types/domain";
+import type {
+  RouteStatus,
+  StopStatus,
+  VehicleStatus,
+  DriverStatus,
+  ModeloContrato,
+  VehicleType,
+} from "@/types/domain";
 
 export const routeStatusLabel: Record<RouteStatus, string> = {
   CREADA: "Creada",
@@ -220,7 +230,10 @@ export const stopStatusLabel: Record<StopStatus, string> = {
 };
 
 export const tipoVehiculoLabel: Record<VehicleType, string> = {
-  MOTO: "Moto", VAN: "Van", NHR: "NHR", TURBO: "Turbo",
+  MOTO: "Moto",
+  VAN: "Van",
+  NHR: "NHR",
+  TURBO: "Turbo",
 };
 
 export const modeloContratoLabel: Record<ModeloContrato, string> = {
@@ -239,14 +252,14 @@ export function toVehiculo(dto: VehiculoResponse, conductores: ConductorResponse
   return {
     id: dto.id,
     placa: dto.placa,
-    tipo: dto.tipo,                    // antes: formatTipoVehiculo(dto.tipo)
+    tipo: dto.tipo, // antes: formatTipoVehiculo(dto.tipo)
     modelo: dto.modelo,
     capacidadPeso: dto.capacidadPesoKg,
     volumenMax: dto.volumenMaximoM3,
     zona: dto.zonaOperacion,
-    estado: dto.estado,                // antes: formatVehicleStatus(dto.estado)
+    estado: dto.estado, // antes: formatVehicleStatus(dto.estado)
     conductorAsignado: dto.conductorId
-      ? (conductores.find(c => c.id === dto.conductorId)?.nombre ?? null)
+      ? (conductores.find((c) => c.id === dto.conductorId)?.nombre ?? null)
       : null,
   };
 }
@@ -345,15 +358,30 @@ npm install -D msw
 import { http, HttpResponse } from "msw";
 
 export const handlers = [
-  http.post("/api/auth/login", () => HttpResponse.json({
-    token: "fake-jwt", tokenType: "Bearer",
-    user: { id: "u1", email: "test@test.com", nombre: "Test User", rol: "FLEET_ADMIN" },
-  })),
-  http.get("/api/vehiculos", () => HttpResponse.json([
-    { id: "v1", placa: "ABC-001", tipo: "MOTO", modelo: "AKT", capacidadPesoKg: 20,
-      volumenMaximoM3: 0.3, zonaOperacion: "Zona Norte", estado: "DISPONIBLE",
-      conductorId: null, createdAt: "2026-05-01T10:00:00Z", updatedAt: "2026-05-01T10:00:00Z" },
-  ])),
+  http.post("/api/auth/login", () =>
+    HttpResponse.json({
+      token: "fake-jwt",
+      tokenType: "Bearer",
+      user: { id: "u1", email: "test@test.com", nombre: "Test User", rol: "FLEET_ADMIN" },
+    }),
+  ),
+  http.get("/api/vehiculos", () =>
+    HttpResponse.json([
+      {
+        id: "v1",
+        placa: "ABC-001",
+        tipo: "MOTO",
+        modelo: "AKT",
+        capacidadPesoKg: 20,
+        volumenMaximoM3: 0.3,
+        zonaOperacion: "Zona Norte",
+        estado: "DISPONIBLE",
+        conductorId: null,
+        createdAt: "2026-05-01T10:00:00Z",
+        updatedAt: "2026-05-01T10:00:00Z",
+      },
+    ]),
+  ),
   // ... handlers para conductores, rutas, conductor/ruta-activa, etc.
 ];
 ```
@@ -393,7 +421,7 @@ afterAll(() => server.close());
 
 - [ ] T631 Crear `README.md` en la raíz con:
 
-```markdown
+````markdown
 # LogisticsRoutes Frontend
 
 SPA en React 18 + TypeScript + Vite que consume el backend Spring Boot del módulo 2 (Logistics Routes).
@@ -407,6 +435,7 @@ nvm use            # opcional, si usas nvm
 npm install
 npm run dev        # http://localhost:5173, proxy /api → :8080
 ```
+````
 
 ## Variables de entorno
 
@@ -419,17 +448,17 @@ VITE_API_URL=https://api.logistics.example.com
 
 ## Scripts
 
-| Script | Qué hace |
-|---|---|
-| `npm run dev` | Dev server con HMR |
-| `npm run build` | Build producción |
-| `npm run typecheck` | `tsc --noEmit` (CI) |
-| `npm run lint` | ESLint |
-| `npm run lint:fix` | ESLint + autofix |
-| `npm run format` | Prettier (escribe) |
-| `npm run format:check` | Prettier (CI) |
-| `npm run test` | Vitest run |
-| `npm run test:watch` | Vitest watch |
+| Script                 | Qué hace            |
+| ---------------------- | ------------------- |
+| `npm run dev`          | Dev server con HMR  |
+| `npm run build`        | Build producción    |
+| `npm run typecheck`    | `tsc --noEmit` (CI) |
+| `npm run lint`         | ESLint              |
+| `npm run lint:fix`     | ESLint + autofix    |
+| `npm run format`       | Prettier (escribe)  |
+| `npm run format:check` | Prettier (CI)       |
+| `npm run test`         | Vitest run          |
+| `npm run test:watch`   | Vitest watch        |
 
 ## Estructura
 
@@ -451,6 +480,7 @@ VITE_API_URL=https://api.logistics.example.com
 ## Documentación de planes
 
 Los planes de implementación viven en [docs/plans/](docs/plans/). PLAN-00 a PLAN-06 son los sprints históricos del proyecto.
+
 ```
 
 - [ ] T632 Verificar que el README se renderiza bien en GitHub (o equivalente) — sin enlaces rotos, ejemplos formateados.
@@ -506,11 +536,15 @@ Documentadas para referencia. Cada una puede ser un PR aparte cuando el equipo l
 ## Orden Total de Ejecución
 
 ```
+
 Sprint 0 — Config inicial (PLAN-00)
-    └── Sprint 1 — Auth y rutas protegidas (PLAN-01)
-            └── Sprint 2 — Servicios + React Query (PLAN-02)
-                    └── Sprint 3 — Admin de flota integrado (PLAN-03)
-                            └── Sprint 4 — Despachador integrado (PLAN-04)
-                                    └── Sprint 5 — Conductor + offline + POD (PLAN-05)
-                                            └── Sprint 6 — Limpieza final (PLAN-06)        ← Este archivo
+└── Sprint 1 — Auth y rutas protegidas (PLAN-01)
+└── Sprint 2 — Servicios + React Query (PLAN-02)
+└── Sprint 3 — Admin de flota integrado (PLAN-03)
+└── Sprint 4 — Despachador integrado (PLAN-04)
+└── Sprint 5 — Conductor + offline + POD (PLAN-05)
+└── Sprint 6 — Limpieza final (PLAN-06) ← Este archivo
+
+```
+
 ```

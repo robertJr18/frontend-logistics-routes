@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import { capacidadVehiculo, VehicleType } from "@/data/mockData";
+import { capacidadVehiculo, type VehicleType } from "@/types/domain";
 import { useToast } from "@/hooks/use-toast";
 import { useVehiculoByPlaca } from "@/hooks/vehiculos/useVehiculoByPlaca";
 import { useActualizarVehiculo } from "@/hooks/vehiculos/useActualizarVehiculo";

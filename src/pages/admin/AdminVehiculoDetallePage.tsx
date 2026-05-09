@@ -1,9 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Truck, MapPin, User, Weight, Box } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import StatusBadge, { getVehicleStatusVariant } from "@/components/StatusBadge";
+import StatusBadge, {
+  getRouteStatusVariant,
+  getVehicleStatusVariant,
+} from "@/components/StatusBadge";
 import { useVehiculoByPlaca } from "@/hooks/vehiculos/useVehiculoByPlaca";
 import { useDarDeBajaVehiculo } from "@/hooks/vehiculos/useDarDeBajaVehiculo";
+import { useRutas } from "@/hooks/rutas/useRutas";
 import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/services/api";
 import {
@@ -24,6 +28,7 @@ export default function AdminVehiculoDetallePage() {
   const { toast } = useToast();
   const { data: vehiculo, isLoading, isError } = useVehiculoByPlaca(placa);
   const darDeBaja = useDarDeBajaVehiculo();
+  const { data: todasRutas = [] } = useRutas();
 
   if (isLoading) {
     return (
@@ -46,6 +51,11 @@ export default function AdminVehiculoDetallePage() {
   }
 
   const isTransit = vehiculo.estado === "En Tránsito";
+
+  const rutasDelVehiculo = todasRutas.filter((r) => r.vehiculoAsignado === vehiculo.placa);
+  const rutaActiva = rutasDelVehiculo.find(
+    (r) => r.estado === "En Tránsito" || r.estado === "Confirmada",
+  );
 
   const handleDarDeBaja = async () => {
     try {
@@ -173,7 +183,48 @@ export default function AdminVehiculoDetallePage() {
           </div>
         </div>
 
-        {/* Secciones de Ruta Activa e Historial de Rutas se rehabilitan en PLAN-04 con useRutas */}
+        {/* Ruta Activa */}
+        {rutaActiva && (
+          <div className="card-navy p-6 mb-4">
+            <h2 className="text-lg font-semibold text-white mb-3">Ruta Activa</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white font-semibold">{rutaActiva.id}</p>
+                <p className="text-white/60 text-sm">{rutaActiva.zona}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-white/60 text-sm">
+                  {rutaActiva.paradas.filter((p) => p.status === "Exitosa").length}/
+                  {rutaActiva.paradas.length} paradas
+                </span>
+                <StatusBadge variant={getRouteStatusVariant(rutaActiva.estado)}>
+                  {rutaActiva.estado}
+                </StatusBadge>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Historial de Rutas del Vehículo */}
+        {rutasDelVehiculo.length > 0 && (
+          <div className="card-navy p-6 mb-4">
+            <h2 className="text-lg font-semibold text-white mb-3">Rutas Asignadas</h2>
+            <div className="space-y-2">
+              {rutasDelVehiculo.map((r) => (
+                <div
+                  key={r.id}
+                  className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
+                >
+                  <div>
+                    <span className="text-white text-sm font-semibold">{r.id}</span>
+                    <span className="text-white/50 text-xs ml-3">{r.zona}</span>
+                  </div>
+                  <StatusBadge variant={getRouteStatusVariant(r.estado)}>{r.estado}</StatusBadge>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-start mt-6">
           <button onClick={() => navigate("/admin")} className="btn-secondary">

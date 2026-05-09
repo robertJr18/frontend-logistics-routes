@@ -5,11 +5,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import { AuthContext } from "./AuthContext";
 import type { Role } from "@/types/auth";
 
-function renderWithAuth(opts: {
-  role: Role | null;
-  initialPath: string;
-  guardRoles?: Role[];
-}) {
+function renderWithAuth(opts: { role: Role | null; initialPath: string; guardRoles?: Role[] }) {
   const ctxValue = {
     user: opts.role ? { email: "x@x.com", rol: opts.role } : null,
     role: opts.role,

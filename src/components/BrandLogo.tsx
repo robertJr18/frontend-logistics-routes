@@ -16,8 +16,16 @@ export default function BrandLogo({ size = "md", className }: BrandLogoProps) {
   const s = sizes[size];
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div className={cn("rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] shadow-lg shadow-primary/30", s.box)}>
-        <RouteIcon className={cn("text-[hsl(var(--primary-foreground))]", s.icon)} strokeWidth={2.5} />
+      <div
+        className={cn(
+          "rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] shadow-lg shadow-primary/30",
+          s.box,
+        )}
+      >
+        <RouteIcon
+          className={cn("text-[hsl(var(--primary-foreground))]", s.icon)}
+          strokeWidth={2.5}
+        />
       </div>
       <div className={cn("font-bold tracking-tight", s.text)}>
         <span className="text-white">Logistics</span>

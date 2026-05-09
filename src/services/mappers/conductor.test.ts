@@ -37,10 +37,7 @@ describe("toConductor", () => {
   });
 
   it("resuelve vehiculoAsignadoId al placa", () => {
-    const ui = toConductor(
-      { ...sampleConductor, vehiculoAsignadoId: "v-1" },
-      [sampleVehiculo],
-    );
+    const ui = toConductor({ ...sampleConductor, vehiculoAsignadoId: "v-1" }, [sampleVehiculo]);
     expect(ui.vehiculoAsignado).toBe("MNT478");
   });
 
@@ -53,10 +50,7 @@ describe("toConductor", () => {
   });
 
   it("vehiculoAsignado queda null si el id no se encuentra", () => {
-    const ui = toConductor(
-      { ...sampleConductor, vehiculoAsignadoId: "v-99" },
-      [sampleVehiculo],
-    );
+    const ui = toConductor({ ...sampleConductor, vehiculoAsignadoId: "v-99" }, [sampleVehiculo]);
     expect(ui.vehiculoAsignado).toBeNull();
   });
 });

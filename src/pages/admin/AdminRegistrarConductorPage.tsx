@@ -35,9 +35,7 @@ export default function AdminRegistrarConductorPage() {
     setErrors({});
 
     try {
-      await registrar.mutateAsync(
-        toRegistrarConductorRequest({ nombre, email, modeloContrato }),
-      );
+      await registrar.mutateAsync(toRegistrarConductorRequest({ nombre, email, modeloContrato }));
       toast({
         title: "Conductor registrado",
         description: `${nombre} registrado exitosamente.`,

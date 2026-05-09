@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import { capacidadVehiculo, VehicleType } from "@/data/mockData";
+import { capacidadVehiculo, type VehicleType } from "@/types/domain";
 import { useToast } from "@/hooks/use-toast";
 import { useRegistrarVehiculo } from "@/hooks/vehiculos/useRegistrarVehiculo";
 import { toVehiculoRequest } from "@/services/mappers/vehiculo";
