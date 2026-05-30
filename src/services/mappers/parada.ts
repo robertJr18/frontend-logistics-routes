@@ -9,7 +9,6 @@ export function toParada(dto: ParadaResponse, indice: number): Parada {
     paqueteId: dto.paqueteId,
     direccion: dto.direccion,
     destinatario: dto.nombreReceptor ?? "—",
-    peso: 0,
     status: formatStopStatus(dto.estado),
     motivoFallo: dto.motivoNovedad ?? undefined,
   };

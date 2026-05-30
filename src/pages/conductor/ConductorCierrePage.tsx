@@ -45,7 +45,7 @@ export default function ConductorCierrePage() {
         description:
           "El informe de cierre ha sido enviado al Sistema de Facturación y Liquidación.",
       });
-      navigate("/portal");
+      navigate("/conductor");
     } catch (err) {
       const description =
         err instanceof ApiError && err.status === 409

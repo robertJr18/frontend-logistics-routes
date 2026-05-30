@@ -72,5 +72,3 @@ export function useRegistrarParada() {
     },
   });
 }
-
-export const useGestionarParada = useRegistrarParada;

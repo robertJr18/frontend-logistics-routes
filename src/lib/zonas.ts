@@ -1,12 +1,3 @@
-// Zonas de operación que el Admin puede seleccionar al registrar/editar un vehículo.
-// El backend espera `zonaOperacion` como string de EXACTAMENTE 5 caracteres
-// (campo `zona_operacion VARCHAR(20)` con `@Size(min=5, max=5)` en VehiculoRequest;
-// el campo está documentado como geohash de precisión 3 pero el endpoint sólo
-// valida la longitud).
-//
-// Hasta que el frontend integre cálculo real de geohash desde coordenadas,
-// usamos identificadores de 5 caracteres por zona — bastan para satisfacer
-// la validación. PLAN-06 puede cambiar esto a geohashes reales.
 export interface ZonaOperacion {
   label: string;
   geohash: string;

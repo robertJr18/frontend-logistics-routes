@@ -27,7 +27,9 @@ export function useRutaActiva() {
         try {
           const [rutaDto, vehiculos] = await Promise.all([
             miRutaService.rutaActiva(),
-            vehiculoService.listar(),
+            // El conductor (rol DRIVER) no tiene acceso a GET /api/vehiculos;
+            // si falla usamos lista vacía — la placa/capacidad quedan como "—"/0.
+            vehiculoService.listar().catch(() => []),
           ]);
           const ruta = rutaDto ? toRutaConductor(rutaDto, vehiculos) : null;
           // Persistir en IndexedDB para disponer offline

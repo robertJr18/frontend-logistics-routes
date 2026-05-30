@@ -19,7 +19,6 @@ export type ModeloContrato = "Recorrido completo" | "Por parada";
 
 export interface Paquete {
   id: string;
-  peso: number;
   direccion: string;
   zona: string;
   fechaLimiteEntrega: string;
@@ -32,7 +31,6 @@ export interface Parada {
   paqueteId: string;
   direccion: string;
   destinatario: string;
-  peso: number;
   status: StopStatus;
   motivoFallo?: string;
   tipoNovedad?: string;

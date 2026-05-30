@@ -42,7 +42,7 @@ describe("formatDriverStatus", () => {
     expect(formatDriverStatus("INACTIVO")).toBe("Inactivo");
   });
 
-  it("EN_RUTA se muestra como Activo (operacional) hasta unificación PLAN-06", () => {
+  it("EN_RUTA se muestra como Activo (conductor en operación)", () => {
     expect(formatDriverStatus("EN_RUTA")).toBe("Activo");
   });
 });
@@ -55,7 +55,7 @@ describe("formatStopStatus", () => {
     expect(formatStopStatus("NOVEDAD")).toBe("Novedad");
   });
 
-  it("SIN_GESTION_CONDUCTOR y EXCLUIDA_DESPACHO se muestran como Pendiente (UI no los distingue hasta PLAN-06)", () => {
+  it("SIN_GESTION_CONDUCTOR y EXCLUIDA_DESPACHO se muestran como Pendiente (sin acción del conductor)", () => {
     expect(formatStopStatus("SIN_GESTION_CONDUCTOR")).toBe("Pendiente");
     expect(formatStopStatus("EXCLUIDA_DESPACHO")).toBe("Pendiente");
   });

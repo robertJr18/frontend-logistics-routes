@@ -13,26 +13,27 @@ interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [role, setRole] = useState<Role | null>(null);
-
-  useEffect(() => {
-    const token = authStorage.getToken();
-    const storedUser = authStorage.getUser();
-    if (!token || !storedUser) return;
-    try {
-      const claims = decodeJwt(token);
-      if (isExpired(claims)) {
-        authStorage.clear();
-        return;
-      }
-      setUser(storedUser);
-      setRole(storedUser.rol);
-    } catch {
+function readStoredAuth(): { user: AuthUser | null; role: Role | null } {
+  const token = authStorage.getToken();
+  const storedUser = authStorage.getUser();
+  if (!token || !storedUser) return { user: null, role: null };
+  try {
+    if (isExpired(decodeJwt(token))) {
       authStorage.clear();
+      return { user: null, role: null };
     }
-  }, []);
+    return { user: storedUser, role: storedUser.rol };
+  } catch {
+    authStorage.clear();
+    return { user: null, role: null };
+  }
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  // Lazy initializer: corre sincrónicamente antes del primer render,
+  // evitando que ProtectedRoute redirija a /login en el reload.
+  const [user, setUser] = useState<AuthUser | null>(() => readStoredAuth().user);
+  const [role, setRole] = useState<Role | null>(() => readStoredAuth().role);
 
   useEffect(() => {
     const handler = () => {
